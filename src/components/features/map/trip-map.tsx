@@ -1,31 +1,9 @@
-import { useEffect } from "react"
-import L from "leaflet"
-import { MapContainer, Marker, TileLayer, useMap } from "react-leaflet"
+import { Map, Marker } from "react-map-gl/mapbox"
+import { MapPin } from "lucide-react"
 import { useHasMounted } from "@/hooks/use-has-mounted"
 import { cn } from "@/lib/utils"
 
-// Default Leaflet marker icons break under bundlers because the image paths
-// resolve relative to the CSS file. Rewire them to direct CDN URLs once.
-function ensureDefaultIcon() {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const proto = (L.Icon.Default.prototype as any)
-  if (proto._iconUrlFixed) return
-  delete proto._getIconUrl
-  L.Icon.Default.mergeOptions({
-    iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
-    iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-    shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-  })
-  proto._iconUrlFixed = true
-}
-
-function Recenter({ lat, lng, zoom }: { lat: number; lng: number; zoom: number }) {
-  const map = useMap()
-  useEffect(() => {
-    map.setView([lat, lng], zoom)
-  }, [map, lat, lng, zoom])
-  return null
-}
+const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN as string | undefined
 
 type Props = {
   lat: number
@@ -38,7 +16,7 @@ type Props = {
 export function TripMap({ lat, lng, zoom = 11, className, label }: Props) {
   const mounted = useHasMounted()
 
-  if (!mounted) {
+  if (!mounted || !MAPBOX_TOKEN) {
     return (
       <div
         className={cn(
@@ -48,23 +26,26 @@ export function TripMap({ lat, lng, zoom = 11, className, label }: Props) {
       />
     )
   }
-  ensureDefaultIcon()
 
   return (
     <div className={cn("overflow-hidden rounded-2xl", className)}>
-      <MapContainer
-        center={[lat, lng]}
-        zoom={zoom}
-        className="h-full w-full"
-        scrollWheelZoom={false}
+      <Map
+        mapboxAccessToken={MAPBOX_TOKEN}
+        initialViewState={{ longitude: lng, latitude: lat, zoom }}
+        style={{ width: "100%", height: "100%" }}
+        mapStyle="mapbox://styles/mapbox/streets-v12"
       >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-        <Marker position={[lat, lng]} title={label} />
-        <Recenter lat={lat} lng={lng} zoom={zoom} />
-      </MapContainer>
+        <Marker longitude={lng} latitude={lat} anchor="bottom">
+          <div
+            className="flex flex-col items-center"
+            title={label}
+          >
+            <div className="rounded-full bg-primary p-2 text-primary-foreground shadow-lg">
+              <MapPin className="h-4 w-4" />
+            </div>
+          </div>
+        </Marker>
+      </Map>
     </div>
   )
 }
