@@ -32,6 +32,7 @@ import { CaptainCard } from "@/components/features/listings/captain-card"
 import { FavoriteButton } from "@/components/features/listings/favorite-button"
 import { ListingGallery } from "@/components/features/listings/listing-gallery"
 import { ReviewsSection } from "@/components/features/listings/reviews-section"
+import { TripMap } from "@/components/features/map/trip-map"
 import { formatDuration, tripTypeLabel } from "@/lib/format"
 
 export const Route = createFileRoute("/listings/$id")({
@@ -159,6 +160,23 @@ function ListingPage() {
             <div className="space-y-3">
               <h2 className="text-xl font-semibold">Boat specifications</h2>
               <BoatSpecsTable boat={boat} />
+            </div>
+          ) : null}
+
+          {typeof listing.departureLatitude === "number" &&
+          typeof listing.departureLongitude === "number" ? (
+            <div className="space-y-3">
+              <h2 className="text-xl font-semibold">Departure location</h2>
+              <TripMap
+                lat={listing.departureLatitude}
+                lng={listing.departureLongitude}
+                label={listing.departurePort}
+                className="h-72"
+              />
+              <p className="text-sm text-muted-foreground">
+                {listing.departurePort}, {listing.departureCity},{" "}
+                {listing.departureState}
+              </p>
             </div>
           ) : null}
 

@@ -4,7 +4,7 @@ import { z } from "zod"
 import { api } from "@/convex/_generated/api"
 import { FilterChipBar } from "@/components/features/search/filter-chip-bar"
 import { SortSelect } from "@/components/features/search/sort-select"
-import { MapStub } from "@/components/features/search/map-stub"
+import { ListingsMap } from "@/components/features/map/listings-map"
 import { ListingCard } from "@/components/features/listings/listing-card"
 import { Skeleton } from "@/components/ui/skeleton"
 
@@ -94,7 +94,7 @@ function SearchPage() {
         </div>
 
         <div className="hidden h-[calc(100vh-8rem)] p-4 lg:sticky lg:top-32 lg:block lg:p-6">
-          <MapStub listings={listings} />
+          <ListingsMap listings={listings} className="h-full w-full" />
         </div>
       </div>
     </div>

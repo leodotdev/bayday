@@ -1,12 +1,13 @@
 import { Link } from "@tanstack/react-router"
 import { useQuery } from "convex/react"
-import { Map as MapIcon, MapPin, Star } from "lucide-react"
+import { MapPin, Star } from "lucide-react"
 import { api } from "@/convex/_generated/api"
 import type { Id } from "@/convex/_generated/dataModel"
 import { buttonVariants } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { SignedImage } from "@/components/features/listings/signed-image"
+import { ListingsMap } from "@/components/features/map/listings-map"
 import { formatPriceCents } from "@/lib/format"
 import { cn } from "@/lib/utils"
 
@@ -95,12 +96,10 @@ export function NearbyBoats() {
         </Link>
       </div>
 
-      <div className="relative flex min-h-[280px] items-center justify-center bg-gradient-to-br from-sky-100 via-slate-100 to-sky-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
-        <div className="flex flex-col items-center gap-2 text-muted-foreground">
-          <MapIcon className="h-10 w-10 opacity-50" />
-          <span className="text-sm">Interactive map coming soon</span>
-        </div>
-      </div>
+      <ListingsMap
+        listings={nearby}
+        className="min-h-[320px] rounded-none"
+      />
     </Card>
   )
 }

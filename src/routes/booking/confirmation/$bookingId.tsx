@@ -13,6 +13,7 @@ import {
 } from "lucide-react"
 import { api } from "@/convex/_generated/api"
 import type { Id } from "@/convex/_generated/dataModel"
+import { TripMap } from "@/components/features/map/trip-map"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
@@ -208,12 +209,16 @@ function ConfirmationPage() {
           <h2 className="text-lg font-semibold">Dock location</h2>
           {listing ? (
             <>
-              <div className="flex min-h-[180px] items-center justify-center rounded-xl bg-gradient-to-br from-sky-100 via-slate-100 to-sky-50 text-muted-foreground dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
-                <div className="flex flex-col items-center gap-2 text-sm">
-                  <MapPin className="h-8 w-8 opacity-50" />
-                  Interactive map coming soon
-                </div>
-              </div>
+              {typeof listing.departureLatitude === "number" &&
+              typeof listing.departureLongitude === "number" ? (
+                <TripMap
+                  lat={listing.departureLatitude}
+                  lng={listing.departureLongitude}
+                  label={listing.departurePort}
+                  zoom={13}
+                  className="h-52"
+                />
+              ) : null}
               <div className="rounded-xl border bg-muted/30 p-3 text-sm">
                 <div className="font-medium">{listing.departurePort}</div>
                 <div className="text-muted-foreground">
