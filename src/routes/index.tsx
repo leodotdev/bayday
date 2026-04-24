@@ -1,19 +1,53 @@
-import { createFileRoute } from "@tanstack/react-router"
-import { Button } from "@/components/ui/button"
+import { createFileRoute, Link } from "@tanstack/react-router"
+import { ChevronRight } from "lucide-react"
+import { HeroSearch } from "@/components/features/landing/hero-search"
+import { FeaturedChartersStrip } from "@/components/features/landing/featured-charters-strip"
+import { NearbyBoats } from "@/components/features/landing/nearby-boats"
 
-export const Route = createFileRoute("/")({ component: App })
+export const Route = createFileRoute("/")({
+  component: HomePage,
+})
 
-function App() {
+function HomePage() {
   return (
-    <div className="flex min-h-svh p-6">
-      <div className="flex max-w-md min-w-0 flex-col gap-4 text-sm leading-loose">
-        <div>
-          <h1 className="font-medium">Project ready!</h1>
-          <p>You may now add components and start building.</p>
-          <p>We&apos;ve already added the button component for you.</p>
-          <Button className="mt-2">Button</Button>
+    <div className="space-y-16 pb-20">
+      <section className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-sky-100 via-sky-50 to-white dark:from-slate-900 dark:via-slate-900 dark:to-slate-950" />
+        <div className="relative mx-auto max-w-7xl px-4 pt-16 pb-14 sm:px-6 sm:pt-24 sm:pb-20 lg:px-8">
+          <div className="max-w-2xl space-y-4">
+            <h1 className="text-4xl font-semibold tracking-tight text-balance sm:text-5xl lg:text-6xl">
+              Your next catch starts here
+            </h1>
+            <p className="max-w-xl text-lg text-muted-foreground">
+              Browse hundreds of fishing charters from trusted local captains.
+              Book in minutes, get out on the water.
+            </p>
+          </div>
+          <div className="mt-10">
+            <HeroSearch />
+          </div>
         </div>
-      </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mb-6 flex items-end justify-between">
+          <h2 className="text-2xl font-semibold tracking-tight">
+            Featured charters
+          </h2>
+          <Link
+            to="/search"
+            className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
+          >
+            View all charters
+            <ChevronRight className="h-4 w-4" />
+          </Link>
+        </div>
+        <FeaturedChartersStrip />
+      </section>
+
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <NearbyBoats />
+      </section>
     </div>
   )
 }

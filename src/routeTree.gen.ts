@@ -8,44 +8,269 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from "./routes/__root"
-import { Route as IndexRouteImport } from "./routes/index"
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as TripsRouteImport } from './routes/trips'
+import { Route as SignUpRouteImport } from './routes/sign-up'
+import { Route as SignInRouteImport } from './routes/sign-in'
+import { Route as SearchRouteImport } from './routes/search'
+import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as InboxRouteImport } from './routes/inbox'
+import { Route as HelpRouteImport } from './routes/help'
+import { Route as IndexRouteImport } from './routes/index'
+import { Route as ListingsIdRouteImport } from './routes/listings/$id'
+import { Route as ConversationIdRouteImport } from './routes/conversation/$id'
+import { Route as BookingListingIdRouteImport } from './routes/booking/$listingId'
+import { Route as BookingConfirmationBookingIdRouteImport } from './routes/booking/confirmation/$bookingId'
 
-const IndexRoute = IndexRouteImport.update({
-  id: "/",
-  path: "/",
+const TripsRoute = TripsRouteImport.update({
+  id: '/trips',
+  path: '/trips',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SignUpRoute = SignUpRouteImport.update({
+  id: '/sign-up',
+  path: '/sign-up',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignInRoute = SignInRouteImport.update({
+  id: '/sign-in',
+  path: '/sign-in',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SearchRoute = SearchRouteImport.update({
+  id: '/search',
+  path: '/search',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InboxRoute = InboxRouteImport.update({
+  id: '/inbox',
+  path: '/inbox',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HelpRoute = HelpRouteImport.update({
+  id: '/help',
+  path: '/help',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ListingsIdRoute = ListingsIdRouteImport.update({
+  id: '/listings/$id',
+  path: '/listings/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConversationIdRoute = ConversationIdRouteImport.update({
+  id: '/conversation/$id',
+  path: '/conversation/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BookingListingIdRoute = BookingListingIdRouteImport.update({
+  id: '/booking/$listingId',
+  path: '/booking/$listingId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BookingConfirmationBookingIdRoute =
+  BookingConfirmationBookingIdRouteImport.update({
+    id: '/booking/confirmation/$bookingId',
+    path: '/booking/confirmation/$bookingId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
-  "/": typeof IndexRoute
+  '/': typeof IndexRoute
+  '/help': typeof HelpRoute
+  '/inbox': typeof InboxRoute
+  '/profile': typeof ProfileRoute
+  '/search': typeof SearchRoute
+  '/sign-in': typeof SignInRoute
+  '/sign-up': typeof SignUpRoute
+  '/trips': typeof TripsRoute
+  '/booking/$listingId': typeof BookingListingIdRoute
+  '/conversation/$id': typeof ConversationIdRoute
+  '/listings/$id': typeof ListingsIdRoute
+  '/booking/confirmation/$bookingId': typeof BookingConfirmationBookingIdRoute
 }
 export interface FileRoutesByTo {
-  "/": typeof IndexRoute
+  '/': typeof IndexRoute
+  '/help': typeof HelpRoute
+  '/inbox': typeof InboxRoute
+  '/profile': typeof ProfileRoute
+  '/search': typeof SearchRoute
+  '/sign-in': typeof SignInRoute
+  '/sign-up': typeof SignUpRoute
+  '/trips': typeof TripsRoute
+  '/booking/$listingId': typeof BookingListingIdRoute
+  '/conversation/$id': typeof ConversationIdRoute
+  '/listings/$id': typeof ListingsIdRoute
+  '/booking/confirmation/$bookingId': typeof BookingConfirmationBookingIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  "/": typeof IndexRoute
+  '/': typeof IndexRoute
+  '/help': typeof HelpRoute
+  '/inbox': typeof InboxRoute
+  '/profile': typeof ProfileRoute
+  '/search': typeof SearchRoute
+  '/sign-in': typeof SignInRoute
+  '/sign-up': typeof SignUpRoute
+  '/trips': typeof TripsRoute
+  '/booking/$listingId': typeof BookingListingIdRoute
+  '/conversation/$id': typeof ConversationIdRoute
+  '/listings/$id': typeof ListingsIdRoute
+  '/booking/confirmation/$bookingId': typeof BookingConfirmationBookingIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: "/"
+  fullPaths:
+    | '/'
+    | '/help'
+    | '/inbox'
+    | '/profile'
+    | '/search'
+    | '/sign-in'
+    | '/sign-up'
+    | '/trips'
+    | '/booking/$listingId'
+    | '/conversation/$id'
+    | '/listings/$id'
+    | '/booking/confirmation/$bookingId'
   fileRoutesByTo: FileRoutesByTo
-  to: "/"
-  id: "__root__" | "/"
+  to:
+    | '/'
+    | '/help'
+    | '/inbox'
+    | '/profile'
+    | '/search'
+    | '/sign-in'
+    | '/sign-up'
+    | '/trips'
+    | '/booking/$listingId'
+    | '/conversation/$id'
+    | '/listings/$id'
+    | '/booking/confirmation/$bookingId'
+  id:
+    | '__root__'
+    | '/'
+    | '/help'
+    | '/inbox'
+    | '/profile'
+    | '/search'
+    | '/sign-in'
+    | '/sign-up'
+    | '/trips'
+    | '/booking/$listingId'
+    | '/conversation/$id'
+    | '/listings/$id'
+    | '/booking/confirmation/$bookingId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  HelpRoute: typeof HelpRoute
+  InboxRoute: typeof InboxRoute
+  ProfileRoute: typeof ProfileRoute
+  SearchRoute: typeof SearchRoute
+  SignInRoute: typeof SignInRoute
+  SignUpRoute: typeof SignUpRoute
+  TripsRoute: typeof TripsRoute
+  BookingListingIdRoute: typeof BookingListingIdRoute
+  ConversationIdRoute: typeof ConversationIdRoute
+  ListingsIdRoute: typeof ListingsIdRoute
+  BookingConfirmationBookingIdRoute: typeof BookingConfirmationBookingIdRoute
 }
 
-declare module "@tanstack/react-router" {
+declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    "/": {
-      id: "/"
-      path: "/"
-      fullPath: "/"
+    '/trips': {
+      id: '/trips'
+      path: '/trips'
+      fullPath: '/trips'
+      preLoaderRoute: typeof TripsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sign-up': {
+      id: '/sign-up'
+      path: '/sign-up'
+      fullPath: '/sign-up'
+      preLoaderRoute: typeof SignUpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sign-in': {
+      id: '/sign-in'
+      path: '/sign-in'
+      fullPath: '/sign-in'
+      preLoaderRoute: typeof SignInRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/search': {
+      id: '/search'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof SearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inbox': {
+      id: '/inbox'
+      path: '/inbox'
+      fullPath: '/inbox'
+      preLoaderRoute: typeof InboxRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/help': {
+      id: '/help'
+      path: '/help'
+      fullPath: '/help'
+      preLoaderRoute: typeof HelpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/listings/$id': {
+      id: '/listings/$id'
+      path: '/listings/$id'
+      fullPath: '/listings/$id'
+      preLoaderRoute: typeof ListingsIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/conversation/$id': {
+      id: '/conversation/$id'
+      path: '/conversation/$id'
+      fullPath: '/conversation/$id'
+      preLoaderRoute: typeof ConversationIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/booking/$listingId': {
+      id: '/booking/$listingId'
+      path: '/booking/$listingId'
+      fullPath: '/booking/$listingId'
+      preLoaderRoute: typeof BookingListingIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/booking/confirmation/$bookingId': {
+      id: '/booking/confirmation/$bookingId'
+      path: '/booking/confirmation/$bookingId'
+      fullPath: '/booking/confirmation/$bookingId'
+      preLoaderRoute: typeof BookingConfirmationBookingIdRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -53,14 +278,25 @@ declare module "@tanstack/react-router" {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  HelpRoute: HelpRoute,
+  InboxRoute: InboxRoute,
+  ProfileRoute: ProfileRoute,
+  SearchRoute: SearchRoute,
+  SignInRoute: SignInRoute,
+  SignUpRoute: SignUpRoute,
+  TripsRoute: TripsRoute,
+  BookingListingIdRoute: BookingListingIdRoute,
+  ConversationIdRoute: ConversationIdRoute,
+  ListingsIdRoute: ListingsIdRoute,
+  BookingConfirmationBookingIdRoute: BookingConfirmationBookingIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
 
-import type { getRouter } from "./router.tsx"
-import type { createStart } from "@tanstack/react-start"
-declare module "@tanstack/react-start" {
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
   interface Register {
     ssr: true
     router: Awaited<ReturnType<typeof getRouter>>
