@@ -7,7 +7,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
@@ -70,9 +69,9 @@ export function AuthMenu() {
         <span className="hidden sm:inline">{displayName}</span>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-52">
-        <DropdownMenuLabel className="truncate">
-          {user.email}
-        </DropdownMenuLabel>
+        <div className="truncate px-2 py-1.5 text-xs text-muted-foreground">
+          {user.email ?? user.phone ?? displayName}
+        </div>
         <DropdownMenuSeparator />
         <DropdownMenuItem onSelect={() => router.navigate({ to: "/profile" })}>
           Profile
