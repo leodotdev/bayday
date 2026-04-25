@@ -73,18 +73,18 @@ export function AuthMenu() {
           {user.email ?? user.phone ?? displayName}
         </div>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onSelect={() => router.navigate({ to: "/profile" })}>
+        <DropdownMenuItem onClick={() => router.navigate({ to: "/profile" })}>
           Profile
         </DropdownMenuItem>
-        <DropdownMenuItem onSelect={() => router.navigate({ to: "/trips" })}>
+        <DropdownMenuItem onClick={() => router.navigate({ to: "/trips" })}>
           My trips
         </DropdownMenuItem>
-        <DropdownMenuItem onSelect={() => router.navigate({ to: "/inbox" })}>
+        <DropdownMenuItem onClick={() => router.navigate({ to: "/inbox" })}>
           Inbox
         </DropdownMenuItem>
         {isHost ? (
           <DropdownMenuItem
-            onSelect={() => router.navigate({ to: "/captain" })}
+            onClick={() => router.navigate({ to: "/captain" })}
           >
             Captain dashboard
           </DropdownMenuItem>
@@ -93,7 +93,7 @@ export function AuthMenu() {
           <>
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              onSelect={() => router.navigate({ to: "/admin" })}
+              onClick={() => router.navigate({ to: "/admin" })}
               className="gap-2"
             >
               <ShieldCheck className="h-4 w-4" />
@@ -102,7 +102,7 @@ export function AuthMenu() {
           </>
         ) : null}
         <DropdownMenuSeparator />
-        <DropdownMenuItem onSelect={onSignOut} className="gap-2">
+        <DropdownMenuItem onClick={onSignOut} className="gap-2">
           <LogOut className="h-4 w-4" />
           Sign out
         </DropdownMenuItem>
