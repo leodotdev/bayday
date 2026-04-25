@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router"
 import { ChevronRight, Users } from "lucide-react"
-import { HeroSearch } from "@/components/features/landing/hero-search"
+import { SearchBar } from "@/components/features/search/search-bar"
 import { FeaturedChartersStrip } from "@/components/features/landing/featured-charters-strip"
 import { NearbyBoats } from "@/components/features/landing/nearby-boats"
 import { SharedTripsStrip } from "@/components/features/landing/shared-trips-strip"
@@ -26,7 +26,7 @@ function HomePage() {
             </p>
           </div>
           <div className="mt-10">
-            <HeroSearch />
+            <SearchBar variant="hero" />
           </div>
         </div>
       </section>

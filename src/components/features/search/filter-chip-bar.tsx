@@ -40,8 +40,7 @@ export function FilterChipBar({ params }: { params: SearchParams }) {
 
   const priceActive =
     params.minPriceCents !== undefined || params.maxPriceCents !== undefined
-  const activeCount =
-    (params.tripType ? 1 : 0) + (priceActive ? 1 : 0) + (params.city ? 1 : 0)
+  const activeCount = (params.tripType ? 1 : 0) + (priceActive ? 1 : 0)
 
   return (
     <div className="flex flex-wrap items-center gap-2">
@@ -174,61 +173,21 @@ export function FilterChipBar({ params }: { params: SearchParams }) {
         </PopoverContent>
       </Popover>
 
-      <Popover>
-        <PopoverTrigger className={chipClass(Boolean(params.city))}>
-          City
-          {params.city && (
-            <Badge variant="secondary" className="ml-1">
-              {params.city}
-            </Badge>
-          )}
-        </PopoverTrigger>
-        <PopoverContent className="w-72 p-0">
-          <div className="max-h-72 overflow-y-auto p-2">
-            {(options?.cities ?? []).map((c) => (
-              <button
-                key={c}
-                type="button"
-                onClick={() => patch({ city: c })}
-                className="flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left text-sm hover:bg-muted"
-              >
-                {c}
-                {params.city === c ? (
-                  <Badge variant="secondary">Selected</Badge>
-                ) : null}
-              </button>
-            ))}
-          </div>
-          <Separator />
-          <div className="p-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="w-full"
-              onClick={() => patch({ city: undefined })}
-            >
-              Any city
-            </Button>
-          </div>
-        </PopoverContent>
-      </Popover>
-
       {activeCount > 0 && (
         <Button
           variant="ghost"
           size="sm"
-          className="ml-auto gap-1.5"
+          className="gap-1.5"
           onClick={() =>
             patch({
               tripType: undefined,
-              city: undefined,
               minPriceCents: undefined,
               maxPriceCents: undefined,
             })
           }
         >
           <X className="h-4 w-4" />
-          Clear all
+          Clear filters
         </Button>
       )}
     </div>
