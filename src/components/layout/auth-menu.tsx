@@ -55,7 +55,7 @@ export function AuthMenu() {
       <DropdownMenuTrigger
         className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "gap-2")}
       >
-        <div className="h-6 w-6 overflow-hidden rounded-full bg-muted">
+        <div className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-muted">
           {user.avatarUrl ? (
             <img
               src={user.avatarUrl}
@@ -63,7 +63,7 @@ export function AuthMenu() {
               className="h-full w-full object-cover"
             />
           ) : (
-            <UserRound className="h-full w-full p-1 text-muted-foreground" />
+            <UserRound className="h-4 w-4 text-muted-foreground" />
           )}
         </div>
         <span className="hidden sm:inline">{displayName}</span>
