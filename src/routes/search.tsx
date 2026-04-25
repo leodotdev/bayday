@@ -30,6 +30,7 @@ const searchSchema = z.object({
     .enum(["price_asc", "price_desc", "rating", "reviews", "newest"])
     .optional(),
   partySize: z.number().optional(),
+  flexible: z.boolean().optional(),
   view: z.enum(["list", "map", "split"]).optional(),
 })
 
@@ -43,13 +44,15 @@ function SearchPage() {
   const navigate = useNavigate()
   const view: ViewMode = params.view ?? "split"
 
+  // When flexible is on, drop the date filters so any future trip matches.
+  const flexible = !!params.flexible
   const listings = useQuery(api.search.searchListings, {
     searchTerm: params.q,
     tripType: params.tripType,
     city: params.city,
     state: params.state,
-    date: params.date,
-    dateEnd: params.dateEnd,
+    date: flexible ? undefined : params.date,
+    dateEnd: flexible ? undefined : params.dateEnd,
     minPriceCents: params.minPriceCents,
     maxPriceCents: params.maxPriceCents,
     minGuests: params.partySize,
@@ -59,8 +62,8 @@ function SearchPage() {
     city: params.city,
     state: params.state,
     tripType: params.tripType,
-    date: params.date,
-    dateEnd: params.dateEnd,
+    date: flexible ? undefined : params.date,
+    dateEnd: flexible ? undefined : params.dateEnd,
   })
 
   const totalCount =
@@ -88,6 +91,7 @@ function SearchPage() {
               date: params.date,
               dateEnd: params.dateEnd,
               partySize: params.partySize,
+              flexible: params.flexible,
             }}
             onSubmit={(next) =>
               navigate({
@@ -98,6 +102,7 @@ function SearchPage() {
                   date: next.date,
                   dateEnd: next.dateEnd,
                   partySize: next.partySize,
+                  flexible: next.flexible,
                 }),
               })
             }

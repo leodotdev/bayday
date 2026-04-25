@@ -14,6 +14,7 @@ import {
 import { api } from "@/convex/_generated/api"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
+import { Checkbox } from "@/components/ui/checkbox"
 import {
   Command,
   CommandEmpty,
@@ -22,12 +23,13 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command"
+import { Label } from "@/components/ui/label"
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { Separator } from "@/components/ui/separator"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { cn } from "@/lib/utils"
 import { parseDateOnly, toDateOnly } from "@/lib/format"
 
@@ -36,6 +38,7 @@ export type SearchValues = {
   date?: string
   dateEnd?: string
   partySize?: number
+  flexible?: boolean
 }
 
 type Props = {
@@ -44,41 +47,83 @@ type Props = {
   onSubmit?: (next: SearchValues) => void
 }
 
+type DateMode = "single" | "range" | "flexible"
+
 export function SearchBar({ variant = "hero", initial, onSubmit }: Props) {
   const navigate = useNavigate()
   const filterOptions = useQuery(api.search.getFilterOptions, {})
 
   const [city, setCity] = useState<string | undefined>(initial?.city)
+  const [cityOpen, setCityOpen] = useState(false)
+
+  const initialDateMode: DateMode = initial?.flexible
+    ? "flexible"
+    : initial?.dateEnd && initial?.date && initial.date !== initial.dateEnd
+      ? "range"
+      : "single"
+  const [dateMode, setDateMode] = useState<DateMode>(initialDateMode)
+  const [singleDate, setSingleDate] = useState<Date | undefined>(
+    initial?.date && initial.date === (initial.dateEnd ?? initial.date)
+      ? parseDateOnly(initial.date)
+      : initial?.date && !initial.dateEnd
+        ? parseDateOnly(initial.date)
+        : undefined,
+  )
   const [range, setRange] = useState<{
     from: Date | undefined
     to: Date | undefined
   }>(() => ({
-    from: initial?.date ? parseDateOnly(initial.date) : undefined,
-    to: initial?.dateEnd ? parseDateOnly(initial.dateEnd) : undefined,
+    from:
+      initialDateMode === "range" && initial?.date
+        ? parseDateOnly(initial.date)
+        : undefined,
+    to:
+      initialDateMode === "range" && initial?.dateEnd
+        ? parseDateOnly(initial.dateEnd)
+        : undefined,
   }))
-  const [partySize, setPartySize] = useState<number>(initial?.partySize ?? 2)
-  const [cityOpen, setCityOpen] = useState(false)
 
+  const [partySize, setPartySize] = useState<number>(initial?.partySize ?? 2)
   const cities = filterOptions?.cities ?? []
 
   function submit() {
+    let date: string | undefined
+    let dateEnd: string | undefined
+    let flexible = false
+    if (dateMode === "single" && singleDate) {
+      date = toDateOnly(singleDate)
+    } else if (dateMode === "range" && range.from) {
+      date = toDateOnly(range.from)
+      if (range.to) dateEnd = toDateOnly(range.to)
+    } else if (dateMode === "flexible") {
+      flexible = true
+    }
+
     const values: SearchValues = {
       city: city || undefined,
-      date: range.from ? toDateOnly(range.from) : undefined,
-      dateEnd: range.to ? toDateOnly(range.to) : undefined,
+      date,
+      dateEnd,
       partySize,
+      flexible: flexible || undefined,
     }
     if (onSubmit) onSubmit(values)
     else navigate({ to: "/search", search: values })
   }
 
-  const dateLabel = !range.from
-    ? "Add dates"
-    : !range.to
-      ? format(range.from, "MMM d")
-      : range.from.toDateString() === range.to.toDateString()
-        ? format(range.from, "EEE, MMM d")
-        : `${format(range.from, "MMM d")} – ${format(range.to, "MMM d")}`
+  let dateLabel = "Add dates"
+  if (dateMode === "single" && singleDate) {
+    dateLabel = format(singleDate, "EEE, MMM d")
+  } else if (dateMode === "range" && range.from) {
+    dateLabel = range.to
+      ? `${format(range.from, "MMM d")} – ${format(range.to, "MMM d")}`
+      : format(range.from, "MMM d")
+  } else if (dateMode === "flexible") {
+    dateLabel = "Flexible — any time"
+  }
+
+  function adjustParty(delta: number) {
+    setPartySize((n) => Math.max(1, Math.min(20, n + delta)))
+  }
 
   return (
     <div
@@ -87,135 +132,209 @@ export function SearchBar({ variant = "hero", initial, onSubmit }: Props) {
         variant === "hero" && "shadow-lg ring-1 ring-foreground/5",
       )}
     >
-      {/* Mobile: stacked rows */}
-      <div className="flex flex-col md:hidden">
+      <div className="flex flex-col md:flex-row md:items-stretch">
+        {/* Where */}
         <Popover open={cityOpen} onOpenChange={setCityOpen}>
-          <PopoverTrigger className="flex w-full items-center gap-3 rounded-t-3xl px-4 py-3 text-left transition-colors hover:bg-muted">
+          <PopoverTrigger
+            className={cn(
+              "group flex flex-1 items-center gap-3 px-5 text-left transition-colors hover:bg-muted/60 md:rounded-full",
+              variant === "hero" ? "py-3" : "py-2.5",
+            )}
+          >
             <MapPin className="h-5 w-5 shrink-0 text-muted-foreground" />
             <Field label="Where" placeholder={!city}>
               {city || "Anywhere"}
             </Field>
           </PopoverTrigger>
-          <PopoverContent className="p-0" align="start">
-            <CityCommand
-              cities={cities}
-              city={city}
-              onPick={(c) => {
-                setCity(c)
-                setCityOpen(false)
-              }}
-            />
+          <PopoverContent className="w-72 p-0" align="start">
+            <Command>
+              <CommandInput placeholder="Search cities…" />
+              <CommandList>
+                <CommandEmpty>No cities found.</CommandEmpty>
+                <CommandGroup>
+                  <CommandItem
+                    value="__any__"
+                    onSelect={() => {
+                      setCity(undefined)
+                      setCityOpen(false)
+                    }}
+                  >
+                    <Check
+                      className={cn(
+                        "mr-2 h-4 w-4",
+                        !city ? "opacity-100" : "opacity-0",
+                      )}
+                    />
+                    Anywhere
+                  </CommandItem>
+                  {cities.map((c) => (
+                    <CommandItem
+                      key={c}
+                      value={c}
+                      onSelect={() => {
+                        setCity(c)
+                        setCityOpen(false)
+                      }}
+                    >
+                      <Check
+                        className={cn(
+                          "mr-2 h-4 w-4",
+                          city === c ? "opacity-100" : "opacity-0",
+                        )}
+                      />
+                      {c}
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </CommandList>
+            </Command>
           </PopoverContent>
         </Popover>
 
-        <Separator />
+        <RowDivider />
 
+        {/* When */}
         <Popover>
-          <PopoverTrigger className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-muted">
+          <PopoverTrigger
+            className={cn(
+              "flex flex-1 items-center gap-3 px-5 text-left transition-colors hover:bg-muted/60",
+              variant === "hero" ? "py-3" : "py-2.5",
+            )}
+          >
             <CalendarIcon className="h-5 w-5 shrink-0 text-muted-foreground" />
-            <Field label="When" placeholder={!range.from}>
+            <Field label="When" placeholder={dateMode !== "flexible" && !singleDate && !range.from}>
               {dateLabel}
             </Field>
           </PopoverTrigger>
           <PopoverContent align="start" className="w-auto p-0">
-            <DateRange range={range} onChange={setRange} />
+            <Tabs
+              value={dateMode}
+              onValueChange={(v) => v && setDateMode(v as DateMode)}
+              className="w-full"
+            >
+              <div className="border-b p-3">
+                <TabsList className="w-full">
+                  <TabsTrigger value="single" className="flex-1">
+                    Single day
+                  </TabsTrigger>
+                  <TabsTrigger value="range" className="flex-1">
+                    Date range
+                  </TabsTrigger>
+                  <TabsTrigger value="flexible" className="flex-1">
+                    Flexible
+                  </TabsTrigger>
+                </TabsList>
+              </div>
+              {dateMode === "single" ? (
+                <Calendar
+                  mode="single"
+                  selected={singleDate}
+                  onSelect={setSingleDate}
+                  disabled={{ before: new Date() }}
+                  numberOfMonths={1}
+                />
+              ) : null}
+              {dateMode === "range" ? (
+                <Calendar
+                  mode="range"
+                  selected={range}
+                  onSelect={(next) =>
+                    setRange({ from: next?.from, to: next?.to })
+                  }
+                  disabled={{ before: new Date() }}
+                  numberOfMonths={2}
+                />
+              ) : null}
+              {dateMode === "flexible" ? (
+                <div className="space-y-3 p-4 text-sm">
+                  <p className="text-muted-foreground">
+                    Match trips on any future date — show me what's
+                    available.
+                  </p>
+                  <label className="flex cursor-pointer items-start gap-2 rounded-xl border p-3">
+                    <Checkbox checked readOnly className="mt-0.5" />
+                    <div>
+                      <Label className="text-sm font-medium">
+                        I'm flexible
+                      </Label>
+                      <p className="text-xs text-muted-foreground">
+                        Sort by best match instead of by date.
+                      </p>
+                    </div>
+                  </label>
+                </div>
+              ) : null}
+              <div className="flex items-center justify-between border-t p-3">
+                <button
+                  type="button"
+                  className="text-sm text-muted-foreground hover:text-foreground"
+                  onClick={() => {
+                    setSingleDate(undefined)
+                    setRange({ from: undefined, to: undefined })
+                  }}
+                >
+                  Clear
+                </button>
+                <div className="text-xs text-muted-foreground">
+                  {dateMode === "range" && range.from && range.to
+                    ? `${Math.max(
+                        1,
+                        Math.round(
+                          (range.to.getTime() - range.from.getTime()) /
+                            86400000,
+                        ) + 1,
+                      )} days`
+                    : dateMode === "single" && singleDate
+                      ? "1 day"
+                      : dateMode === "flexible"
+                        ? "Any date"
+                        : "Pick a date"}
+                </div>
+              </div>
+            </Tabs>
           </PopoverContent>
         </Popover>
 
-        <Separator />
+        <RowDivider />
 
-        <Popover>
-          <PopoverTrigger className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-muted">
-            <Users className="h-5 w-5 shrink-0 text-muted-foreground" />
-            <Field label="Who">
-              {partySize} {partySize === 1 ? "angler" : "anglers"}
-            </Field>
-          </PopoverTrigger>
-          <PopoverContent className="w-72 p-4" align="start">
-            <PartyStepper value={partySize} onChange={setPartySize} />
-          </PopoverContent>
-        </Popover>
-
-        <div className="border-t p-2">
-          <Button
-            size="lg"
-            className="w-full rounded-2xl"
-            onClick={submit}
-          >
-            <Search className="h-4 w-4" />
-            Search
-          </Button>
+        {/* Who — inline stepper, no popover */}
+        <div
+          className={cn(
+            "flex flex-1 items-center gap-3 px-5",
+            variant === "hero" ? "py-3" : "py-2.5",
+          )}
+        >
+          <Users className="h-5 w-5 shrink-0 text-muted-foreground" />
+          <Field label="Who">
+            {partySize} {partySize === 1 ? "angler" : "anglers"}
+          </Field>
+          <div className="flex shrink-0 items-center gap-1">
+            <button
+              type="button"
+              onClick={() => adjustParty(-1)}
+              disabled={partySize <= 1}
+              className="flex h-8 w-8 items-center justify-center rounded-full border transition-colors hover:bg-muted disabled:opacity-40"
+              aria-label="Fewer anglers"
+            >
+              <Minus className="h-3.5 w-3.5" />
+            </button>
+            <button
+              type="button"
+              onClick={() => adjustParty(1)}
+              disabled={partySize >= 20}
+              className="flex h-8 w-8 items-center justify-center rounded-full border transition-colors hover:bg-muted disabled:opacity-40"
+              aria-label="More anglers"
+            >
+              <Plus className="h-3.5 w-3.5" />
+            </button>
+          </div>
         </div>
-      </div>
 
-      {/* Desktop: single row pill */}
-      <div className="hidden items-stretch md:flex">
-        <Popover open={cityOpen} onOpenChange={setCityOpen}>
-          <PopoverTrigger
-            className={cn(
-              "group flex flex-1 items-center gap-3 rounded-full px-5 text-left transition-colors hover:bg-muted/60",
-              variant === "hero" ? "py-3" : "py-2.5",
-            )}
-          >
-            <MapPin className="h-5 w-5 shrink-0 text-muted-foreground" />
-            <Field label="Where" placeholder={!city}>
-              {city || "Anywhere"}
-            </Field>
-          </PopoverTrigger>
-          <PopoverContent className="p-0" align="start">
-            <CityCommand
-              cities={cities}
-              city={city}
-              onPick={(c) => {
-                setCity(c)
-                setCityOpen(false)
-              }}
-            />
-          </PopoverContent>
-        </Popover>
-
-        <DesktopDivider />
-
-        <Popover>
-          <PopoverTrigger
-            className={cn(
-              "flex flex-1 items-center gap-3 px-5 text-left transition-colors hover:bg-muted/60",
-              variant === "hero" ? "py-3" : "py-2.5",
-            )}
-          >
-            <CalendarIcon className="h-5 w-5 shrink-0 text-muted-foreground" />
-            <Field label="When" placeholder={!range.from}>
-              {dateLabel}
-            </Field>
-          </PopoverTrigger>
-          <PopoverContent align="start" className="w-auto p-0">
-            <DateRange range={range} onChange={setRange} />
-          </PopoverContent>
-        </Popover>
-
-        <DesktopDivider />
-
-        <Popover>
-          <PopoverTrigger
-            className={cn(
-              "flex flex-1 items-center gap-3 px-5 text-left transition-colors hover:bg-muted/60",
-              variant === "hero" ? "py-3" : "py-2.5",
-            )}
-          >
-            <Users className="h-5 w-5 shrink-0 text-muted-foreground" />
-            <Field label="Who">
-              {partySize} {partySize === 1 ? "angler" : "anglers"}
-            </Field>
-          </PopoverTrigger>
-          <PopoverContent className="w-72 p-4" align="end">
-            <PartyStepper value={partySize} onChange={setPartySize} />
-          </PopoverContent>
-        </Popover>
-
-        <div className="flex items-center pr-2">
+        {/* Search button */}
+        <div className="flex items-center border-t p-2 md:border-t-0 md:pr-2">
           <Button
             size={variant === "hero" ? "lg" : "default"}
-            className="rounded-full"
+            className="w-full rounded-2xl md:w-auto md:rounded-full"
             onClick={submit}
           >
             <Search className="h-4 w-4" />
@@ -253,129 +372,11 @@ function Field({
   )
 }
 
-function DesktopDivider() {
-  return <div className="my-2 w-px self-stretch bg-border" aria-hidden />
-}
-
-function CityCommand({
-  cities,
-  city,
-  onPick,
-}: {
-  cities: string[]
-  city: string | undefined
-  onPick: (next: string | undefined) => void
-}) {
+function RowDivider() {
   return (
-    <Command>
-      <CommandInput placeholder="Search cities…" />
-      <CommandList>
-        <CommandEmpty>No cities found.</CommandEmpty>
-        <CommandGroup>
-          <CommandItem value="__any__" onSelect={() => onPick(undefined)}>
-            <Check
-              className={cn(
-                "mr-2 h-4 w-4",
-                !city ? "opacity-100" : "opacity-0",
-              )}
-            />
-            Anywhere
-          </CommandItem>
-          {cities.map((c) => (
-            <CommandItem key={c} value={c} onSelect={() => onPick(c)}>
-              <Check
-                className={cn(
-                  "mr-2 h-4 w-4",
-                  city === c ? "opacity-100" : "opacity-0",
-                )}
-              />
-              {c}
-            </CommandItem>
-          ))}
-        </CommandGroup>
-      </CommandList>
-    </Command>
-  )
-}
-
-function DateRange({
-  range,
-  onChange,
-}: {
-  range: { from: Date | undefined; to: Date | undefined }
-  onChange: (next: { from: Date | undefined; to: Date | undefined }) => void
-}) {
-  return (
-    <>
-      <Calendar
-        mode="range"
-        selected={range}
-        onSelect={(next) =>
-          onChange({ from: next?.from, to: next?.to })
-        }
-        disabled={{ before: new Date() }}
-        numberOfMonths={2}
-      />
-      <div className="flex items-center justify-between border-t p-3">
-        <button
-          type="button"
-          className="text-sm text-muted-foreground hover:text-foreground"
-          onClick={() => onChange({ from: undefined, to: undefined })}
-        >
-          Clear
-        </button>
-        <div className="text-xs text-muted-foreground">
-          {range.from && range.to
-            ? `${Math.max(
-                1,
-                Math.round(
-                  (range.to.getTime() - range.from.getTime()) / 86400000,
-                ) + 1,
-              )} days`
-            : range.from
-              ? "Single day"
-              : "Pick start and end"}
-        </div>
-      </div>
-    </>
-  )
-}
-
-function PartyStepper({
-  value,
-  onChange,
-}: {
-  value: number
-  onChange: (next: number) => void
-}) {
-  return (
-    <div className="flex items-center justify-between">
-      <div>
-        <div className="text-base font-semibold">Anglers</div>
-        <div className="text-xs text-muted-foreground">
-          Adults and kids combined.
-        </div>
-      </div>
-      <div className="flex items-center gap-2">
-        <button
-          type="button"
-          onClick={() => onChange(Math.max(1, value - 1))}
-          className="flex h-8 w-8 items-center justify-center rounded-full border hover:bg-muted disabled:opacity-50"
-          disabled={value <= 1}
-          aria-label="Decrease"
-        >
-          <Minus className="h-3.5 w-3.5" />
-        </button>
-        <div className="w-6 text-center text-sm font-medium">{value}</div>
-        <button
-          type="button"
-          onClick={() => onChange(Math.min(20, value + 1))}
-          className="flex h-8 w-8 items-center justify-center rounded-full border hover:bg-muted"
-          aria-label="Increase"
-        >
-          <Plus className="h-3.5 w-3.5" />
-        </button>
-      </div>
-    </div>
+    <div
+      className="h-px w-full self-stretch bg-border md:my-2 md:h-auto md:w-px"
+      aria-hidden
+    />
   )
 }
