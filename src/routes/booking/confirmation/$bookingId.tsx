@@ -81,7 +81,7 @@ function ConfirmationPage() {
     const url = window.location.href
     if (navigator.share) {
       try {
-        await navigator.share({ title: "My BayDay booking", url })
+        await navigator.share({ title: "My daytrip booking", url })
         return
       } catch {
         // user cancelled or share unsupported — fall through to copy
@@ -103,15 +103,15 @@ function ConfirmationPage() {
       [
         "BEGIN:VCALENDAR",
         "VERSION:2.0",
-        "PRODID:-//BayDay//EN",
+        "PRODID:-//Daytrip//EN",
         "BEGIN:VEVENT",
-        `UID:${booking._id}@bayday`,
+        `UID:${booking._id}@daytrip`,
         `DTSTAMP:${new Date().toISOString().replaceAll("-", "").replaceAll(":", "").split(".")[0]}Z`,
         `DTSTART:${start}`,
         `DTEND:${end}`,
         `SUMMARY:${listing.title}`,
         `LOCATION:${listing.departurePort}, ${listing.departureCity}, ${listing.departureState}`,
-        `DESCRIPTION:BayDay charter booking`,
+        `DESCRIPTION:daytrip charter booking`,
         "END:VEVENT",
         "END:VCALENDAR",
       ].join("\r\n") + "\r\n"
@@ -119,7 +119,7 @@ function ConfirmationPage() {
     const url = URL.createObjectURL(blob)
     const a = document.createElement("a")
     a.href = url
-    a.download = `bayday-${booking._id}.ics`
+    a.download = `daytrip-${booking._id}.ics`
     a.click()
     URL.revokeObjectURL(url)
   }

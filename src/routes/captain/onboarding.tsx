@@ -55,7 +55,7 @@ function OnboardingPage() {
       <div className="space-y-3 text-center">
         <Anchor className="mx-auto h-12 w-12 text-primary" />
         <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-          List your boat on BayDay
+          List your boat on daytrip
         </h1>
         <p className="text-muted-foreground">
           Run charters, manage bookings, and choose whether to open trips

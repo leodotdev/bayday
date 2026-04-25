@@ -75,19 +75,19 @@ export const run = internalMutation({
     };
 
     const mike = await findOrCreateHost(
-      "captain.mike@anglersday.com",
+      "captain.mike@daytrip.app",
       "Mike",
       "Torres",
       "25 years of offshore fishing experience in the Gulf. USCG licensed captain."
     );
     const sarah = await findOrCreateHost(
-      "captain.sarah@anglersday.com",
+      "captain.sarah@daytrip.app",
       "Sarah",
       "Chen",
       "Fly fishing guide specializing in redfish and tarpon along the Florida coast."
     );
     const james = await findOrCreateHost(
-      "captain.james@anglersday.com",
+      "captain.james@daytrip.app",
       "James",
       "Wright",
       "Deep sea fishing veteran. 15+ years running charters out of Key West."

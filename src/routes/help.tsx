@@ -160,7 +160,7 @@ function HelpPage() {
               </p>
             </div>
           </div>
-          <a href="mailto:hello@bayday.app" className={cn(buttonVariants())}>
+          <a href="mailto:hello@daytrip.app" className={cn(buttonVariants())}>
             Contact support
           </a>
         </Card>

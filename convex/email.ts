@@ -1,8 +1,8 @@
 import { v } from "convex/values";
 import { action, internalAction } from "./_generated/server";
 
-const FROM = "BayDay <noreply@bayday.app>";
-const BRAND = "BayDay";
+const FROM = "daytrip <noreply@daytrip.app>";
+const BRAND = "daytrip";
 
 async function sendEmail({
   to,
@@ -95,7 +95,7 @@ export const notifyWelcome = internalAction({
       html: wrap(`
         <h2>Welcome aboard, ${name}!</h2>
         <p>Your ${BRAND} account is ready. Browse charters, book trips, and join shared trips with friends or new anglers.</p>
-        <p><a href="https://bayday.app/search" style="background: #0f172a; color: white; text-decoration: none; padding: 10px 16px; border-radius: 999px; display: inline-block;">Find a boat</a></p>
+        <p><a href="https://daytrip.app/search" style="background: #0f172a; color: white; text-decoration: none; padding: 10px 16px; border-radius: 999px; display: inline-block;">Find a boat</a></p>
       `),
     });
   },
@@ -117,7 +117,7 @@ export const notifyNewMessage = internalAction({
       html: wrap(`
         <h2>${args.senderName} sent you a message</h2>
         <blockquote style="margin: 16px 0; padding: 12px 16px; border-left: 3px solid #0f172a; color: #475569;">${args.messagePreview}</blockquote>
-        <p><a href="https://bayday.app/conversation/${args.conversationId}">Open the conversation →</a></p>
+        <p><a href="https://daytrip.app/conversation/${args.conversationId}">Open the conversation →</a></p>
       `),
     });
   },
@@ -147,7 +147,7 @@ export const notifyBookingRequested = internalAction({
           <tr><td style="color: #64748b; padding-right: 12px;">Time</td><td><strong>${args.startTime}</strong></td></tr>
           <tr><td style="color: #64748b; padding-right: 12px;">Party</td><td><strong>${args.partySize} ${args.partySize === 1 ? "angler" : "anglers"}</strong></td></tr>
         </table>
-        <p><a href="https://bayday.app/captain/bookings">Review the request →</a></p>
+        <p><a href="https://daytrip.app/captain/bookings">Review the request →</a></p>
       `),
     });
   },
@@ -178,7 +178,7 @@ export const notifyBookingConfirmed = internalAction({
           <tr><td style="color: #64748b; padding-right: 12px;">Meet at</td><td><strong>${args.departurePort}</strong></td></tr>
         </table>
         <p>Arrive 15–20 minutes early.</p>
-        <p><a href="https://bayday.app/trips/${args.bookingId}">View your trip →</a></p>
+        <p><a href="https://daytrip.app/trips/${args.bookingId}">View your trip →</a></p>
       `),
     });
   },

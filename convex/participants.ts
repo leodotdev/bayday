@@ -76,7 +76,7 @@ export const invite = mutation({
         listingTitle: listing.title,
         date: booking.date,
         pricePerSpot: formatted,
-        inviteUrl: `https://bayday.app/trips/${booking._id}?invite=${inviteCode}`,
+        inviteUrl: `https://daytrip.app/trips/${booking._id}?invite=${inviteCode}`,
       });
     }
 

@@ -48,7 +48,7 @@ export const seed = internalMutation({
 
     // --- HOSTS ---
     const host1 = await ctx.db.insert("users", {
-      email: "captain.mike@anglersday.com",
+      email: "captain.mike@daytrip.app",
       firstName: "Mike",
       lastName: "Torres",
       role: "host",
@@ -59,7 +59,7 @@ export const seed = internalMutation({
     });
 
     const host2 = await ctx.db.insert("users", {
-      email: "captain.sarah@anglersday.com",
+      email: "captain.sarah@daytrip.app",
       firstName: "Sarah",
       lastName: "Chen",
       role: "host",
@@ -70,7 +70,7 @@ export const seed = internalMutation({
     });
 
     const host3 = await ctx.db.insert("users", {
-      email: "captain.james@anglersday.com",
+      email: "captain.james@daytrip.app",
       firstName: "James",
       lastName: "Wright",
       role: "host",
@@ -113,7 +113,7 @@ export const seed = internalMutation({
 
     // --- EXTRA HOSTS ---
     const host4 = await ctx.db.insert("users", {
-      email: "captain.rico@anglersday.com",
+      email: "captain.rico@daytrip.app",
       firstName: "Rico",
       lastName: "Delgado",
       role: "host",
@@ -124,7 +124,7 @@ export const seed = internalMutation({
     });
 
     const host5 = await ctx.db.insert("users", {
-      email: "captain.karen@anglersday.com",
+      email: "captain.karen@daytrip.app",
       firstName: "Karen",
       lastName: "Blackwood",
       role: "host",
@@ -135,7 +135,7 @@ export const seed = internalMutation({
     });
 
     const host6 = await ctx.db.insert("users", {
-      email: "captain.tommy@anglersday.com",
+      email: "captain.tommy@daytrip.app",
       firstName: "Tommy",
       lastName: "Nguyen",
       role: "host",
