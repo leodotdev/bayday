@@ -128,8 +128,8 @@ export function SearchBar({ variant = "hero", initial, onSubmit }: Props) {
   return (
     <div
       className={cn(
-        "rounded-3xl border bg-background shadow-sm md:rounded-full",
-        variant === "hero" && "shadow-lg ring-1 ring-foreground/5",
+        "rounded-3xl border bg-background shadow-xs md:rounded-full",
+        variant === "hero" && "shadow-md ring-1 ring-foreground/5",
       )}
     >
       <div className="flex flex-col md:flex-row md:items-stretch">
