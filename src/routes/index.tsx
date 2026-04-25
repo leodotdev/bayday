@@ -1,17 +1,13 @@
 import { Link, createFileRoute } from "@tanstack/react-router"
 import { convexQuery } from "@convex-dev/react-query"
-import { ChevronRight, Users } from "lucide-react"
+import { ChevronRight } from "lucide-react"
 import { api } from "@/convex/_generated/api"
 import { SearchBar } from "@/components/features/search/search-bar"
 import { FeaturedChartersStrip } from "@/components/features/landing/featured-charters-strip"
 import { NearbyBoats } from "@/components/features/landing/nearby-boats"
-import { SharedTripsStrip } from "@/components/features/landing/shared-trips-strip"
-import { Badge } from "@/components/ui/badge"
 
 export const Route = createFileRoute("/")({
   loader: async ({ context }) => {
-    // Warm the cache for hero-search filter options + landing strips so
-    // the first paint shows real data instead of skeletons.
     await Promise.all([
       context.queryClient.ensureQueryData(
         convexQuery(api.search.getFilterOptions, {}),
@@ -39,7 +35,7 @@ function HomePage() {
             </h1>
             <p className="max-w-xl text-lg text-muted-foreground">
               Browse hundreds of fishing charters from trusted local captains.
-              Book in minutes, get out on the water.
+              Book a private trip or join a shared one.
             </p>
           </div>
           <div className="mt-10">
@@ -50,41 +46,14 @@ function HomePage() {
 
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-6 flex items-end justify-between">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <Badge className="gap-1.5">
-                <Users className="h-3.5 w-3.5" />
-                Shared trips
-              </Badge>
-              <span className="text-sm text-muted-foreground">
-                Split the cost
-              </span>
-            </div>
-            <h2 className="text-2xl font-semibold tracking-tight">
-              Open trips you can join
-            </h2>
-          </div>
-          <Link
-            to="/search"
-            className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
-          >
-            See all
-            <ChevronRight className="h-4 w-4" />
-          </Link>
-        </div>
-        <SharedTripsStrip />
-      </section>
-
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mb-6 flex items-end justify-between">
           <h2 className="text-2xl font-semibold tracking-tight">
-            Featured charters
+            Featured trips
           </h2>
           <Link
             to="/search"
             className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
           >
-            View all charters
+            View all trips
             <ChevronRight className="h-4 w-4" />
           </Link>
         </div>

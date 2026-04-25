@@ -2,20 +2,15 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { convexQuery } from "@convex-dev/react-query"
 import { useQuery } from "convex/react"
 import { z } from "zod"
-import { Users } from "lucide-react"
-import type {ViewMode} from "@/components/features/search/view-toggle";
+import type { ViewMode } from "@/components/features/search/view-toggle"
 import { api } from "@/convex/_generated/api"
 import { FilterChipBar } from "@/components/features/search/filter-chip-bar"
 import { SortSelect } from "@/components/features/search/sort-select"
 import { SearchBar } from "@/components/features/search/search-bar"
-import {
-  
-  ViewToggle
-} from "@/components/features/search/view-toggle"
+import { ViewToggle } from "@/components/features/search/view-toggle"
 import { ListingsMap } from "@/components/features/map/listings-map"
 import { ListingCard } from "@/components/features/listings/listing-card"
 import { SharedTripCard } from "@/components/features/shared-trips/shared-trip-card"
-import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { cn } from "@/lib/utils"
 
@@ -177,76 +172,45 @@ function SearchPage() {
               ) : null}
             </div>
 
-            {sharedTrips && sharedTrips.length > 0 ? (
-              <section className="mb-8 space-y-3">
-                <div className="flex items-center gap-2">
-                  <Badge className="gap-1.5">
-                    <Users className="h-3.5 w-3.5" />
-                    Shared trips
-                  </Badge>
-                  <span className="text-sm text-muted-foreground">
-                    Join an existing booking and split the cost
-                  </span>
-                </div>
-                <div
-                  className={cn(
-                    "grid gap-4",
-                    view === "split" ? "sm:grid-cols-2" : "sm:grid-cols-2 lg:grid-cols-3",
-                  )}
-                >
-                  {sharedTrips.map((trip) => (
-                    <SharedTripCard key={trip.booking._id} trip={trip} />
-                  ))}
-                </div>
-              </section>
-            ) : null}
-
-            <section className="space-y-3">
-              {sharedTrips && sharedTrips.length > 0 ? (
-                <div className="flex items-center gap-2">
-                  <Badge variant="outline">Charters</Badge>
-                  <span className="text-sm text-muted-foreground">
-                    Book a private trip
-                  </span>
-                </div>
-              ) : null}
-
-              {listings === undefined ? (
-                <div
-                  className={cn(
-                    "grid gap-4",
-                    view === "split"
-                      ? "sm:grid-cols-2"
-                      : "sm:grid-cols-2 lg:grid-cols-3",
-                  )}
-                >
-                  {Array.from({ length: 6 }).map((_, i) => (
-                    <Skeleton
-                      key={i}
-                      className="aspect-[4/3] w-full rounded-xl"
-                    />
-                  ))}
-                </div>
-              ) : listings.length === 0 ? (
-                <div className="rounded-xl border border-dashed p-10 text-center">
-                  <p className="text-sm text-muted-foreground">
-                    No listings match your filters. Try clearing them.
-                  </p>
-                </div>
-              ) : (
-                <div
-                  className={cn(
-                    "grid gap-4",
-                    view === "split"
-                      ? "sm:grid-cols-2"
-                      : "sm:grid-cols-2 lg:grid-cols-3",
-                  )}
-                >
-                  {listings.map((l) => (
-                    <ListingCard key={l._id} listing={l} />
-                  ))}
-                </div>
-              )}
+            {listings === undefined ? (
+              <div
+                className={cn(
+                  "grid gap-4",
+                  view === "split"
+                    ? "sm:grid-cols-2"
+                    : "sm:grid-cols-2 lg:grid-cols-3",
+                )}
+              >
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <Skeleton
+                    key={i}
+                    className="aspect-[4/3] w-full rounded-xl"
+                  />
+                ))}
+              </div>
+            ) : listings.length === 0 && (sharedTrips?.length ?? 0) === 0 ? (
+              <div className="rounded-xl border border-dashed p-10 text-center">
+                <p className="text-sm text-muted-foreground">
+                  No trips match your filters. Try clearing them.
+                </p>
+              </div>
+            ) : (
+              <div
+                className={cn(
+                  "grid gap-4",
+                  view === "split"
+                    ? "sm:grid-cols-2"
+                    : "sm:grid-cols-2 lg:grid-cols-3",
+                )}
+              >
+                {(sharedTrips ?? []).map((trip) => (
+                  <SharedTripCard key={trip.booking._id} trip={trip} />
+                ))}
+                {listings.map((l) => (
+                  <ListingCard key={l._id} listing={l} />
+                ))}
+              </div>
+            )}
             </section>
           </div>
         ) : null}
