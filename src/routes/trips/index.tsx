@@ -145,6 +145,15 @@ function TripsPage() {
                   >
                     Manage trip
                   </Link>
+                  {b.status === "completed" ? (
+                    <Link
+                      to="/trips/$bookingId/review"
+                      params={{ bookingId: b._id }}
+                      className={cn(buttonVariants({ size: "sm" }))}
+                    >
+                      Leave a review
+                    </Link>
+                  ) : null}
                   {active ? (
                     <Button
                       variant="ghost"

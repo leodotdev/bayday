@@ -34,6 +34,7 @@ import { Route as AdminBookingsRouteImport } from './routes/admin/bookings'
 import { Route as AdminBoatsRouteImport } from './routes/admin/boats'
 import { Route as CaptainListingsIndexRouteImport } from './routes/captain/listings/index'
 import { Route as CaptainBoatsIndexRouteImport } from './routes/captain/boats/index'
+import { Route as TripsBookingIdReviewRouteImport } from './routes/trips/$bookingId.review'
 import { Route as CaptainListingsNewRouteImport } from './routes/captain/listings/new'
 import { Route as CaptainListingsListingIdRouteImport } from './routes/captain/listings/$listingId'
 import { Route as CaptainBoatsNewRouteImport } from './routes/captain/boats/new'
@@ -165,6 +166,11 @@ const CaptainBoatsIndexRoute = CaptainBoatsIndexRouteImport.update({
   path: '/captain/boats/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TripsBookingIdReviewRoute = TripsBookingIdReviewRouteImport.update({
+  id: '/review',
+  path: '/review',
+  getParentRoute: () => TripsBookingIdRoute,
+} as any)
 const CaptainListingsNewRoute = CaptainListingsNewRouteImport.update({
   id: '/captain/listings/new',
   path: '/captain/listings/new',
@@ -213,7 +219,7 @@ export interface FileRoutesByFullPath {
   '/captain/onboarding': typeof CaptainOnboardingRoute
   '/conversation/$id': typeof ConversationIdRoute
   '/listings/$id': typeof ListingsIdRoute
-  '/trips/$bookingId': typeof TripsBookingIdRoute
+  '/trips/$bookingId': typeof TripsBookingIdRouteWithChildren
   '/admin/': typeof AdminIndexRoute
   '/captain/': typeof CaptainIndexRoute
   '/trips/': typeof TripsIndexRoute
@@ -222,6 +228,7 @@ export interface FileRoutesByFullPath {
   '/captain/boats/new': typeof CaptainBoatsNewRoute
   '/captain/listings/$listingId': typeof CaptainListingsListingIdRoute
   '/captain/listings/new': typeof CaptainListingsNewRoute
+  '/trips/$bookingId/review': typeof TripsBookingIdReviewRoute
   '/captain/boats/': typeof CaptainBoatsIndexRoute
   '/captain/listings/': typeof CaptainListingsIndexRoute
 }
@@ -244,7 +251,7 @@ export interface FileRoutesByTo {
   '/captain/onboarding': typeof CaptainOnboardingRoute
   '/conversation/$id': typeof ConversationIdRoute
   '/listings/$id': typeof ListingsIdRoute
-  '/trips/$bookingId': typeof TripsBookingIdRoute
+  '/trips/$bookingId': typeof TripsBookingIdRouteWithChildren
   '/admin': typeof AdminIndexRoute
   '/captain': typeof CaptainIndexRoute
   '/trips': typeof TripsIndexRoute
@@ -253,6 +260,7 @@ export interface FileRoutesByTo {
   '/captain/boats/new': typeof CaptainBoatsNewRoute
   '/captain/listings/$listingId': typeof CaptainListingsListingIdRoute
   '/captain/listings/new': typeof CaptainListingsNewRoute
+  '/trips/$bookingId/review': typeof TripsBookingIdReviewRoute
   '/captain/boats': typeof CaptainBoatsIndexRoute
   '/captain/listings': typeof CaptainListingsIndexRoute
 }
@@ -277,7 +285,7 @@ export interface FileRoutesById {
   '/captain/onboarding': typeof CaptainOnboardingRoute
   '/conversation/$id': typeof ConversationIdRoute
   '/listings/$id': typeof ListingsIdRoute
-  '/trips/$bookingId': typeof TripsBookingIdRoute
+  '/trips/$bookingId': typeof TripsBookingIdRouteWithChildren
   '/admin/': typeof AdminIndexRoute
   '/captain/': typeof CaptainIndexRoute
   '/trips/': typeof TripsIndexRoute
@@ -286,6 +294,7 @@ export interface FileRoutesById {
   '/captain/boats/new': typeof CaptainBoatsNewRoute
   '/captain/listings/$listingId': typeof CaptainListingsListingIdRoute
   '/captain/listings/new': typeof CaptainListingsNewRoute
+  '/trips/$bookingId/review': typeof TripsBookingIdReviewRoute
   '/captain/boats/': typeof CaptainBoatsIndexRoute
   '/captain/listings/': typeof CaptainListingsIndexRoute
 }
@@ -320,6 +329,7 @@ export interface FileRouteTypes {
     | '/captain/boats/new'
     | '/captain/listings/$listingId'
     | '/captain/listings/new'
+    | '/trips/$bookingId/review'
     | '/captain/boats/'
     | '/captain/listings/'
   fileRoutesByTo: FileRoutesByTo
@@ -351,6 +361,7 @@ export interface FileRouteTypes {
     | '/captain/boats/new'
     | '/captain/listings/$listingId'
     | '/captain/listings/new'
+    | '/trips/$bookingId/review'
     | '/captain/boats'
     | '/captain/listings'
   id:
@@ -383,6 +394,7 @@ export interface FileRouteTypes {
     | '/captain/boats/new'
     | '/captain/listings/$listingId'
     | '/captain/listings/new'
+    | '/trips/$bookingId/review'
     | '/captain/boats/'
     | '/captain/listings/'
   fileRoutesById: FileRoutesById
@@ -401,7 +413,7 @@ export interface RootRouteChildren {
   CaptainOnboardingRoute: typeof CaptainOnboardingRoute
   ConversationIdRoute: typeof ConversationIdRoute
   ListingsIdRoute: typeof ListingsIdRoute
-  TripsBookingIdRoute: typeof TripsBookingIdRoute
+  TripsBookingIdRoute: typeof TripsBookingIdRouteWithChildren
   CaptainIndexRoute: typeof CaptainIndexRoute
   TripsIndexRoute: typeof TripsIndexRoute
   BookingConfirmationBookingIdRoute: typeof BookingConfirmationBookingIdRoute
@@ -590,6 +602,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CaptainBoatsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/trips/$bookingId/review': {
+      id: '/trips/$bookingId/review'
+      path: '/review'
+      fullPath: '/trips/$bookingId/review'
+      preLoaderRoute: typeof TripsBookingIdReviewRouteImport
+      parentRoute: typeof TripsBookingIdRoute
+    }
     '/captain/listings/new': {
       id: '/captain/listings/new'
       path: '/captain/listings/new'
@@ -652,6 +671,18 @@ const AdminRouteRouteWithChildren = AdminRouteRoute._addFileChildren(
   AdminRouteRouteChildren,
 )
 
+interface TripsBookingIdRouteChildren {
+  TripsBookingIdReviewRoute: typeof TripsBookingIdReviewRoute
+}
+
+const TripsBookingIdRouteChildren: TripsBookingIdRouteChildren = {
+  TripsBookingIdReviewRoute: TripsBookingIdReviewRoute,
+}
+
+const TripsBookingIdRouteWithChildren = TripsBookingIdRoute._addFileChildren(
+  TripsBookingIdRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRouteRoute: AdminRouteRouteWithChildren,
@@ -666,7 +697,7 @@ const rootRouteChildren: RootRouteChildren = {
   CaptainOnboardingRoute: CaptainOnboardingRoute,
   ConversationIdRoute: ConversationIdRoute,
   ListingsIdRoute: ListingsIdRoute,
-  TripsBookingIdRoute: TripsBookingIdRoute,
+  TripsBookingIdRoute: TripsBookingIdRouteWithChildren,
   CaptainIndexRoute: CaptainIndexRoute,
   TripsIndexRoute: TripsIndexRoute,
   BookingConfirmationBookingIdRoute: BookingConfirmationBookingIdRoute,
