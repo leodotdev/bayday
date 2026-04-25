@@ -12,6 +12,31 @@ import { OAuthButtons } from "@/components/features/auth/oauth-buttons"
 
 type Mode = "signIn" | "signUp"
 
+// @convex-dev/auth surfaces unhelpful raw stack traces for common cases.
+// Map the worst offenders to friendlier copy so users see one clear line
+// instead of a wall of red.
+function humanizeAuthError(err: unknown, isSignIn: boolean): string {
+  const raw = err instanceof Error ? err.message : String(err)
+  // Known crash in @convex-dev/auth@0.0.91 when no account matches.
+  if (raw.includes("Cannot read properties of null") && raw.includes("_id")) {
+    return isSignIn
+      ? "We couldn't find an account with that email and password. Try signing up first."
+      : "An account with that email already exists. Try signing in instead."
+  }
+  if (raw.includes("InvalidAccountId") || raw.includes("Invalid credentials")) {
+    return "That email and password don't match an account."
+  }
+  if (raw.includes("AccountAlreadyExists")) {
+    return "An account with that email already exists. Try signing in."
+  }
+  if (raw.includes("Account suspended")) {
+    return "This account has been suspended. Contact support."
+  }
+  // Strip the stack — keep only the first line for any other server error.
+  const firstLine = raw.split(/\r?\n/)[0].replace(/^\[CONVEX[^\]]*\]\s*/, "")
+  return firstLine || "Something went wrong. Try again in a moment."
+}
+
 export function AuthForm({ mode }: { mode: Mode }) {
   const isSignIn = mode === "signIn"
 
@@ -104,8 +129,7 @@ function EmailFlow({ mode }: { mode: Mode }) {
       toast.success(isSignIn ? "Welcome back" : "Account created")
       navigate({ to: "/" })
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Something went wrong"
-      setError(msg)
+      setError(humanizeAuthError(err, isSignIn))
     } finally {
       setSubmitting(false)
     }
