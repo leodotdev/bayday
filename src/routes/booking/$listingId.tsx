@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Switch } from "@/components/ui/switch"
 import { Textarea } from "@/components/ui/textarea"
 import { useCurrentUser } from "@/hooks/use-current-user"
 import {
@@ -49,6 +50,34 @@ export const Route = createFileRoute("/booking/$listingId")({
   component: BookingPage,
 })
 
+function Visibility({
+  label,
+  description,
+  active,
+  onClick,
+}: {
+  label: string
+  description: string
+  active: boolean
+  onClick: () => void
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        "rounded-xl border p-3 text-left transition-colors",
+        active
+          ? "border-primary bg-primary/5"
+          : "hover:bg-muted",
+      )}
+    >
+      <div className="text-sm font-semibold">{label}</div>
+      <div className="text-xs text-muted-foreground">{description}</div>
+    </button>
+  )
+}
+
 function BookingPage() {
   const { listingId } = Route.useParams()
   const search = Route.useSearch()
@@ -68,6 +97,10 @@ function BookingPage() {
     String(search.partySize ?? 2),
   )
   const [specialRequests, setSpecialRequests] = useState("")
+  const [shareTrip, setShareTrip] = useState(false)
+  const [shareVisibility, setShareVisibility] = useState<
+    "private" | "public"
+  >("public")
   const [guestName, setGuestName] = useState("")
   const [guestEmail, setGuestEmail] = useState("")
   const [guestPhone, setGuestPhone] = useState("")
@@ -125,7 +158,11 @@ function BookingPage() {
           startTime,
           endTime,
           partySize: size,
-          costSharingEnabled: false,
+          costSharingEnabled: shareTrip && !!listing.allowCostSharing,
+          visibility:
+            shareTrip && !!listing.allowCostSharing
+              ? shareVisibility
+              : undefined,
           specialRequests: specialRequests || undefined,
         })
         toast.success("Booking requested")
@@ -242,6 +279,45 @@ function BookingPage() {
               />
             </div>
           </Card>
+
+          {listing.allowCostSharing && isAuthenticated ? (
+            <Card className="space-y-4 p-6">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-start gap-2">
+                  <div className="rounded-lg bg-primary/10 p-1.5 text-primary">
+                    <Users className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <Label className="text-base">Share this trip</Label>
+                    <p className="text-sm text-muted-foreground">
+                      Open empty seats so others can join and split the cost.
+                    </p>
+                  </div>
+                </div>
+                <Switch checked={shareTrip} onCheckedChange={setShareTrip} />
+              </div>
+
+              {shareTrip ? (
+                <div className="space-y-2 rounded-xl border p-4">
+                  <Label className="text-sm font-semibold">Who can join?</Label>
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    <Visibility
+                      label="Friends only"
+                      description="Invite by email — invite-only."
+                      active={shareVisibility === "private"}
+                      onClick={() => setShareVisibility("private")}
+                    />
+                    <Visibility
+                      label="Open to public"
+                      description="Anyone browsing /search can claim a spot."
+                      active={shareVisibility === "public"}
+                      onClick={() => setShareVisibility("public")}
+                    />
+                  </div>
+                </div>
+              ) : null}
+            </Card>
+          ) : null}
 
           {!isAuthenticated && (
             <Card className="space-y-4 p-6">

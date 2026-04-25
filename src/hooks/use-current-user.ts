@@ -7,9 +7,12 @@ export function useCurrentUser() {
     api.users.currentUser,
     isAuthenticated ? {} : "skip",
   )
+  const role = user?.role
   return {
     user,
     isAuthenticated,
     isLoading: isLoading || (isAuthenticated && user === undefined),
+    isHost: role === "host" || role === "admin",
+    isAdmin: role === "admin",
   }
 }

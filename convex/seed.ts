@@ -431,6 +431,7 @@ export const seed = internalMutation({
       averageRating: 4.8,
       reviewCount: 24,
       instantBook: false,
+      allowCostSharing: true,
       createdAt: now - 85 * 86400000,
       updatedAt: now - 2 * 86400000,
     });
@@ -463,6 +464,7 @@ export const seed = internalMutation({
       averageRating: 4.9,
       reviewCount: 31,
       instantBook: true,
+      allowCostSharing: true,
       createdAt: now - 55 * 86400000,
       updatedAt: now - 1 * 86400000,
     });
@@ -496,6 +498,7 @@ export const seed = internalMutation({
       averageRating: 4.7,
       reviewCount: 18,
       instantBook: false,
+      allowCostSharing: true,
       createdAt: now - 40 * 86400000,
       updatedAt: now - 3 * 86400000,
     });
@@ -528,6 +531,7 @@ export const seed = internalMutation({
       averageRating: 4.6,
       reviewCount: 42,
       instantBook: true,
+      allowCostSharing: true,
       createdAt: now - 25 * 86400000,
       updatedAt: now - 1 * 86400000,
     });
@@ -561,6 +565,7 @@ export const seed = internalMutation({
       averageRating: 4.5,
       reviewCount: 56,
       instantBook: true,
+      allowCostSharing: true,
       createdAt: now - 35 * 86400000,
       updatedAt: now - 5 * 86400000,
     });
@@ -593,6 +598,7 @@ export const seed = internalMutation({
       averageRating: 4.4,
       reviewCount: 12,
       instantBook: false,
+      allowCostSharing: true,
       createdAt: now - 20 * 86400000,
       updatedAt: now - 4 * 86400000,
     });
@@ -625,6 +631,7 @@ export const seed = internalMutation({
       averageRating: 4.9,
       reviewCount: 67,
       instantBook: false,
+      allowCostSharing: true,
       createdAt: now - 100 * 86400000,
       updatedAt: now - 2 * 86400000,
     });
@@ -657,6 +664,7 @@ export const seed = internalMutation({
       averageRating: 4.7,
       reviewCount: 38,
       instantBook: true,
+      allowCostSharing: true,
       createdAt: now - 80 * 86400000,
       updatedAt: now - 3 * 86400000,
     });
@@ -690,6 +698,7 @@ export const seed = internalMutation({
       averageRating: 4.8,
       reviewCount: 89,
       instantBook: true,
+      allowCostSharing: true,
       createdAt: now - 88 * 86400000,
       updatedAt: now - 1 * 86400000,
     });
@@ -723,6 +732,7 @@ export const seed = internalMutation({
       averageRating: 4.6,
       reviewCount: 124,
       instantBook: true,
+      allowCostSharing: true,
       createdAt: now - 65 * 86400000,
       updatedAt: now - 2 * 86400000,
     });
@@ -756,6 +766,7 @@ export const seed = internalMutation({
       averageRating: 4.9,
       reviewCount: 45,
       instantBook: false,
+      allowCostSharing: true,
       createdAt: now - 60 * 86400000,
       updatedAt: now - 1 * 86400000,
     });
@@ -788,6 +799,7 @@ export const seed = internalMutation({
       averageRating: 4.8,
       reviewCount: 29,
       instantBook: false,
+      allowCostSharing: true,
       createdAt: now - 45 * 86400000,
       updatedAt: now - 2 * 86400000,
     });
@@ -820,6 +832,7 @@ export const seed = internalMutation({
       averageRating: 4.5,
       reviewCount: 78,
       instantBook: true,
+      allowCostSharing: true,
       createdAt: now - 32 * 86400000,
       updatedAt: now - 3 * 86400000,
     });
@@ -853,6 +866,7 @@ export const seed = internalMutation({
       averageRating: 4.7,
       reviewCount: 15,
       instantBook: false,
+      allowCostSharing: true,
       createdAt: now - 18 * 86400000,
       updatedAt: now - 1 * 86400000,
     });
@@ -885,6 +899,7 @@ export const seed = internalMutation({
       averageRating: 4.8,
       reviewCount: 53,
       instantBook: true,
+      allowCostSharing: true,
       createdAt: now - 10 * 86400000,
       updatedAt: now - 1 * 86400000,
     });
@@ -918,6 +933,7 @@ export const seed = internalMutation({
       averageRating: 4.6,
       reviewCount: 34,
       instantBook: false,
+      allowCostSharing: true,
       createdAt: now - 70 * 86400000,
       updatedAt: now - 5 * 86400000,
     });
@@ -951,6 +967,7 @@ export const seed = internalMutation({
       averageRating: 4.7,
       reviewCount: 62,
       instantBook: true,
+      allowCostSharing: true,
       createdAt: now - 50 * 86400000,
       updatedAt: now - 2 * 86400000,
     });
@@ -983,6 +1000,7 @@ export const seed = internalMutation({
       averageRating: 4.9,
       reviewCount: 41,
       instantBook: false,
+      allowCostSharing: true,
       createdAt: now - 48 * 86400000,
       updatedAt: now - 1 * 86400000,
     });

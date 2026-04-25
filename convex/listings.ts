@@ -108,6 +108,7 @@ export const create = mutation({
     customInclusions: v.array(v.string()),
     cancellationPolicy: cancellationPolicyValidator,
     instantBook: v.boolean(),
+    allowCostSharing: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
     const host = await requireHost(ctx);
@@ -144,6 +145,7 @@ export const create = mutation({
       customInclusions: args.customInclusions,
       cancellationPolicy: args.cancellationPolicy,
       instantBook: args.instantBook,
+      allowCostSharing: args.allowCostSharing,
       status: "draft",
       reviewCount: 0,
       createdAt: now,
@@ -178,6 +180,7 @@ export const update = mutation({
     customInclusions: v.optional(v.array(v.string())),
     cancellationPolicy: v.optional(cancellationPolicyValidator),
     instantBook: v.optional(v.boolean()),
+    allowCostSharing: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
     const host = await requireHost(ctx);
@@ -187,6 +190,7 @@ export const update = mutation({
     if (listing.hostId !== host._id) throw new Error("Listing does not belong to you");
 
     const { id, ...updates } = args;
+    void id;
 
     const patch: Record<string, unknown> = { updatedAt: Date.now() };
     for (const [key, value] of Object.entries(updates)) {

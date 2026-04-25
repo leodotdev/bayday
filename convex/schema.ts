@@ -110,6 +110,10 @@ export default defineSchema({
     averageRating: v.optional(v.number()),
     reviewCount: v.number(),
     instantBook: v.boolean(),
+    // Captains opt in to shared trips per listing. When true, guests see
+    // a "Share this trip" toggle in the booking flow that flips the new
+    // booking's visibility to "public" so other anglers can claim spots.
+    allowCostSharing: v.optional(v.boolean()),
     createdAt: v.number(),
     updatedAt: v.number(),
   })

@@ -1,13 +1,10 @@
 import { Link } from "@tanstack/react-router"
 import { Anchor } from "lucide-react"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
 import { AuthMenu } from "@/components/layout/auth-menu"
+import { useCurrentUser } from "@/hooks/use-current-user"
 
 export function SiteHeader() {
+  const { isHost } = useCurrentUser()
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/80 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -30,15 +27,23 @@ export function SiteHeader() {
           >
             Find a Boat
           </Link>
-          <Tooltip>
-            <TooltipTrigger
-              className="cursor-not-allowed text-base font-medium text-muted-foreground/60"
-              disabled
+          {isHost ? (
+            <Link
+              to="/captain"
+              className="text-base font-medium text-muted-foreground hover:text-foreground"
+              activeProps={{ className: "text-foreground" }}
+            >
+              Captain dashboard
+            </Link>
+          ) : (
+            <Link
+              to="/captain/onboarding"
+              className="text-base font-medium text-muted-foreground hover:text-foreground"
+              activeProps={{ className: "text-foreground" }}
             >
               List Your Boat
-            </TooltipTrigger>
-            <TooltipContent>Captain portal coming soon</TooltipContent>
-          </Tooltip>
+            </Link>
+          )}
           <Link
             to="/help"
             className="text-base font-medium text-muted-foreground hover:text-foreground"

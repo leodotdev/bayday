@@ -107,12 +107,19 @@ export const create = mutation({
     costSharingEnabled: v.boolean(),
     costSharingMaxSpots: v.optional(v.number()),
     costSharingDeadline: v.optional(v.number()),
+    visibility: v.optional(
+      v.union(v.literal("private"), v.literal("public"))
+    ),
     specialRequests: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const guest = await requireAuth(ctx);
     const { listing, slots, totalPriceCents, platformFeeCents, hostPayoutCents, status } =
       await validateAndCalculateBooking(ctx, args);
+
+    if (args.costSharingEnabled && !listing.allowCostSharing) {
+      throw new Error("This captain has not enabled shared trips for this listing");
+    }
 
     const now = Date.now();
 
@@ -134,8 +141,13 @@ export const create = mutation({
       totalPriceCents,
       status,
       costSharingEnabled: args.costSharingEnabled,
-      costSharingMaxSpots: args.costSharingMaxSpots,
+      costSharingMaxSpots: args.costSharingEnabled
+        ? args.costSharingMaxSpots ?? listing.maxGuests
+        : undefined,
       costSharingDeadline: args.costSharingDeadline,
+      visibility: args.costSharingEnabled
+        ? args.visibility ?? "private"
+        : undefined,
       specialRequests: args.specialRequests,
       hostPayoutCents,
       platformFeeCents,
