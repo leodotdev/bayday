@@ -1,5 +1,6 @@
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
+import { internal } from "./_generated/api";
 import { optionalAuth, requireAuth } from "./helpers";
 
 export const invite = mutation({
@@ -52,6 +53,32 @@ export const invite = mutation({
       hasPaid: false,
       joinedAt: Date.now(),
     });
+
+    // Email the invitee
+    const listing = await ctx.db.get(booking.listingId);
+    const organizer = booking.guestId ? await ctx.db.get(booking.guestId) : null;
+    if (listing) {
+      const totalSpots = booking.costSharingMaxSpots ?? booking.partySize;
+      const pricePerSpotCents = Math.round(
+        booking.totalPriceCents / Math.max(totalSpots, 1),
+      );
+      const formatted = (pricePerSpotCents / 100).toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+      });
+      await ctx.scheduler.runAfter(0, internal.email.notifyShareInvite, {
+        to: args.email,
+        organizerName:
+          organizer?.firstName ??
+          organizer?.name ??
+          booking.guestName ??
+          "An angler",
+        listingTitle: listing.title,
+        date: booking.date,
+        pricePerSpot: formatted,
+        inviteUrl: `https://bayday.app/trips/${booking._id}?invite=${inviteCode}`,
+      });
+    }
 
     return { id, inviteCode };
   },

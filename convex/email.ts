@@ -1,7 +1,9 @@
 import { v } from "convex/values";
 import { action, internalAction } from "./_generated/server";
 
-// Resend API helper — works with Convex actions (which can do HTTP calls)
+const FROM = "BayDay <noreply@bayday.app>";
+const BRAND = "BayDay";
+
 async function sendEmail({
   to,
   subject,
@@ -17,8 +19,11 @@ async function sendEmail({
 }) {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
-    console.warn("RESEND_API_KEY not set — email not sent:", subject);
-    return { success: false, error: "RESEND_API_KEY not configured" };
+    console.log(
+      `📧 [email dev mode] would send to ${to}: ${subject} ` +
+        `(set RESEND_API_KEY in Convex env to send for real)`,
+    );
+    return { success: true, id: "dev-mode" };
   }
 
   const response = await fetch("https://api.resend.com/emails", {
@@ -28,7 +33,7 @@ async function sendEmail({
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      from: from ?? "Angler's Day <noreply@anglersday.com>",
+      from: from ?? FROM,
       to: [to],
       subject,
       html,
@@ -46,7 +51,17 @@ async function sendEmail({
   return { success: true, id: data.id };
 }
 
-// --- Feedback email ---
+const baseStyles = `
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #0f172a;
+  line-height: 1.5;
+`;
+
+function wrap(content: string) {
+  return `<div style="${baseStyles}">${content}<hr style="margin: 24px 0; border: none; border-top: 1px solid #e2e8f0;" /><p style="font-size: 12px; color: #64748b;">${BRAND} · You're receiving this because of activity on your account.</p></div>`;
+}
+
+// --- Feedback ---
 export const sendFeedback = action({
   args: {
     email: v.string(),
@@ -59,34 +74,34 @@ export const sendFeedback = action({
       to: "leo@leo.dev",
       subject: `[Feedback] ${args.subject}`,
       replyTo: args.email,
-      html: `
+      html: wrap(`
         <h2>Feedback from ${args.name}</h2>
         <p><strong>From:</strong> ${args.email}</p>
         <p><strong>Subject:</strong> ${args.subject}</p>
-        <hr />
         <p>${args.message.replace(/\n/g, "<br />")}</p>
-      `,
+      `),
     });
   },
 });
 
-// --- Notification email (internal, called from other mutations) ---
-export const sendNotificationEmail = internalAction({
-  args: {
-    to: v.string(),
-    subject: v.string(),
-    html: v.string(),
-  },
+// --- Welcome ---
+export const notifyWelcome = internalAction({
+  args: { to: v.string(), firstName: v.optional(v.string()) },
   handler: async (_ctx, args) => {
+    const name = args.firstName ?? "there";
     return sendEmail({
       to: args.to,
-      subject: args.subject,
-      html: args.html,
+      subject: `Welcome to ${BRAND}`,
+      html: wrap(`
+        <h2>Welcome aboard, ${name}!</h2>
+        <p>Your ${BRAND} account is ready. Browse charters, book trips, and join shared trips with friends or new anglers.</p>
+        <p><a href="https://bayday.app/search" style="background: #0f172a; color: white; text-decoration: none; padding: 10px 16px; border-radius: 999px; display: inline-block;">Find a boat</a></p>
+      `),
     });
   },
 });
 
-// --- New message notification ---
+// --- New message ---
 export const notifyNewMessage = internalAction({
   args: {
     recipientEmail: v.string(),
@@ -99,17 +114,46 @@ export const notifyNewMessage = internalAction({
     return sendEmail({
       to: args.recipientEmail,
       subject: `New message from ${args.senderName}`,
-      html: `
-        <h2>New message from ${args.senderName}</h2>
-        <p style="color: #666; font-size: 14px;">${args.messagePreview}</p>
-        <hr />
-        <p>Open the Angler's Day app to reply.</p>
-      `,
+      html: wrap(`
+        <h2>${args.senderName} sent you a message</h2>
+        <blockquote style="margin: 16px 0; padding: 12px 16px; border-left: 3px solid #0f172a; color: #475569;">${args.messagePreview}</blockquote>
+        <p><a href="https://bayday.app/conversation/${args.conversationId}">Open the conversation →</a></p>
+      `),
     });
   },
 });
 
-// --- Booking confirmation email ---
+// --- Booking requested (sent to host) ---
+export const notifyBookingRequested = internalAction({
+  args: {
+    to: v.string(),
+    hostName: v.string(),
+    guestName: v.string(),
+    listingTitle: v.string(),
+    date: v.string(),
+    startTime: v.string(),
+    partySize: v.number(),
+  },
+  handler: async (_ctx, args) => {
+    return sendEmail({
+      to: args.to,
+      subject: `New booking request — ${args.listingTitle}`,
+      html: wrap(`
+        <h2>New booking request</h2>
+        <p>Hi ${args.hostName},</p>
+        <p><strong>${args.guestName}</strong> wants to book <strong>${args.listingTitle}</strong>.</p>
+        <table style="margin: 16px 0;">
+          <tr><td style="color: #64748b; padding-right: 12px;">Date</td><td><strong>${args.date}</strong></td></tr>
+          <tr><td style="color: #64748b; padding-right: 12px;">Time</td><td><strong>${args.startTime}</strong></td></tr>
+          <tr><td style="color: #64748b; padding-right: 12px;">Party</td><td><strong>${args.partySize} ${args.partySize === 1 ? "angler" : "anglers"}</strong></td></tr>
+        </table>
+        <p><a href="https://bayday.app/captain/bookings">Review the request →</a></p>
+      `),
+    });
+  },
+});
+
+// --- Booking confirmed (sent to guest) ---
 export const notifyBookingConfirmed = internalAction({
   args: {
     to: v.string(),
@@ -118,22 +162,63 @@ export const notifyBookingConfirmed = internalAction({
     date: v.string(),
     startTime: v.string(),
     departurePort: v.string(),
+    bookingId: v.string(),
   },
   handler: async (_ctx, args) => {
     return sendEmail({
       to: args.to,
-      subject: `Booking Confirmed: ${args.listingTitle}`,
-      html: `
+      subject: `Booking confirmed: ${args.listingTitle}`,
+      html: wrap(`
         <h2>Your trip is confirmed!</h2>
         <p>Hi ${args.guestName},</p>
-        <p>Your booking for <strong>${args.listingTitle}</strong> is confirmed.</p>
+        <p>Your booking for <strong>${args.listingTitle}</strong> is locked in.</p>
         <table style="margin: 16px 0;">
-          <tr><td style="color: #666; padding-right: 12px;">Date</td><td><strong>${args.date}</strong></td></tr>
-          <tr><td style="color: #666; padding-right: 12px;">Time</td><td><strong>${args.startTime}</strong></td></tr>
-          <tr><td style="color: #666; padding-right: 12px;">Meet at</td><td><strong>${args.departurePort}</strong></td></tr>
+          <tr><td style="color: #64748b; padding-right: 12px;">Date</td><td><strong>${args.date}</strong></td></tr>
+          <tr><td style="color: #64748b; padding-right: 12px;">Time</td><td><strong>${args.startTime}</strong></td></tr>
+          <tr><td style="color: #64748b; padding-right: 12px;">Meet at</td><td><strong>${args.departurePort}</strong></td></tr>
         </table>
-        <p>Open the app for full details or to message your captain.</p>
-      `,
+        <p>Arrive 15–20 minutes early.</p>
+        <p><a href="https://bayday.app/trips/${args.bookingId}">View your trip →</a></p>
+      `),
+    });
+  },
+});
+
+// --- Shared-trip invite ---
+export const notifyShareInvite = internalAction({
+  args: {
+    to: v.string(),
+    organizerName: v.string(),
+    listingTitle: v.string(),
+    date: v.string(),
+    pricePerSpot: v.string(),
+    inviteUrl: v.string(),
+  },
+  handler: async (_ctx, args) => {
+    return sendEmail({
+      to: args.to,
+      subject: `${args.organizerName} invited you on a fishing trip`,
+      html: wrap(`
+        <h2>You're invited!</h2>
+        <p>${args.organizerName} wants you to join <strong>${args.listingTitle}</strong> on ${args.date} for <strong>${args.pricePerSpot}</strong> per spot.</p>
+        <p><a href="${args.inviteUrl}" style="background: #0f172a; color: white; text-decoration: none; padding: 10px 16px; border-radius: 999px; display: inline-block;">View invite →</a></p>
+      `),
+    });
+  },
+});
+
+// --- Generic helper ---
+export const sendNotificationEmail = internalAction({
+  args: {
+    to: v.string(),
+    subject: v.string(),
+    html: v.string(),
+  },
+  handler: async (_ctx, args) => {
+    return sendEmail({
+      to: args.to,
+      subject: args.subject,
+      html: wrap(args.html),
     });
   },
 });

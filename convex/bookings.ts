@@ -1,7 +1,67 @@
 import { v } from "convex/values";
 import { query, mutation, type MutationCtx } from "./_generated/server";
 import { requireAuth, requireHost, optionalAuth } from "./helpers";
+import { internal } from "./_generated/api";
 import type { Id } from "./_generated/dataModel";
+
+async function notifyHostOfRequest(
+  ctx: MutationCtx,
+  bookingId: Id<"bookings">,
+) {
+  const booking = await ctx.db.get(bookingId);
+  if (!booking) return;
+  const host = await ctx.db.get(booking.hostId);
+  const listing = await ctx.db.get(booking.listingId);
+  if (!host?.email || !listing) return;
+  const wantsEmail = host.notificationPreferences?.emailBookings !== false;
+  if (wantsEmail) {
+    await ctx.scheduler.runAfter(0, internal.email.notifyBookingRequested, {
+      to: host.email,
+      hostName: host.firstName ?? host.name ?? "Captain",
+      guestName: booking.guestName ?? "A guest",
+      listingTitle: listing.title,
+      date: booking.date,
+      startTime: booking.startTime,
+      partySize: booking.partySize,
+    });
+  }
+}
+
+async function notifyGuestOfConfirmation(
+  ctx: MutationCtx,
+  bookingId: Id<"bookings">,
+) {
+  const booking = await ctx.db.get(bookingId);
+  if (!booking) return;
+  const listing = await ctx.db.get(booking.listingId);
+  if (!listing) return;
+  const guestEmail = booking.guestEmail;
+  const guestName = booking.guestName ?? "Angler";
+  const guestUser = booking.guestId ? await ctx.db.get(booking.guestId) : null;
+  const wantsEmail =
+    guestUser?.notificationPreferences?.emailBookings !== false;
+  if (guestEmail && wantsEmail) {
+    await ctx.scheduler.runAfter(0, internal.email.notifyBookingConfirmed, {
+      to: guestEmail,
+      guestName,
+      listingTitle: listing.title,
+      date: booking.date,
+      startTime: booking.startTime,
+      departurePort: listing.departurePort,
+      bookingId: bookingId,
+    });
+  }
+  const guestPhone = booking.guestPhone ?? guestUser?.phone;
+  const wantsSms = guestUser?.notificationPreferences?.smsBookings === true;
+  if (guestPhone && wantsSms) {
+    await ctx.scheduler.runAfter(0, internal.sms.notifyBookingConfirmed, {
+      to: guestPhone,
+      listingTitle: listing.title,
+      date: booking.date,
+      startTime: booking.startTime,
+    });
+  }
+}
 
 const PLATFORM_FEE_PERCENT = 10;
 
@@ -159,6 +219,11 @@ export const create = mutation({
       if (slot) await ctx.db.patch(slot._id, { isAvailable: false });
     }
 
+    await notifyHostOfRequest(ctx, bookingId);
+    if (status === "confirmed") {
+      await notifyGuestOfConfirmation(ctx, bookingId);
+    }
+
     return bookingId;
   },
 });
@@ -212,6 +277,11 @@ export const createAsGuest = mutation({
       if (slot) await ctx.db.patch(slot._id, { isAvailable: false });
     }
 
+    await notifyHostOfRequest(ctx, bookingId);
+    if (status === "confirmed") {
+      await notifyGuestOfConfirmation(ctx, bookingId);
+    }
+
     return { bookingId, accessToken };
   },
 });
@@ -230,6 +300,8 @@ export const confirm = mutation({
       status: "confirmed",
       updatedAt: Date.now(),
     });
+
+    await notifyGuestOfConfirmation(ctx, args.id);
 
     return args.id;
   },

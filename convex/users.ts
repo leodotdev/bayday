@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
+import { internal } from "./_generated/api";
 import { requireAuth } from "./helpers";
 
 export const createOrGet = mutation({
@@ -35,10 +36,35 @@ export const createOrGet = mutation({
     if (args.lastName && !existing.lastName) patch.lastName = args.lastName;
     if (args.phone && !existing.phone) patch.phone = args.phone;
     if (email && !existing.email) patch.email = email;
+    const isFirstTimeSetup = !existing.createdAt;
     if (Object.keys(patch).length > 0) {
       await ctx.db.patch(existing._id, patch);
     }
+    if (isFirstTimeSetup && (email ?? existing.email)) {
+      await ctx.scheduler.runAfter(0, internal.email.notifyWelcome, {
+        to: email ?? existing.email!,
+        firstName: args.firstName ?? existing.firstName,
+      });
+    }
     return existing._id;
+  },
+});
+
+// User-facing notification preference toggles
+export const updateNotificationPreferences = mutation({
+  args: {
+    emailBookings: v.optional(v.boolean()),
+    emailMessages: v.optional(v.boolean()),
+    emailMarketing: v.optional(v.boolean()),
+    smsBookings: v.optional(v.boolean()),
+    smsMessages: v.optional(v.boolean()),
+  },
+  handler: async (ctx, args) => {
+    const user = await requireAuth(ctx);
+    const existing = user.notificationPreferences ?? {};
+    const next = { ...existing, ...args };
+    await ctx.db.patch(user._id, { notificationPreferences: next });
+    return next;
   },
 });
 

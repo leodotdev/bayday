@@ -1,5 +1,6 @@
 import { v } from "convex/values";
 import { query, mutation, internalMutation } from "./_generated/server";
+import { internal } from "./_generated/api";
 import { requireAuth } from "./helpers";
 
 export const send = mutation({
@@ -41,6 +42,44 @@ export const send = mutation({
       lastMessageAt: now,
       lastMessagePreview: preview,
     });
+
+    // Notify other participants — but only if they haven't been active in
+    // the conversation in the last 5 minutes (cheap heuristic to avoid
+    // pinging someone who is actively chatting).
+    const STALE_AFTER = 5 * 60 * 1000;
+    const senderName =
+      user.firstName ?? user.name ?? user.email ?? "Someone";
+    const otherParticipantIds = conversation.participantIds.filter(
+      (id) => id !== user._id,
+    );
+    for (const recipientId of otherParticipantIds) {
+      const recipient = await ctx.db.get(recipientId);
+      if (!recipient) continue;
+      const lastActivity = conversation.lastMessageAt ?? 0;
+      const recentlyActive = now - lastActivity < STALE_AFTER;
+      if (recentlyActive) continue;
+
+      const wantsEmail =
+        recipient.notificationPreferences?.emailMessages !== false;
+      if (recipient.email && wantsEmail) {
+        await ctx.scheduler.runAfter(0, internal.email.notifyNewMessage, {
+          recipientEmail: recipient.email,
+          recipientName: recipient.firstName ?? recipient.name ?? "User",
+          senderName,
+          messagePreview: preview,
+          conversationId: args.conversationId,
+        });
+      }
+      const wantsSms =
+        recipient.notificationPreferences?.smsMessages === true;
+      if (recipient.phone && wantsSms) {
+        await ctx.scheduler.runAfter(0, internal.sms.notifyNewMessage, {
+          to: recipient.phone,
+          senderName,
+          preview,
+        });
+      }
+    }
 
     return messageId;
   },

@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/tabs"
 import { useCurrentUser } from "@/hooks/use-current-user"
 import { FavoritesGrid } from "@/components/features/profile/favorites-grid"
+import { NotificationsForm } from "@/components/features/profile/notifications-form"
 import { ProfileForm } from "@/components/features/profile/profile-form"
 import { FeedbackForm } from "@/components/features/profile/feedback-form"
 
@@ -61,11 +62,15 @@ function ProfilePage() {
       <Tabs defaultValue="account" className="space-y-6">
         <TabsList>
           <TabsTrigger value="account">Account</TabsTrigger>
+          <TabsTrigger value="notifications">Notifications</TabsTrigger>
           <TabsTrigger value="favorites">Favorites</TabsTrigger>
           <TabsTrigger value="feedback">Feedback</TabsTrigger>
         </TabsList>
         <TabsContent value="account">
           <ProfileForm user={user} />
+        </TabsContent>
+        <TabsContent value="notifications">
+          <NotificationsForm user={user} />
         </TabsContent>
         <TabsContent value="favorites">
           <FavoritesGrid />

@@ -26,6 +26,17 @@ export default defineSchema({
     isVerified: v.optional(v.boolean()),
     isBanned: v.optional(v.boolean()),
     createdAt: v.optional(v.number()),
+    // Notification prefs. Undefined = sensible defaults (transactional
+    // email ON, marketing email OFF, SMS OFF).
+    notificationPreferences: v.optional(
+      v.object({
+        emailBookings: v.optional(v.boolean()),
+        emailMessages: v.optional(v.boolean()),
+        emailMarketing: v.optional(v.boolean()),
+        smsBookings: v.optional(v.boolean()),
+        smsMessages: v.optional(v.boolean()),
+      })
+    ),
   })
     .index("by_email", ["email"]),
 

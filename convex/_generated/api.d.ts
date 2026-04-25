@@ -26,6 +26,7 @@ import type * as reviews from "../reviews.js";
 import type * as search from "../search.js";
 import type * as seed from "../seed.js";
 import type * as seedMyChats from "../seedMyChats.js";
+import type * as sms from "../sms.js";
 import type * as storage from "../storage.js";
 import type * as users from "../users.js";
 
@@ -54,6 +55,7 @@ declare const fullApi: ApiFromModules<{
   search: typeof search;
   seed: typeof seed;
   seedMyChats: typeof seedMyChats;
+  sms: typeof sms;
   storage: typeof storage;
   users: typeof users;
 }>;
