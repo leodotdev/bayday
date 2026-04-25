@@ -1,4 +1,4 @@
-import { createFileRoute, Navigate, useRouter } from "@tanstack/react-router"
+import { Navigate, createFileRoute, useRouter } from "@tanstack/react-router"
 import { useAuthActions } from "@convex-dev/auth/react"
 import { LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"

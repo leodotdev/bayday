@@ -1,5 +1,5 @@
 import { CheckCircle2 } from "lucide-react"
-import type { Doc, Id } from "@/convex/_generated/dataModel"
+import type { Doc } from "@/convex/_generated/dataModel"
 import { Card } from "@/components/ui/card"
 import { SignedImage } from "@/components/features/listings/signed-image"
 
@@ -10,7 +10,7 @@ type Props = {
 export function CaptainCard({ listing }: Props) {
   if (!listing.captainIncluded && !listing.captainName) return null
 
-  const photo = listing.captainPhoto as Id<"_storage"> | undefined
+  const photo = listing.captainPhoto
 
   return (
     <Card className="p-6">

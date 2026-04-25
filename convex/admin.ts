@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { query, mutation } from "./_generated/server";
+import { mutation, query } from "./_generated/server";
 import { requireAdmin } from "./helpers";
 
 const ROLE = v.union(v.literal("guest"), v.literal("host"), v.literal("admin"));

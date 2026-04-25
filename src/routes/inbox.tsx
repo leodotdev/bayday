@@ -1,4 +1,4 @@
-import { createFileRoute, Link, Navigate } from "@tanstack/react-router"
+import { Link, Navigate, createFileRoute } from "@tanstack/react-router"
 import { useQuery } from "convex/react"
 import { MessageSquare } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"

@@ -1,5 +1,7 @@
-import { createFileRoute, Link } from "@tanstack/react-router"
+import { Link, createFileRoute } from "@tanstack/react-router"
+import { convexQuery } from "@convex-dev/react-query"
 import { ChevronRight, Users } from "lucide-react"
+import { api } from "@/convex/_generated/api"
 import { SearchBar } from "@/components/features/search/search-bar"
 import { FeaturedChartersStrip } from "@/components/features/landing/featured-charters-strip"
 import { NearbyBoats } from "@/components/features/landing/nearby-boats"
@@ -7,6 +9,21 @@ import { SharedTripsStrip } from "@/components/features/landing/shared-trips-str
 import { Badge } from "@/components/ui/badge"
 
 export const Route = createFileRoute("/")({
+  loader: async ({ context }) => {
+    // Warm the cache for hero-search filter options + landing strips so
+    // the first paint shows real data instead of skeletons.
+    await Promise.all([
+      context.queryClient.ensureQueryData(
+        convexQuery(api.search.getFilterOptions, {}),
+      ),
+      context.queryClient.ensureQueryData(
+        convexQuery(api.search.getTrending, {}),
+      ),
+      context.queryClient.ensureQueryData(
+        convexQuery(api.search.getOpenSharedTrips, {}),
+      ),
+    ])
+  },
   component: HomePage,
 })
 

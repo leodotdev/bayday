@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router"
+import { Link, createFileRoute } from "@tanstack/react-router"
 import { ChevronLeft } from "lucide-react"
 import { HostGuard } from "@/components/features/captain/host-guard"
 import { BoatForm } from "@/components/features/captain/boat-form"

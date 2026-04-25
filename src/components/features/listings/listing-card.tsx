@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router"
 import { MapPin, Star, Users } from "lucide-react"
-import type { Doc, Id } from "@/convex/_generated/dataModel"
+import type { Doc } from "@/convex/_generated/dataModel"
 import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
 import { FavoriteButton } from "@/components/features/listings/favorite-button"
@@ -17,7 +17,7 @@ type Props = {
 }
 
 export function ListingCard({ listing }: Props) {
-  const firstPhoto = listing.boat?.photos?.[0] as Id<"_storage"> | undefined
+  const firstPhoto = listing.boat?.photos?.[0]
 
   return (
     <Link

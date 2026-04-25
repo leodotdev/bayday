@@ -1,11 +1,12 @@
 import { useState } from "react"
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
+import { Link, createFileRoute, useNavigate } from "@tanstack/react-router"
 import { useMutation, useQuery } from "convex/react"
 import { toast } from "sonner"
 import { z } from "zod"
 import { Calendar as CalendarIcon, ChevronLeft, Loader2, Users } from "lucide-react"
-import { api } from "@/convex/_generated/api"
+import { format } from "date-fns"
 import type { Id } from "@/convex/_generated/dataModel"
+import { api } from "@/convex/_generated/api"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import { Card } from "@/components/ui/card"
@@ -36,7 +37,6 @@ import {
   tripTypeLabel,
 } from "@/lib/format"
 import { cn } from "@/lib/utils"
-import { format } from "date-fns"
 
 const PLATFORM_FEE_PERCENT = 10
 

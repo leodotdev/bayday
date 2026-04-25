@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react"
 import { Link } from "@tanstack/react-router"
 import { MapPin, Star, Users } from "lucide-react"
-import type { MapRef } from "react-map-gl/mapbox"
 import { Map as MapboxMap, Marker, Popup } from "react-map-gl/mapbox"
+import type { MapRef } from "react-map-gl/mapbox"
 import type { Doc } from "@/convex/_generated/dataModel"
 import type { SharedTrip } from "@/components/features/shared-trips/shared-trip-card"
 import { useHasMounted } from "@/hooks/use-has-mounted"
@@ -17,8 +17,8 @@ type EnrichedListing = Doc<"listings"> & {
 }
 
 type Props = {
-  listings: EnrichedListing[] | undefined
-  sharedTrips?: SharedTrip[] | undefined
+  listings: Array<EnrichedListing> | undefined
+  sharedTrips?: Array<SharedTrip> | undefined
   className?: string
 }
 
@@ -46,9 +46,9 @@ export function ListingsMap({
   // Merge listings + shared trips into a single set of pins, one per
   // unique location. When a shared trip and a regular listing share the
   // same listing, they collapse into one pin that surfaces both options.
-  const pins = useMemo<Pin[]>(() => {
+  const pins = useMemo<Array<Pin>>(() => {
     const byListing = new Map<string, Pin>()
-    const standalone: Pin[] = []
+    const standalone: Array<Pin> = []
 
     for (const l of listings ?? []) {
       if (

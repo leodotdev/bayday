@@ -1,8 +1,9 @@
 import { v } from "convex/values";
-import { query, mutation, type MutationCtx } from "./_generated/server";
+import {  mutation, query } from "./_generated/server";
 import { internal } from "./_generated/api";
-import type { Id } from "./_generated/dataModel";
 import { optionalAuth, requireAuth } from "./helpers";
+import type {MutationCtx} from "./_generated/server";
+import type { Id } from "./_generated/dataModel";
 
 // Ensure a group booking conversation exists and the given user is in it.
 // Used when a participant accepts an invite or claims a public spot so

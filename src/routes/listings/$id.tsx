@@ -1,19 +1,16 @@
-import { createFileRoute, Link } from "@tanstack/react-router"
-import { useQuery } from "convex/react"
+import { Link, createFileRoute, useRouter  } from "@tanstack/react-router"
+import { useMutation, useQuery  } from "convex/react"
 import {
   CheckCircle2,
   ChevronRight,
   Clock,
   MapPin,
-  Star,
-  Users,
+  MessageSquare,
+  Star, Users 
 } from "lucide-react"
-import { useMutation } from "convex/react"
-import { MessageSquare } from "lucide-react"
 import { toast } from "sonner"
-import { useRouter } from "@tanstack/react-router"
-import { api } from "@/convex/_generated/api"
 import type { Doc, Id } from "@/convex/_generated/dataModel"
+import { api } from "@/convex/_generated/api"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { useCurrentUser } from "@/hooks/use-current-user"
@@ -69,7 +66,7 @@ function ListingPage() {
   const boat = data.boat
   const host = data.host
 
-  const photos = (boat?.photos ?? []) as Id<"_storage">[]
+  const photos = (boat?.photos ?? []) as Array<Id<"_storage">>
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-6 lg:px-8 lg:py-10">

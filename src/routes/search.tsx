@@ -1,14 +1,16 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
+import { convexQuery } from "@convex-dev/react-query"
 import { useQuery } from "convex/react"
 import { z } from "zod"
 import { Users } from "lucide-react"
+import type {ViewMode} from "@/components/features/search/view-toggle";
 import { api } from "@/convex/_generated/api"
 import { FilterChipBar } from "@/components/features/search/filter-chip-bar"
 import { SortSelect } from "@/components/features/search/sort-select"
 import { SearchBar } from "@/components/features/search/search-bar"
 import {
-  ViewToggle,
-  type ViewMode,
+  
+  ViewToggle
 } from "@/components/features/search/view-toggle"
 import { ListingsMap } from "@/components/features/map/listings-map"
 import { ListingCard } from "@/components/features/listings/listing-card"
@@ -36,6 +38,38 @@ const searchSchema = z.object({
 
 export const Route = createFileRoute("/search")({
   validateSearch: searchSchema,
+  loaderDeps: ({ search }) => search,
+  loader: async ({ context, deps }) => {
+    const flexible = !!deps.flexible
+    await Promise.all([
+      context.queryClient.ensureQueryData(
+        convexQuery(api.search.getFilterOptions, {}),
+      ),
+      context.queryClient.ensureQueryData(
+        convexQuery(api.search.searchListings, {
+          searchTerm: deps.q,
+          tripType: deps.tripType,
+          city: deps.city,
+          state: deps.state,
+          date: flexible ? undefined : deps.date,
+          dateEnd: flexible ? undefined : deps.dateEnd,
+          minPriceCents: deps.minPriceCents,
+          maxPriceCents: deps.maxPriceCents,
+          minGuests: deps.partySize,
+          sortBy: deps.sortBy,
+        }),
+      ),
+      context.queryClient.ensureQueryData(
+        convexQuery(api.search.getOpenSharedTrips, {
+          city: deps.city,
+          state: deps.state,
+          tripType: deps.tripType,
+          date: flexible ? undefined : deps.date,
+          dateEnd: flexible ? undefined : deps.dateEnd,
+        }),
+      ),
+    ])
+  },
   component: SearchPage,
 })
 

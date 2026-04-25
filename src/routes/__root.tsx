@@ -9,13 +9,13 @@ import { TanStackDevtools } from "@tanstack/react-devtools"
 import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools"
 import { QueryClientProvider } from "@tanstack/react-query"
 import { ConvexAuthProvider } from "@convex-dev/auth/react"
+import appCss from "../styles.css?url"
+import type { RouterContext } from "@/router"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { Toaster } from "@/components/ui/sonner"
 import { SiteHeader } from "@/components/layout/site-header"
 import { SiteFooter } from "@/components/layout/site-footer"
-import type { RouterContext } from "@/router"
 
-import appCss from "../styles.css?url"
 
 export const Route = createRootRouteWithContext<RouterContext>()({
   head: () => ({

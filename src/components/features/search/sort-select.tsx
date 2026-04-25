@@ -40,7 +40,7 @@ export function SortSelect() {
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
-        {(Object.keys(LABELS) as SortBy[]).map((k) => (
+        {(Object.keys(LABELS) as Array<SortBy>).map((k) => (
           <SelectItem key={k} value={k}>
             {LABELS[k]}
           </SelectItem>

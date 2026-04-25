@@ -2,7 +2,6 @@ import { useMutation, useQuery } from "convex/react"
 import { Bell } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 import { api } from "@/convex/_generated/api"
-import type { Id } from "@/convex/_generated/dataModel"
 import { Badge } from "@/components/ui/badge"
 import {
   Popover,
@@ -74,7 +73,7 @@ export function NotificationsBell() {
                   <button
                     type="button"
                     onClick={() =>
-                      markRead({ id: n._id as Id<"notifications"> })
+                      markRead({ id: n._id })
                     }
                     className="block w-full p-3 text-left transition-colors hover:bg-muted/60"
                   >

@@ -2,15 +2,15 @@ import { useRef, useState } from "react"
 import { useMutation } from "convex/react"
 import { toast } from "sonner"
 import { GripVertical, Loader2, Plus, Trash2, Upload } from "lucide-react"
-import { api } from "@/convex/_generated/api"
 import type { Id } from "@/convex/_generated/dataModel"
+import { api } from "@/convex/_generated/api"
 import { Button } from "@/components/ui/button"
 import { SignedImage } from "@/components/features/listings/signed-image"
 import { cn } from "@/lib/utils"
 
 type Props = {
-  value: Id<"_storage">[]
-  onChange: (next: Id<"_storage">[]) => void
+  value: Array<Id<"_storage">>
+  onChange: (next: Array<Id<"_storage">>) => void
   max?: number
   /** "grid" for boats (multi-photo), "single" for captain headshot */
   variant?: "grid" | "single"
@@ -58,7 +58,7 @@ export function PhotoUploader({
     const picked = Array.from(files).slice(0, remaining)
     setUploading(true)
     try {
-      const ids: Id<"_storage">[] = []
+      const ids: Array<Id<"_storage">> = []
       for (const f of picked) {
         const id = await uploadOne(f)
         if (id) ids.push(id)

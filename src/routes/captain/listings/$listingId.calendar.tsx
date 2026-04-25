@@ -1,10 +1,10 @@
 import { useMemo, useState } from "react"
-import { createFileRoute, Link } from "@tanstack/react-router"
+import { Link, createFileRoute } from "@tanstack/react-router"
 import { useMutation, useQuery } from "convex/react"
 import { toast } from "sonner"
 import { ChevronLeft, Loader2 } from "lucide-react"
-import { api } from "@/convex/_generated/api"
 import type { Id } from "@/convex/_generated/dataModel"
+import { api } from "@/convex/_generated/api"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import { Card } from "@/components/ui/card"
@@ -28,7 +28,7 @@ function CalendarPage() {
   const slots = useQuery(api.availability.getCalendar, { listingId: id })
   const setSlots = useMutation(api.availability.setSlots)
 
-  const [selected, setSelected] = useState<Date[]>([])
+  const [selected, setSelected] = useState<Array<Date>>([])
   const [startTime, setStartTime] = useState("07:00")
   const [endTime, setEndTime] = useState("13:00")
   const [submitting, setSubmitting] = useState(false)

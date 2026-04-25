@@ -1,6 +1,7 @@
 import { useNavigate } from "@tanstack/react-router"
 import { useQuery } from "convex/react"
 import { Filter, X } from "lucide-react"
+import type { Route as SearchRoute } from "@/routes/search"
 import { api } from "@/convex/_generated/api"
 import { Badge } from "@/components/ui/badge"
 import { Button, buttonVariants } from "@/components/ui/button"
@@ -12,7 +13,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { Separator } from "@/components/ui/separator"
-import { Route as SearchRoute } from "@/routes/search"
 import { cn } from "@/lib/utils"
 import { formatPriceCents, tripTypeLabel } from "@/lib/format"
 
@@ -33,7 +33,7 @@ export function FilterChipBar({ params }: { params: SearchParams }) {
         Object.keys(merged).forEach((k) => {
           if (merged[k] === undefined || merged[k] === "") delete merged[k]
         })
-        return merged as SearchParams
+        return merged
       },
     })
   }

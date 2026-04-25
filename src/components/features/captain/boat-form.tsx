@@ -3,8 +3,8 @@ import { useNavigate } from "@tanstack/react-router"
 import { useMutation } from "convex/react"
 import { toast } from "sonner"
 import { Loader2 } from "lucide-react"
-import { api } from "@/convex/_generated/api"
 import type { Doc, Id } from "@/convex/_generated/dataModel"
+import { api } from "@/convex/_generated/api"
 import { PhotoUploader } from "@/components/features/captain/photo-uploader"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -67,8 +67,8 @@ export function BoatForm({ boat }: Props) {
   const [safetyText, setSafetyText] = useState(
     boat?.safetyEquipment?.join(", ") ?? "",
   )
-  const [photos, setPhotos] = useState<Id<"_storage">[]>(
-    (boat?.photos as Id<"_storage">[] | undefined) ?? [],
+  const [photos, setPhotos] = useState<Array<Id<"_storage">>>(
+    (boat?.photos) ?? [],
   )
   const [submitting, setSubmitting] = useState(false)
 
@@ -140,7 +140,7 @@ export function BoatForm({ boat }: Props) {
           <Field id="type" label="Type">
             <Select
               value={type}
-              onValueChange={(v) => v && setType(v as BoatType)}
+              onValueChange={(v) => v && setType(v)}
             >
               <SelectTrigger className="w-full">
                 <SelectValue />

@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils"
 
 export type ViewMode = "list" | "map" | "split"
 
-const OPTIONS: { value: ViewMode; label: string; icon: typeof MapIcon }[] = [
+const OPTIONS: Array<{ value: ViewMode; label: string; icon: typeof MapIcon }> = [
   { value: "list", label: "List", icon: LayoutGrid },
   { value: "split", label: "Split", icon: SplitSquareHorizontal },
   { value: "map", label: "Map", icon: MapIcon },

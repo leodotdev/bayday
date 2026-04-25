@@ -33,7 +33,7 @@ export const run = internalMutation({
     // Clean up any existing conversations for leo first
     const allConvos = await ctx.db.query("conversations").collect();
     const leoConvos = allConvos.filter((c) =>
-      c.participantIds.includes(leo!._id)
+      c.participantIds.includes(leo._id)
     );
     for (const convo of leoConvos) {
       const messages = await ctx.db

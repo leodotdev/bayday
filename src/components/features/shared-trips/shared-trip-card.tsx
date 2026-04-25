@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router"
 import { Calendar, MapPin, Users } from "lucide-react"
-import type { Doc, Id } from "@/convex/_generated/dataModel"
+import type { Doc } from "@/convex/_generated/dataModel"
 import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
 import { SignedImage } from "@/components/features/listings/signed-image"
@@ -21,7 +21,7 @@ export type SharedTrip = {
 }
 
 export function SharedTripCard({ trip }: { trip: SharedTrip }) {
-  const firstPhoto = trip.boat?.photos?.[0] as Id<"_storage"> | undefined
+  const firstPhoto = trip.boat?.photos?.[0]
 
   return (
     <Link

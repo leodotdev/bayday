@@ -7,8 +7,9 @@ import {
   ShieldCheck,
   Users,
 } from "lucide-react"
+import { format } from "date-fns"
+import type { Doc } from "@/convex/_generated/dataModel"
 import { api } from "@/convex/_generated/api"
-import type { Doc, Id } from "@/convex/_generated/dataModel"
 import { buttonVariants } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import { Card } from "@/components/ui/card"
@@ -26,7 +27,6 @@ import {
 } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
-import { format } from "date-fns"
 import {
   formatDuration,
   formatPriceCents,
@@ -41,7 +41,7 @@ const PLATFORM_FEE_PERCENT = 10
 
 export function BookingCard({ listing }: Props) {
   const calendar = useQuery(api.availability.getCalendar, {
-    listingId: listing._id as Id<"listings">,
+    listingId: listing._id,
   })
   const [date, setDate] = useState<Date | undefined>(undefined)
   const [partySize, setPartySize] = useState<string>(

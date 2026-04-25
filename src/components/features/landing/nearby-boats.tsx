@@ -2,7 +2,6 @@ import { Link } from "@tanstack/react-router"
 import { useQuery } from "convex/react"
 import { MapPin, Star } from "lucide-react"
 import { api } from "@/convex/_generated/api"
-import type { Id } from "@/convex/_generated/dataModel"
 import { buttonVariants } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -53,9 +52,7 @@ export function NearbyBoats() {
                   <div className="h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-muted">
                     <SignedImage
                       storageId={
-                        listing.boat?.photos?.[0] as
-                          | Id<"_storage">
-                          | undefined
+                        listing.boat?.photos?.[0]
                       }
                       alt={listing.title}
                       className="h-full w-full"

@@ -1,9 +1,9 @@
-import { createFileRoute, Link } from "@tanstack/react-router"
+import { Link, createFileRoute } from "@tanstack/react-router"
 import { useMutation, useQuery } from "convex/react"
 import { toast } from "sonner"
 import { ExternalLink } from "lucide-react"
-import { api } from "@/convex/_generated/api"
 import type { Id } from "@/convex/_generated/dataModel"
+import { api } from "@/convex/_generated/api"
 import { Badge } from "@/components/ui/badge"
 import {
   Select,
@@ -94,8 +94,8 @@ function AdminListings() {
                   </TableCell>
                   <TableCell>
                     <Select
-                      value={l.status as Status}
-                      onValueChange={(v) => v && onStatus(l._id, v as Status)}
+                      value={l.status}
+                      onValueChange={(v) => v && onStatus(l._id, v)}
                     >
                       <SelectTrigger size="sm" className="w-32">
                         <SelectValue />

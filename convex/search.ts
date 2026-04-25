@@ -145,7 +145,7 @@ export const searchListings = query({
       const endDate = args.dateEnd ?? args.date;
 
       // Collect all dates in the range
-      const datesToCheck: string[] = [];
+      const datesToCheck: Array<string> = [];
       const current = new Date(startDate + "T12:00:00");
       const end = new Date(endDate + "T12:00:00");
       while (current <= end) {

@@ -1,12 +1,12 @@
 import { createRouter as createTanStackRouter } from "@tanstack/react-router"
 import { setupRouterSsrQueryIntegration } from "@tanstack/react-router-ssr-query"
-import type { QueryClient } from "@tanstack/react-query"
-import type { ConvexQueryClient } from "@convex-dev/react-query"
 import { routeTree } from "./routeTree.gen"
 import {
   createConvexQueryClient,
   createQueryClient,
 } from "./lib/query-client"
+import type { QueryClient } from "@tanstack/react-query"
+import type { ConvexQueryClient } from "@convex-dev/react-query"
 
 export interface RouterContext {
   queryClient: QueryClient

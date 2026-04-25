@@ -13,6 +13,7 @@ import {
   UserRound,
   Users,
 } from "lucide-react"
+import { useState } from "react"
 import {
   Sheet,
   SheetContent,
@@ -22,7 +23,6 @@ import {
 } from "@/components/ui/sheet"
 import { useCurrentUser } from "@/hooks/use-current-user"
 import { cn } from "@/lib/utils"
-import { useState } from "react"
 
 export function MobileNav() {
   const { user, isAuthenticated, isHost, isAdmin } = useCurrentUser()

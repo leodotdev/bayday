@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router"
+import { Link, createFileRoute } from "@tanstack/react-router"
 import { useMutation, useQuery } from "convex/react"
 import { toast } from "sonner"
 import { z } from "zod"
@@ -11,8 +11,8 @@ import {
   Share2,
   Users,
 } from "lucide-react"
-import { api } from "@/convex/_generated/api"
 import type { Id } from "@/convex/_generated/dataModel"
+import { api } from "@/convex/_generated/api"
 import { TripMap } from "@/components/features/map/trip-map"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"

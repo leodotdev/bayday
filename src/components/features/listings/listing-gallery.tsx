@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils"
 
 type Props = {
   title: string
-  photos: Id<"_storage">[]
+  photos: Array<Id<"_storage">>
 }
 
 export function ListingGallery({ title, photos }: Props) {

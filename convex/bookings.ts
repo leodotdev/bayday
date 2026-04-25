@@ -1,9 +1,10 @@
 import { v } from "convex/values";
-import { query, mutation, type MutationCtx } from "./_generated/server";
-import { requireAuth, requireHost, optionalAuth } from "./helpers";
+import {  mutation, query } from "./_generated/server";
+import { optionalAuth, requireAuth, requireHost } from "./helpers";
 import { internal } from "./_generated/api";
-import type { Id } from "./_generated/dataModel";
 import { pushInline } from "./notifications";
+import type {MutationCtx} from "./_generated/server";
+import type { Id } from "./_generated/dataModel";
 
 async function notifyHostOfRequest(
   ctx: MutationCtx,
@@ -89,8 +90,8 @@ async function notifyGuestOfConfirmation(
 
 const PLATFORM_FEE_PERCENT = 10;
 
-function getDatesBetween(start: string, end: string): string[] {
-  const dates: string[] = [];
+function getDatesBetween(start: string, end: string): Array<string> {
+  const dates: Array<string> = [];
   const current = new Date(start + "T12:00:00");
   const last = new Date(end + "T12:00:00");
   while (current <= last) {

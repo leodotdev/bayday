@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { useMutation, useQuery } from "convex/react"
 import { toast } from "sonner"
-import { api } from "@/convex/_generated/api"
 import type { Id } from "@/convex/_generated/dataModel"
+import { api } from "@/convex/_generated/api"
 import { Badge } from "@/components/ui/badge"
 import {
   Select,
@@ -31,7 +31,7 @@ type Status =
   | "no_show"
   | "disputed"
 
-const STATUSES: Status[] = [
+const STATUSES: Array<Status> = [
   "pending",
   "confirmed",
   "completed",
@@ -131,9 +131,9 @@ function AdminBookings() {
                     </TableCell>
                     <TableCell>
                       <Select
-                        value={b.status as Status}
+                        value={b.status}
                         onValueChange={(v) =>
-                          v && onStatus(b._id, v as Status)
+                          v && onStatus(b._id, v)
                         }
                       >
                         <SelectTrigger size="sm" className="w-40">

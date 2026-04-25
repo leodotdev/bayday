@@ -2,8 +2,8 @@ import { createFileRoute } from "@tanstack/react-router"
 import { useMutation, useQuery } from "convex/react"
 import { toast } from "sonner"
 import { CheckCircle2, ShieldAlert, UserRound } from "lucide-react"
-import { api } from "@/convex/_generated/api"
 import type { Id } from "@/convex/_generated/dataModel"
+import { api } from "@/convex/_generated/api"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -124,9 +124,9 @@ function AdminUsers() {
                     </TableCell>
                     <TableCell>
                       <Select
-                        value={(u.role ?? "guest") as Role}
+                        value={(u.role ?? "guest")}
                         onValueChange={(v) =>
-                          v && onChangeRole(u._id, v as Role)
+                          v && onChangeRole(u._id, v)
                         }
                       >
                         <SelectTrigger

@@ -3,8 +3,8 @@ import { useNavigate } from "@tanstack/react-router"
 import { useMutation, useQuery } from "convex/react"
 import { toast } from "sonner"
 import { Loader2, Users } from "lucide-react"
-import { api } from "@/convex/_generated/api"
 import type { Doc, Id } from "@/convex/_generated/dataModel"
+import { api } from "@/convex/_generated/api"
 import { PhotoUploader } from "@/components/features/captain/photo-uploader"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -82,7 +82,7 @@ export function ListingForm({ listing }: Props) {
   const [captainName, setCaptainName] = useState(listing?.captainName ?? "")
   const [captainBio, setCaptainBio] = useState(listing?.captainBio ?? "")
   const [captainPhoto, setCaptainPhoto] = useState<Id<"_storage"> | undefined>(
-    listing?.captainPhoto as Id<"_storage"> | undefined,
+    listing?.captainPhoto,
   )
   const [targetSpeciesText, setTargetSpeciesText] = useState(
     listing?.targetSpecies?.join(", ") ?? "",
@@ -233,7 +233,7 @@ export function ListingForm({ listing }: Props) {
           <Field id="tripType" label="Trip type">
             <Select
               value={tripType}
-              onValueChange={(v) => v && setTripType(v as TripType)}
+              onValueChange={(v) => v && setTripType(v)}
             >
               <SelectTrigger className="w-full">
                 <SelectValue />
@@ -284,7 +284,7 @@ export function ListingForm({ listing }: Props) {
             <Select
               value={priceType}
               onValueChange={(v) =>
-                v && setPriceType(v as "per_person" | "per_trip")
+                v && setPriceType(v)
               }
             >
               <SelectTrigger className="w-full">
@@ -433,7 +433,7 @@ export function ListingForm({ listing }: Props) {
         <Field id="cancellation" label="Cancellation policy">
           <Select
             value={cancellationPolicy}
-            onValueChange={(v) => v && setCancellationPolicy(v as Policy)}
+            onValueChange={(v) => v && setCancellationPolicy(v)}
           >
             <SelectTrigger className="w-full">
               <SelectValue />
