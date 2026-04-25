@@ -1,8 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router"
-import { ChevronRight } from "lucide-react"
+import { ChevronRight, Users } from "lucide-react"
 import { HeroSearch } from "@/components/features/landing/hero-search"
 import { FeaturedChartersStrip } from "@/components/features/landing/featured-charters-strip"
 import { NearbyBoats } from "@/components/features/landing/nearby-boats"
+import { SharedTripsStrip } from "@/components/features/landing/shared-trips-strip"
+import { Badge } from "@/components/ui/badge"
 
 export const Route = createFileRoute("/")({
   component: HomePage,
@@ -27,6 +29,33 @@ function HomePage() {
             <HeroSearch />
           </div>
         </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mb-6 flex items-end justify-between">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <Badge className="gap-1.5">
+                <Users className="h-3.5 w-3.5" />
+                Shared trips
+              </Badge>
+              <span className="text-sm text-muted-foreground">
+                Split the cost
+              </span>
+            </div>
+            <h2 className="text-2xl font-semibold tracking-tight">
+              Open trips you can join
+            </h2>
+          </div>
+          <Link
+            to="/search"
+            className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
+          >
+            See all
+            <ChevronRight className="h-4 w-4" />
+          </Link>
+        </div>
+        <SharedTripsStrip />
       </section>
 
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

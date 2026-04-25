@@ -1,3 +1,4 @@
+import path from "node:path"
 import { defineConfig } from "vite"
 import { devtools } from "@tanstack/devtools-vite"
 import { tanstackStart } from "@tanstack/react-start/plugin/vite"
@@ -7,10 +8,20 @@ import tailwindcss from "@tailwindcss/vite"
 import { nitro } from "nitro/vite"
 
 const config = defineConfig({
+  resolve: {
+    alias: [
+      // Explicit @/convex/* alias takes priority over the generic @/* below
+      // because vite-tsconfig-paths doesn't reliably honor longest-match
+      // among overlapping prefix aliases.
+      {
+        find: /^@\/convex\/(.*)$/,
+        replacement: path.resolve(__dirname, "convex") + "/$1",
+      },
+    ],
+  },
   plugins: [
     devtools(),
     nitro(),
-    // this is the plugin that enables path aliases
     viteTsConfigPaths({
       projects: ["./tsconfig.json"],
     }),

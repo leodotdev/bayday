@@ -163,6 +163,12 @@ export default defineSchema({
     costSharingEnabled: v.boolean(),
     costSharingMaxSpots: v.optional(v.number()),
     costSharingDeadline: v.optional(v.number()),
+    // visibility for cost-shared trips:
+    // - private: invite-only, only people with an inviteCode see/join
+    // - public: anyone browsing /search can see and claim open spots
+    visibility: v.optional(
+      v.union(v.literal("private"), v.literal("public"))
+    ),
     specialRequests: v.optional(v.string()),
     cancellationReason: v.optional(v.string()),
     hostPayoutCents: v.optional(v.number()),

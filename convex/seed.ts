@@ -1112,6 +1112,113 @@ export const seed = internalMutation({
       updatedAt: now - 20 * 86400000,
     });
 
+    // --- PUBLIC SHARED TRIPS ("Uber Pool" pools open to public claims) ---
+    const sharedDate1 = new Date(now + 6 * 86400000).toISOString().split("T")[0];
+    const sharedDate2 = new Date(now + 9 * 86400000).toISOString().split("T")[0];
+    const sharedDate3 = new Date(now + 12 * 86400000).toISOString().split("T")[0];
+    const sharedDate4 = new Date(now + 15 * 86400000).toISOString().split("T")[0];
+    const sharedDate5 = new Date(now + 21 * 86400000).toISOString().split("T")[0];
+
+    await ctx.db.insert("bookings", {
+      listingId: listing1,
+      boatId: boat1,
+      hostId: host1,
+      guestId: guest2,
+      date: sharedDate1,
+      startTime: "06:00",
+      endTime: "14:00",
+      partySize: 1,
+      totalPriceCents: 120000,
+      status: "confirmed",
+      costSharingEnabled: true,
+      costSharingMaxSpots: 6,
+      visibility: "public",
+      hostPayoutCents: 108000,
+      platformFeeCents: 12000,
+      createdAt: now - 1 * 86400000,
+      updatedAt: now - 1 * 86400000,
+    });
+
+    await ctx.db.insert("bookings", {
+      listingId: listing3,
+      boatId: boat3,
+      hostId: host3,
+      guestId: guest1,
+      date: sharedDate2,
+      startTime: "06:00",
+      endTime: "16:00",
+      partySize: 2,
+      totalPriceCents: 250000,
+      status: "confirmed",
+      costSharingEnabled: true,
+      costSharingMaxSpots: 8,
+      visibility: "public",
+      hostPayoutCents: 225000,
+      platformFeeCents: 25000,
+      createdAt: now - 3 * 86400000,
+      updatedAt: now - 2 * 86400000,
+    });
+
+    await ctx.db.insert("bookings", {
+      listingId: listing10,
+      boatId: boat9,
+      hostId: host5,
+      guestId: guest3,
+      date: sharedDate3,
+      startTime: "08:00",
+      endTime: "12:00",
+      partySize: 1,
+      totalPriceCents: 38000,
+      status: "pending",
+      costSharingEnabled: true,
+      costSharingMaxSpots: 6,
+      visibility: "public",
+      hostPayoutCents: 34200,
+      platformFeeCents: 3800,
+      createdAt: now - 12 * 3600000,
+      updatedAt: now - 12 * 3600000,
+    });
+
+    await ctx.db.insert("bookings", {
+      listingId: listing12,
+      boatId: boat11,
+      hostId: host6,
+      guestId: guest2,
+      date: sharedDate4,
+      startTime: "07:00",
+      endTime: "15:00",
+      partySize: 1,
+      totalPriceCents: 180000,
+      status: "confirmed",
+      costSharingEnabled: true,
+      costSharingMaxSpots: 4,
+      visibility: "public",
+      hostPayoutCents: 162000,
+      platformFeeCents: 18000,
+      createdAt: now - 4 * 86400000,
+      updatedAt: now - 3 * 86400000,
+    });
+
+    await ctx.db.insert("bookings", {
+      listingId: listing17,
+      boatId: boat10,
+      hostId: host6,
+      guestId: guest1,
+      date: sharedDate5,
+      startTime: "07:00",
+      endTime: "13:00",
+      partySize: 1,
+      totalPriceCents: 110000,
+      status: "confirmed",
+      costSharingEnabled: true,
+      costSharingMaxSpots: 6,
+      visibility: "public",
+      hostPayoutCents: 99000,
+      platformFeeCents: 11000,
+      createdAt: now - 6 * 3600000,
+      updatedAt: now - 6 * 3600000,
+    });
+
     // --- REVIEWS ---
     await ctx.db.insert("reviews", {
       bookingId: booking3,

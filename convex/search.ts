@@ -258,6 +258,77 @@ export const getFilterOptions = query({
   },
 });
 
+// Public cost-shared trips with remaining open spots. The "Uber Pool"
+// surface — bookings whose primary buyer chose visibility="public" so
+// anyone can claim a remaining spot.
+export const getOpenSharedTrips = query({
+  args: {
+    city: v.optional(v.string()),
+    state: v.optional(v.string()),
+    tripType: v.optional(v.string()),
+    date: v.optional(v.string()),
+    dateEnd: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const todayKey = new Date().toISOString().slice(0, 10);
+    const dateLower = args.date ?? todayKey;
+    const dateUpper = args.dateEnd ?? "9999-12-31";
+
+    // Active future bookings that opted in to public sharing.
+    const all = await ctx.db.query("bookings").collect();
+    const candidates = all.filter(
+      (b) =>
+        b.costSharingEnabled === true &&
+        b.visibility === "public" &&
+        (b.status === "pending" || b.status === "confirmed") &&
+        b.date >= dateLower &&
+        b.date <= dateUpper
+    );
+
+    const enriched = await Promise.all(
+      candidates.map(async (booking) => {
+        const listing = await ctx.db.get(booking.listingId);
+        if (!listing || listing.status !== "published") return null;
+        if (args.tripType && listing.tripType !== args.tripType) return null;
+        if (args.city && listing.departureCity !== args.city) return null;
+        if (args.state && listing.departureState !== args.state) return null;
+
+        const boat = await ctx.db.get(booking.boatId);
+        const host = await ctx.db.get(booking.hostId);
+
+        const participants = await ctx.db
+          .query("bookingParticipants")
+          .withIndex("by_bookingId", (q) =>
+            q.eq("bookingId", booking._id)
+          )
+          .collect();
+        const filled = participants.filter(
+          (p) => p.status === "confirmed" || p.status === "pending"
+        ).length;
+        const totalSpots = booking.costSharingMaxSpots ?? booking.partySize;
+        const spotsRemaining = Math.max(0, totalSpots - filled - 1); // -1 for primary
+        if (spotsRemaining <= 0) return null;
+
+        const pricePerSpotCents = Math.round(
+          booking.totalPriceCents / Math.max(totalSpots, 1)
+        );
+
+        return {
+          booking,
+          listing,
+          boat,
+          host,
+          spotsRemaining,
+          spotsTotal: totalSpots,
+          pricePerSpotCents,
+        };
+      })
+    );
+
+    return enriched.filter((x) => x !== null);
+  },
+});
+
 export const getTrending = query({
   args: {},
   handler: async (ctx) => {
