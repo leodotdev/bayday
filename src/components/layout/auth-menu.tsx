@@ -1,7 +1,7 @@
 import { Link, useRouter } from "@tanstack/react-router"
 // Link kept for unauth menu
 import { useAuthActions } from "@convex-dev/auth/react"
-import { LogOut, UserRound } from "lucide-react"
+import { LogOut, ShieldCheck, UserRound } from "lucide-react"
 import { buttonVariants } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -16,7 +16,7 @@ import { useCurrentUser } from "@/hooks/use-current-user"
 import { cn } from "@/lib/utils"
 
 export function AuthMenu() {
-  const { user, isAuthenticated, isLoading } = useCurrentUser()
+  const { user, isAuthenticated, isLoading, isAdmin, isHost } = useCurrentUser()
   const { signOut } = useAuthActions()
   const router = useRouter()
 
@@ -83,6 +83,25 @@ export function AuthMenu() {
         <DropdownMenuItem onSelect={() => router.navigate({ to: "/inbox" })}>
           Inbox
         </DropdownMenuItem>
+        {isHost ? (
+          <DropdownMenuItem
+            onSelect={() => router.navigate({ to: "/captain" })}
+          >
+            Captain dashboard
+          </DropdownMenuItem>
+        ) : null}
+        {isAdmin ? (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onSelect={() => router.navigate({ to: "/admin" })}
+              className="gap-2"
+            >
+              <ShieldCheck className="h-4 w-4" />
+              Admin CMS
+            </DropdownMenuItem>
+          </>
+        ) : null}
         <DropdownMenuSeparator />
         <DropdownMenuItem onSelect={onSignOut} className="gap-2">
           <LogOut className="h-4 w-4" />

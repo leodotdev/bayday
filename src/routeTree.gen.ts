@@ -15,15 +15,23 @@ import { Route as SearchRouteImport } from './routes/search'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as InboxRouteImport } from './routes/inbox'
 import { Route as HelpRouteImport } from './routes/help'
+import { Route as AdminRouteRouteImport } from './routes/admin/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TripsIndexRouteImport } from './routes/trips/index'
 import { Route as CaptainIndexRouteImport } from './routes/captain/index'
+import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as TripsBookingIdRouteImport } from './routes/trips/$bookingId'
 import { Route as ListingsIdRouteImport } from './routes/listings/$id'
 import { Route as ConversationIdRouteImport } from './routes/conversation/$id'
 import { Route as CaptainOnboardingRouteImport } from './routes/captain/onboarding'
 import { Route as CaptainBookingsRouteImport } from './routes/captain/bookings'
 import { Route as BookingListingIdRouteImport } from './routes/booking/$listingId'
+import { Route as AdminUsersRouteImport } from './routes/admin/users'
+import { Route as AdminReviewsRouteImport } from './routes/admin/reviews'
+import { Route as AdminListingsRouteImport } from './routes/admin/listings'
+import { Route as AdminConversationsRouteImport } from './routes/admin/conversations'
+import { Route as AdminBookingsRouteImport } from './routes/admin/bookings'
+import { Route as AdminBoatsRouteImport } from './routes/admin/boats'
 import { Route as CaptainListingsIndexRouteImport } from './routes/captain/listings/index'
 import { Route as CaptainBoatsIndexRouteImport } from './routes/captain/boats/index'
 import { Route as CaptainListingsNewRouteImport } from './routes/captain/listings/new'
@@ -62,6 +70,11 @@ const HelpRoute = HelpRouteImport.update({
   path: '/help',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRouteRoute = AdminRouteRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -76,6 +89,11 @@ const CaptainIndexRoute = CaptainIndexRouteImport.update({
   id: '/captain/',
   path: '/captain/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRouteRoute,
 } as any)
 const TripsBookingIdRoute = TripsBookingIdRouteImport.update({
   id: '/trips/$bookingId',
@@ -106,6 +124,36 @@ const BookingListingIdRoute = BookingListingIdRouteImport.update({
   id: '/booking/$listingId',
   path: '/booking/$listingId',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AdminUsersRoute = AdminUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminReviewsRoute = AdminReviewsRouteImport.update({
+  id: '/reviews',
+  path: '/reviews',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminListingsRoute = AdminListingsRouteImport.update({
+  id: '/listings',
+  path: '/listings',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminConversationsRoute = AdminConversationsRouteImport.update({
+  id: '/conversations',
+  path: '/conversations',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminBookingsRoute = AdminBookingsRouteImport.update({
+  id: '/bookings',
+  path: '/bookings',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminBoatsRoute = AdminBoatsRouteImport.update({
+  id: '/boats',
+  path: '/boats',
+  getParentRoute: () => AdminRouteRoute,
 } as any)
 const CaptainListingsIndexRoute = CaptainListingsIndexRouteImport.update({
   id: '/captain/listings/',
@@ -147,18 +195,26 @@ const BookingConfirmationBookingIdRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteRouteWithChildren
   '/help': typeof HelpRoute
   '/inbox': typeof InboxRoute
   '/profile': typeof ProfileRoute
   '/search': typeof SearchRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
+  '/admin/boats': typeof AdminBoatsRoute
+  '/admin/bookings': typeof AdminBookingsRoute
+  '/admin/conversations': typeof AdminConversationsRoute
+  '/admin/listings': typeof AdminListingsRoute
+  '/admin/reviews': typeof AdminReviewsRoute
+  '/admin/users': typeof AdminUsersRoute
   '/booking/$listingId': typeof BookingListingIdRoute
   '/captain/bookings': typeof CaptainBookingsRoute
   '/captain/onboarding': typeof CaptainOnboardingRoute
   '/conversation/$id': typeof ConversationIdRoute
   '/listings/$id': typeof ListingsIdRoute
   '/trips/$bookingId': typeof TripsBookingIdRoute
+  '/admin/': typeof AdminIndexRoute
   '/captain/': typeof CaptainIndexRoute
   '/trips/': typeof TripsIndexRoute
   '/booking/confirmation/$bookingId': typeof BookingConfirmationBookingIdRoute
@@ -177,12 +233,19 @@ export interface FileRoutesByTo {
   '/search': typeof SearchRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
+  '/admin/boats': typeof AdminBoatsRoute
+  '/admin/bookings': typeof AdminBookingsRoute
+  '/admin/conversations': typeof AdminConversationsRoute
+  '/admin/listings': typeof AdminListingsRoute
+  '/admin/reviews': typeof AdminReviewsRoute
+  '/admin/users': typeof AdminUsersRoute
   '/booking/$listingId': typeof BookingListingIdRoute
   '/captain/bookings': typeof CaptainBookingsRoute
   '/captain/onboarding': typeof CaptainOnboardingRoute
   '/conversation/$id': typeof ConversationIdRoute
   '/listings/$id': typeof ListingsIdRoute
   '/trips/$bookingId': typeof TripsBookingIdRoute
+  '/admin': typeof AdminIndexRoute
   '/captain': typeof CaptainIndexRoute
   '/trips': typeof TripsIndexRoute
   '/booking/confirmation/$bookingId': typeof BookingConfirmationBookingIdRoute
@@ -196,18 +259,26 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteRouteWithChildren
   '/help': typeof HelpRoute
   '/inbox': typeof InboxRoute
   '/profile': typeof ProfileRoute
   '/search': typeof SearchRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
+  '/admin/boats': typeof AdminBoatsRoute
+  '/admin/bookings': typeof AdminBookingsRoute
+  '/admin/conversations': typeof AdminConversationsRoute
+  '/admin/listings': typeof AdminListingsRoute
+  '/admin/reviews': typeof AdminReviewsRoute
+  '/admin/users': typeof AdminUsersRoute
   '/booking/$listingId': typeof BookingListingIdRoute
   '/captain/bookings': typeof CaptainBookingsRoute
   '/captain/onboarding': typeof CaptainOnboardingRoute
   '/conversation/$id': typeof ConversationIdRoute
   '/listings/$id': typeof ListingsIdRoute
   '/trips/$bookingId': typeof TripsBookingIdRoute
+  '/admin/': typeof AdminIndexRoute
   '/captain/': typeof CaptainIndexRoute
   '/trips/': typeof TripsIndexRoute
   '/booking/confirmation/$bookingId': typeof BookingConfirmationBookingIdRoute
@@ -222,18 +293,26 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
     | '/help'
     | '/inbox'
     | '/profile'
     | '/search'
     | '/sign-in'
     | '/sign-up'
+    | '/admin/boats'
+    | '/admin/bookings'
+    | '/admin/conversations'
+    | '/admin/listings'
+    | '/admin/reviews'
+    | '/admin/users'
     | '/booking/$listingId'
     | '/captain/bookings'
     | '/captain/onboarding'
     | '/conversation/$id'
     | '/listings/$id'
     | '/trips/$bookingId'
+    | '/admin/'
     | '/captain/'
     | '/trips/'
     | '/booking/confirmation/$bookingId'
@@ -252,12 +331,19 @@ export interface FileRouteTypes {
     | '/search'
     | '/sign-in'
     | '/sign-up'
+    | '/admin/boats'
+    | '/admin/bookings'
+    | '/admin/conversations'
+    | '/admin/listings'
+    | '/admin/reviews'
+    | '/admin/users'
     | '/booking/$listingId'
     | '/captain/bookings'
     | '/captain/onboarding'
     | '/conversation/$id'
     | '/listings/$id'
     | '/trips/$bookingId'
+    | '/admin'
     | '/captain'
     | '/trips'
     | '/booking/confirmation/$bookingId'
@@ -270,18 +356,26 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/admin'
     | '/help'
     | '/inbox'
     | '/profile'
     | '/search'
     | '/sign-in'
     | '/sign-up'
+    | '/admin/boats'
+    | '/admin/bookings'
+    | '/admin/conversations'
+    | '/admin/listings'
+    | '/admin/reviews'
+    | '/admin/users'
     | '/booking/$listingId'
     | '/captain/bookings'
     | '/captain/onboarding'
     | '/conversation/$id'
     | '/listings/$id'
     | '/trips/$bookingId'
+    | '/admin/'
     | '/captain/'
     | '/trips/'
     | '/booking/confirmation/$bookingId'
@@ -295,6 +389,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRouteRoute: typeof AdminRouteRouteWithChildren
   HelpRoute: typeof HelpRoute
   InboxRoute: typeof InboxRoute
   ProfileRoute: typeof ProfileRoute
@@ -362,6 +457,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HelpRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -382,6 +484,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/captain/'
       preLoaderRoute: typeof CaptainIndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRouteRoute
     }
     '/trips/$bookingId': {
       id: '/trips/$bookingId'
@@ -424,6 +533,48 @@ declare module '@tanstack/react-router' {
       fullPath: '/booking/$listingId'
       preLoaderRoute: typeof BookingListingIdRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/admin/users': {
+      id: '/admin/users'
+      path: '/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AdminUsersRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/reviews': {
+      id: '/admin/reviews'
+      path: '/reviews'
+      fullPath: '/admin/reviews'
+      preLoaderRoute: typeof AdminReviewsRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/listings': {
+      id: '/admin/listings'
+      path: '/listings'
+      fullPath: '/admin/listings'
+      preLoaderRoute: typeof AdminListingsRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/conversations': {
+      id: '/admin/conversations'
+      path: '/conversations'
+      fullPath: '/admin/conversations'
+      preLoaderRoute: typeof AdminConversationsRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/bookings': {
+      id: '/admin/bookings'
+      path: '/bookings'
+      fullPath: '/admin/bookings'
+      preLoaderRoute: typeof AdminBookingsRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/boats': {
+      id: '/admin/boats'
+      path: '/boats'
+      fullPath: '/admin/boats'
+      preLoaderRoute: typeof AdminBoatsRouteImport
+      parentRoute: typeof AdminRouteRoute
     }
     '/captain/listings/': {
       id: '/captain/listings/'
@@ -477,8 +628,33 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AdminRouteRouteChildren {
+  AdminBoatsRoute: typeof AdminBoatsRoute
+  AdminBookingsRoute: typeof AdminBookingsRoute
+  AdminConversationsRoute: typeof AdminConversationsRoute
+  AdminListingsRoute: typeof AdminListingsRoute
+  AdminReviewsRoute: typeof AdminReviewsRoute
+  AdminUsersRoute: typeof AdminUsersRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+}
+
+const AdminRouteRouteChildren: AdminRouteRouteChildren = {
+  AdminBoatsRoute: AdminBoatsRoute,
+  AdminBookingsRoute: AdminBookingsRoute,
+  AdminConversationsRoute: AdminConversationsRoute,
+  AdminListingsRoute: AdminListingsRoute,
+  AdminReviewsRoute: AdminReviewsRoute,
+  AdminUsersRoute: AdminUsersRoute,
+  AdminIndexRoute: AdminIndexRoute,
+}
+
+const AdminRouteRouteWithChildren = AdminRouteRoute._addFileChildren(
+  AdminRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRouteRoute: AdminRouteRouteWithChildren,
   HelpRoute: HelpRoute,
   InboxRoute: InboxRoute,
   ProfileRoute: ProfileRoute,

