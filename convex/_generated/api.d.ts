@@ -1,4 +1,4 @@
- 
+/* eslint-disable */
 /**
  * Generated `api` utility.
  *
@@ -29,6 +29,7 @@ import type * as seed from "../seed.js";
 import type * as seedMyChats from "../seedMyChats.js";
 import type * as sms from "../sms.js";
 import type * as storage from "../storage.js";
+import type * as stripe from "../stripe.js";
 import type * as users from "../users.js";
 
 import type {
@@ -59,6 +60,7 @@ declare const fullApi: ApiFromModules<{
   seedMyChats: typeof seedMyChats;
   sms: typeof sms;
   storage: typeof storage;
+  stripe: typeof stripe;
   users: typeof users;
 }>;
 

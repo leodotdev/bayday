@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router"
-import { useMutation, useQuery } from "convex/react"
+import { useAction, useMutation, useQuery } from "convex/react"
 import { toast } from "sonner"
 import { z } from "zod"
 import { Calendar as CalendarIcon, ChevronLeft, Loader2, Users } from "lucide-react"
@@ -89,6 +89,7 @@ function BookingPage() {
   })
   const createBooking = useMutation(api.bookings.create)
   const createAsGuest = useMutation(api.bookings.createAsGuest)
+  const createCheckoutSession = useAction(api.stripe.createCheckoutSession)
 
   const [date, setDate] = useState<Date | undefined>(
     search.date ? parseDateOnly(search.date) : undefined,
@@ -165,6 +166,18 @@ function BookingPage() {
               : undefined,
           specialRequests: specialRequests || undefined,
         })
+        // Try to mint a Stripe Checkout session. In dev mode (no key set)
+        // it returns mode: "dev" and we fall through to the confirmation
+        // page with the existing direct-confirm behavior.
+        try {
+          const session = await createCheckoutSession({ bookingId })
+          if (session.mode === "live" && session.url) {
+            window.location.href = session.url
+            return
+          }
+        } catch (err) {
+          console.warn("Stripe checkout skipped:", err)
+        }
         toast.success("Booking requested")
         navigate({
           to: "/booking/confirmation/$bookingId",

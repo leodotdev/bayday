@@ -188,6 +188,11 @@ export default defineSchema({
     cancellationReason: v.optional(v.string()),
     hostPayoutCents: v.optional(v.number()),
     platformFeeCents: v.optional(v.number()),
+    // Stripe — populated when the guest checks out via Checkout / Payment
+    // Element. Optional everywhere so existing rows pass schema checks.
+    stripeSessionId: v.optional(v.string()),
+    stripePaymentIntentId: v.optional(v.string()),
+    paidAt: v.optional(v.number()),
     createdAt: v.number(),
     updatedAt: v.number(),
   })
