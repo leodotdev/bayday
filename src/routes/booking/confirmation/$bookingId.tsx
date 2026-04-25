@@ -81,7 +81,7 @@ function ConfirmationPage() {
     const url = window.location.href
     if (navigator.share) {
       try {
-        await navigator.share({ title: "My daytrip booking", url })
+        await navigator.share({ title: "My DayTrip booking", url })
         return
       } catch {
         // user cancelled or share unsupported — fall through to copy
@@ -111,7 +111,7 @@ function ConfirmationPage() {
         `DTEND:${end}`,
         `SUMMARY:${listing.title}`,
         `LOCATION:${listing.departurePort}, ${listing.departureCity}, ${listing.departureState}`,
-        `DESCRIPTION:daytrip charter booking`,
+        `DESCRIPTION:DayTrip charter booking`,
         "END:VEVENT",
         "END:VCALENDAR",
       ].join("\r\n") + "\r\n"

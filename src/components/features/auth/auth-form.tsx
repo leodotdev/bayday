@@ -24,7 +24,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
         <p className="text-sm text-muted-foreground">
           {isSignIn
             ? "Sign in to book charters and manage your trips."
-            : "Join daytrip to start booking fishing charters."}
+            : "Join DayTrip to start booking fishing charters."}
         </p>
       </div>
 

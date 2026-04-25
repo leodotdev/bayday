@@ -36,7 +36,7 @@ export const { auth, signIn, signOut, store } = convexAuth({
           return;
         }
 
-        const body = `Your daytrip code is ${token}. Valid for 20 minutes.`;
+        const body = `Your DayTrip code is ${token}. Valid for 20 minutes.`;
         const params = new URLSearchParams({
           To: identifier,
           From: from,

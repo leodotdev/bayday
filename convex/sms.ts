@@ -47,7 +47,7 @@ export const notifyBookingConfirmed = internalAction({
   handler: async (_ctx, args) => {
     return sendSms({
       to: args.to,
-      body: `daytrip: ${args.listingTitle} on ${args.date} at ${args.startTime} is confirmed. View in app.`,
+      body: `DayTrip: ${args.listingTitle} on ${args.date} at ${args.startTime} is confirmed. View in app.`,
     });
   },
 });
@@ -66,7 +66,7 @@ export const notifyNewMessage = internalAction({
         : args.preview;
     return sendSms({
       to: args.to,
-      body: `daytrip: ${args.senderName}: ${trimmedPreview}`,
+      body: `DayTrip: ${args.senderName}: ${trimmedPreview}`,
     });
   },
 });
@@ -82,7 +82,7 @@ export const notifyTripReminder = internalAction({
   handler: async (_ctx, args) => {
     return sendSms({
       to: args.to,
-      body: `daytrip reminder: ${args.listingTitle} tomorrow at ${args.startTime}. Meet at ${args.departurePort}. Arrive 15 min early.`,
+      body: `DayTrip reminder: ${args.listingTitle} tomorrow at ${args.startTime}. Meet at ${args.departurePort}. Arrive 15 min early.`,
     });
   },
 });

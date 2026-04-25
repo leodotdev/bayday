@@ -24,7 +24,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
         name: "viewport",
         content: "width=device-width, initial-scale=1",
       },
-      { title: "daytrip" },
+      { title: "DayTrip" },
     ],
     links: [{ rel: "stylesheet", href: appCss }],
   }),

@@ -1,8 +1,8 @@
 import { v } from "convex/values";
 import { action, internalAction } from "./_generated/server";
 
-const FROM = "daytrip <noreply@daytrip.app>";
-const BRAND = "daytrip";
+const FROM = "DayTrip <noreply@daytrip.app>";
+const BRAND = "DayTrip";
 
 async function sendEmail({
   to,
