@@ -5,6 +5,11 @@ export const clearAll = internalMutation({
   handler: async (ctx) => {
     // Paginate to avoid the 4096 reads-per-function limit. Returns the
     // total number of docs deleted in this call. Run repeatedly until 0.
+    // Auth tables go last — they're owned by @convex-dev/auth and we
+    // wipe them so a clean reseed doesn't leave orphaned credentials
+    // behind. Without this, a user signs up, you reseed, the users row
+    // is gone but the authAccount + password hash linger and signIn
+    // crashes inside the provider.
     const tables = [
       "messages",
       "conversations",
@@ -17,6 +22,12 @@ export const clearAll = internalMutation({
       "listings",
       "boats",
       "users",
+      "authAccounts",
+      "authSessions",
+      "authRefreshTokens",
+      "authVerificationCodes",
+      "authVerifiers",
+      "authRateLimits",
     ] as const;
 
     const BATCH = 500;

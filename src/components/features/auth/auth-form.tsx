@@ -17,10 +17,13 @@ type Mode = "signIn" | "signUp"
 // instead of a wall of red.
 function humanizeAuthError(err: unknown, isSignIn: boolean): string {
   const raw = err instanceof Error ? err.message : String(err)
-  // Known crash in @convex-dev/auth@0.0.91 when no account matches.
+  // Known crash in @convex-dev/auth@0.0.91 — the same null-deref masks
+  // both "no account" and "wrong password". On sign-in, never reveal
+  // which one is wrong; on sign-up, the only plausible cause is that
+  // the email is already taken (same crash path as AccountAlreadyExists).
   if (raw.includes("Cannot read properties of null") && raw.includes("_id")) {
     return isSignIn
-      ? "We couldn't find an account with that email and password. Try signing up first."
+      ? "Email or password is incorrect."
       : "An account with that email already exists. Try signing in instead."
   }
   if (raw.includes("InvalidAccountId") || raw.includes("Invalid credentials")) {
