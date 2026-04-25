@@ -21,6 +21,7 @@ import type * as helpers from "../helpers.js";
 import type * as http from "../http.js";
 import type * as listings from "../listings.js";
 import type * as messages from "../messages.js";
+import type * as notifications from "../notifications.js";
 import type * as participants from "../participants.js";
 import type * as reviews from "../reviews.js";
 import type * as search from "../search.js";
@@ -50,6 +51,7 @@ declare const fullApi: ApiFromModules<{
   http: typeof http;
   listings: typeof listings;
   messages: typeof messages;
+  notifications: typeof notifications;
   participants: typeof participants;
   reviews: typeof reviews;
   search: typeof search;

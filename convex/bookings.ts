@@ -3,6 +3,7 @@ import { query, mutation, type MutationCtx } from "./_generated/server";
 import { requireAuth, requireHost, optionalAuth } from "./helpers";
 import { internal } from "./_generated/api";
 import type { Id } from "./_generated/dataModel";
+import { pushInline } from "./notifications";
 
 async function notifyHostOfRequest(
   ctx: MutationCtx,
@@ -12,7 +13,18 @@ async function notifyHostOfRequest(
   if (!booking) return;
   const host = await ctx.db.get(booking.hostId);
   const listing = await ctx.db.get(booking.listingId);
-  if (!host?.email || !listing) return;
+  if (!host || !listing) return;
+
+  await pushInline(ctx, {
+    userId: host._id,
+    type: "booking_request",
+    title: "New booking request",
+    body: `${booking.guestName ?? "A guest"} wants to book ${listing.title} on ${booking.date}`,
+    referenceType: "booking",
+    referenceId: bookingId,
+  });
+
+  if (!host.email) return;
   const wantsEmail = host.notificationPreferences?.emailBookings !== false;
   if (wantsEmail) {
     await ctx.scheduler.runAfter(0, internal.email.notifyBookingRequested, {
@@ -38,6 +50,18 @@ async function notifyGuestOfConfirmation(
   const guestEmail = booking.guestEmail;
   const guestName = booking.guestName ?? "Angler";
   const guestUser = booking.guestId ? await ctx.db.get(booking.guestId) : null;
+
+  if (guestUser) {
+    await pushInline(ctx, {
+      userId: guestUser._id,
+      type: "booking_confirmed",
+      title: "Trip confirmed",
+      body: `${listing.title} on ${booking.date} at ${booking.startTime}`,
+      referenceType: "booking",
+      referenceId: bookingId,
+    });
+  }
+
   const wantsEmail =
     guestUser?.notificationPreferences?.emailBookings !== false;
   if (guestEmail && wantsEmail) {

@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router"
 import { Anchor } from "lucide-react"
 import { AuthMenu } from "@/components/layout/auth-menu"
 import { MobileNav } from "@/components/layout/mobile-nav"
+import { NotificationsBell } from "@/components/layout/notifications-bell"
 import { useCurrentUser } from "@/hooks/use-current-user"
 
 export function SiteHeader() {
@@ -51,10 +52,15 @@ export function SiteHeader() {
           </Link>
         </nav>
 
-        <div className="hidden md:block">
-          <AuthMenu />
+        <div className="flex items-center gap-1 md:gap-2">
+          <div className="hidden md:block">
+            <NotificationsBell />
+          </div>
+          <div className="hidden md:block">
+            <AuthMenu />
+          </div>
+          <MobileNav />
         </div>
-        <MobileNav />
       </div>
     </header>
   )
