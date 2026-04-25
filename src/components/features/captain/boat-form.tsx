@@ -4,7 +4,8 @@ import { useMutation } from "convex/react"
 import { toast } from "sonner"
 import { Loader2 } from "lucide-react"
 import { api } from "@/convex/_generated/api"
-import type { Doc } from "@/convex/_generated/dataModel"
+import type { Doc, Id } from "@/convex/_generated/dataModel"
+import { PhotoUploader } from "@/components/features/captain/photo-uploader"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -66,6 +67,9 @@ export function BoatForm({ boat }: Props) {
   const [safetyText, setSafetyText] = useState(
     boat?.safetyEquipment?.join(", ") ?? "",
   )
+  const [photos, setPhotos] = useState<Id<"_storage">[]>(
+    (boat?.photos as Id<"_storage">[] | undefined) ?? [],
+  )
   const [submitting, setSubmitting] = useState(false)
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -92,10 +96,13 @@ export function BoatForm({ boat }: Props) {
           .filter(Boolean),
       }
       if (boat) {
-        await update({ id: boat._id, ...baseArgs })
+        await update({ id: boat._id, ...baseArgs, photos })
         toast.success("Boat updated")
       } else {
-        await create(baseArgs)
+        const id = await create(baseArgs)
+        if (photos.length > 0) {
+          await update({ id, photos })
+        }
         toast.success("Boat added")
       }
       navigate({ to: "/captain/boats" })
@@ -108,6 +115,17 @@ export function BoatForm({ boat }: Props) {
 
   return (
     <form onSubmit={onSubmit} className="space-y-6">
+      <Card className="space-y-4 p-6">
+        <div>
+          <h2 className="font-semibold">Photos</h2>
+          <p className="text-sm text-muted-foreground">
+            The first photo is the cover that shows in search and on the
+            listing page.
+          </p>
+        </div>
+        <PhotoUploader value={photos} onChange={setPhotos} max={12} />
+      </Card>
+
       <Card className="space-y-4 p-6">
         <h2 className="font-semibold">Basics</h2>
         <div className="grid gap-4 sm:grid-cols-2">

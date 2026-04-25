@@ -5,6 +5,7 @@ import { toast } from "sonner"
 import { Loader2, Users } from "lucide-react"
 import { api } from "@/convex/_generated/api"
 import type { Doc, Id } from "@/convex/_generated/dataModel"
+import { PhotoUploader } from "@/components/features/captain/photo-uploader"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -80,6 +81,9 @@ export function ListingForm({ listing }: Props) {
   )
   const [captainName, setCaptainName] = useState(listing?.captainName ?? "")
   const [captainBio, setCaptainBio] = useState(listing?.captainBio ?? "")
+  const [captainPhoto, setCaptainPhoto] = useState<Id<"_storage"> | undefined>(
+    listing?.captainPhoto as Id<"_storage"> | undefined,
+  )
   const [targetSpeciesText, setTargetSpeciesText] = useState(
     listing?.targetSpecies?.join(", ") ?? "",
   )
@@ -139,6 +143,7 @@ export function ListingForm({ listing }: Props) {
         captainIncluded,
         captainName: captainName || undefined,
         captainBio: captainBio || undefined,
+        captainPhoto,
         targetSpecies: targetSpeciesText
           .split(",")
           .map((s) => s.trim())
@@ -364,6 +369,15 @@ export function ListingForm({ listing }: Props) {
 
       <Card className="space-y-4 p-6">
         <h2 className="font-semibold">Captain & inclusions</h2>
+        <div>
+          <Label>Captain photo</Label>
+          <PhotoUploader
+            variant="single"
+            value={captainPhoto ? [captainPhoto] : []}
+            onChange={(next) => setCaptainPhoto(next[0])}
+            className="mt-2"
+          />
+        </div>
         <Field id="captainName" label="Captain name">
           <Input
             id="captainName"
