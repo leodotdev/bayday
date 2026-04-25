@@ -29,7 +29,7 @@ export function SharedTripCard({ trip }: { trip: SharedTrip }) {
       params={{ bookingId: trip.booking._id }}
       className="group block"
     >
-      <Card className="overflow-hidden p-0 ring-2 ring-primary/40 transition-shadow hover:shadow-md">
+      <Card className="overflow-hidden p-0 ring-2 ring-primary/40 transition-shadow hover:shadow-sm">
         <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
           <SignedImage
             storageId={firstPhoto}
