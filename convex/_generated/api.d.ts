@@ -23,6 +23,8 @@ import type * as messages from "../messages.js";
 import type * as participants from "../participants.js";
 import type * as reviews from "../reviews.js";
 import type * as search from "../search.js";
+import type * as seed from "../seed.js";
+import type * as seedMyChats from "../seedMyChats.js";
 import type * as storage from "../storage.js";
 import type * as users from "../users.js";
 
@@ -48,6 +50,8 @@ declare const fullApi: ApiFromModules<{
   participants: typeof participants;
   reviews: typeof reviews;
   search: typeof search;
+  seed: typeof seed;
+  seedMyChats: typeof seedMyChats;
   storage: typeof storage;
   users: typeof users;
 }>;
