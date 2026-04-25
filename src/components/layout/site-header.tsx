@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router"
 import { Anchor } from "lucide-react"
 import { AuthMenu } from "@/components/layout/auth-menu"
+import { MobileNav } from "@/components/layout/mobile-nav"
 import { useCurrentUser } from "@/hooks/use-current-user"
 
 export function SiteHeader() {
@@ -50,7 +51,10 @@ export function SiteHeader() {
           </Link>
         </nav>
 
-        <AuthMenu />
+        <div className="hidden md:block">
+          <AuthMenu />
+        </div>
+        <MobileNav />
       </div>
     </header>
   )

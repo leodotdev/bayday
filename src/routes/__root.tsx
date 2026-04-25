@@ -12,6 +12,7 @@ import { ConvexAuthProvider } from "@convex-dev/auth/react"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { Toaster } from "@/components/ui/sonner"
 import { SiteHeader } from "@/components/layout/site-header"
+import { SiteFooter } from "@/components/layout/site-footer"
 import type { RouterContext } from "@/router"
 
 import appCss from "../styles.css?url"
@@ -53,6 +54,7 @@ function RootDocument() {
                 <main className="flex-1">
                   <Outlet />
                 </main>
+                <SiteFooter />
               </div>
               <Toaster richColors position="top-center" />
             </TooltipProvider>
