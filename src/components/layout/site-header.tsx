@@ -13,10 +13,7 @@ export function SiteHeader() {
           className="flex items-center gap-2 font-semibold tracking-tight"
         >
           <Anchor className="h-6 w-6" />
-          <span className="text-lg tracking-tight">
-            <span className="font-bold">Day</span>
-            <span className="font-light">Trip</span>
-          </span>
+          <span className="text-lg font-semibold tracking-tight">DayTrip</span>
         </Link>
 
         <nav className="hidden items-center gap-6 md:flex">

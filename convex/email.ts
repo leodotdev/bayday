@@ -1,7 +1,13 @@
 import { v } from "convex/values";
 import { action, internalAction } from "./_generated/server";
 
-const FROM = "DayTrip <noreply@daytrip.app>";
+// FROM address — env-driven so you can flip to onboarding@resend.dev
+// for sandbox testing before daytrip.app is verified in Resend.
+function getFromAddress() {
+  const fromEmail = process.env.DAYTRIP_EMAIL_FROM ?? "noreply@daytrip.app";
+  const fromName = process.env.DAYTRIP_EMAIL_FROM_NAME ?? "DayTrip";
+  return `${fromName} <${fromEmail}>`;
+}
 const BRAND = "DayTrip";
 
 async function sendEmail({
@@ -33,7 +39,7 @@ async function sendEmail({
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      from: from ?? FROM,
+      from: from ?? getFromAddress(),
       to: [to],
       subject,
       html,

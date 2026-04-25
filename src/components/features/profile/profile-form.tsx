@@ -53,6 +53,7 @@ export function ProfileForm({ user }: Props) {
       await updateProfile({
         firstName: (form.get("firstName") as string) || undefined,
         lastName: (form.get("lastName") as string) || undefined,
+        email: (form.get("email") as string) || undefined,
         phone: (form.get("phone") as string) || undefined,
         bio: (form.get("bio") as string) || undefined,
       })
@@ -119,14 +120,33 @@ export function ProfileForm({ user }: Props) {
         </div>
       </div>
 
-      <div className="space-y-1.5">
-        <Label htmlFor="phone">Phone</Label>
-        <Input
-          id="phone"
-          name="phone"
-          type="tel"
-          defaultValue={user.phone ?? ""}
-        />
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="space-y-1.5">
+          <Label htmlFor="email">Email</Label>
+          <Input
+            id="email"
+            name="email"
+            type="email"
+            defaultValue={user.email ?? ""}
+            placeholder="you@example.com"
+          />
+          <p className="text-xs text-muted-foreground">
+            Where booking confirmations and chat updates go.
+          </p>
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="phone">Phone</Label>
+          <Input
+            id="phone"
+            name="phone"
+            type="tel"
+            defaultValue={user.phone ?? ""}
+            placeholder="+1 (555) 123-4567"
+          />
+          <p className="text-xs text-muted-foreground">
+            Required for SMS notifications.
+          </p>
+        </div>
       </div>
 
       <div className="space-y-1.5">
