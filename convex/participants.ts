@@ -1,6 +1,6 @@
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
-import { optionalAuth } from "./helpers";
+import { optionalAuth, requireAuth } from "./helpers";
 
 export const invite = mutation({
   args: {
@@ -91,6 +91,68 @@ export const getByBooking = query({
       .collect();
 
     return participants.filter((p) => p.status !== "cancelled");
+  },
+});
+
+// Public claim — auth user joins a public shared trip with remaining
+// open spots. No invite needed.
+export const claimOpenSpot = mutation({
+  args: { bookingId: v.id("bookings") },
+  handler: async (ctx, args) => {
+    const user = await requireAuth(ctx);
+
+    const booking = await ctx.db.get(args.bookingId);
+    if (!booking) throw new Error("Trip not found");
+    if (!booking.costSharingEnabled || booking.visibility !== "public") {
+      throw new Error("This trip is not open for public claims");
+    }
+    if (booking.status !== "pending" && booking.status !== "confirmed") {
+      throw new Error("This trip is no longer accepting riders");
+    }
+    const today = new Date().toISOString().slice(0, 10);
+    if (booking.date < today) {
+      throw new Error("This trip has already departed");
+    }
+    if (booking.guestId === user._id) {
+      throw new Error("You're already the primary booker");
+    }
+
+    const existing = await ctx.db
+      .query("bookingParticipants")
+      .withIndex("by_bookingId", (q) => q.eq("bookingId", args.bookingId))
+      .collect();
+    if (
+      existing.some(
+        (p) => p.userId === user._id && p.status !== "cancelled" && p.status !== "declined",
+      )
+    ) {
+      throw new Error("You've already joined this trip");
+    }
+
+    const filled = existing.filter(
+      (p) => p.status === "confirmed" || p.status === "pending",
+    ).length;
+    const totalSpots = booking.costSharingMaxSpots ?? booking.partySize;
+    // -1 reserves the primary booker's seat
+    if (filled >= totalSpots - 1) {
+      throw new Error("This trip is full");
+    }
+
+    const shareCents = Math.round(
+      booking.totalPriceCents / Math.max(totalSpots, 1),
+    );
+    const id = await ctx.db.insert("bookingParticipants", {
+      bookingId: args.bookingId,
+      userId: user._id,
+      email: user.email,
+      role: "invited",
+      status: "confirmed",
+      shareCents,
+      hasPaid: false,
+      joinedAt: Date.now(),
+    });
+
+    return { id };
   },
 });
 

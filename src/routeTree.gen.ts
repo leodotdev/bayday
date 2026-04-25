@@ -9,7 +9,6 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as TripsRouteImport } from './routes/trips'
 import { Route as SignUpRouteImport } from './routes/sign-up'
 import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as SearchRouteImport } from './routes/search'
@@ -17,7 +16,9 @@ import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as InboxRouteImport } from './routes/inbox'
 import { Route as HelpRouteImport } from './routes/help'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as TripsIndexRouteImport } from './routes/trips/index'
 import { Route as CaptainIndexRouteImport } from './routes/captain/index'
+import { Route as TripsBookingIdRouteImport } from './routes/trips/$bookingId'
 import { Route as ListingsIdRouteImport } from './routes/listings/$id'
 import { Route as ConversationIdRouteImport } from './routes/conversation/$id'
 import { Route as CaptainOnboardingRouteImport } from './routes/captain/onboarding'
@@ -31,11 +32,6 @@ import { Route as CaptainBoatsNewRouteImport } from './routes/captain/boats/new'
 import { Route as CaptainBoatsBoatIdRouteImport } from './routes/captain/boats/$boatId'
 import { Route as BookingConfirmationBookingIdRouteImport } from './routes/booking/confirmation/$bookingId'
 
-const TripsRoute = TripsRouteImport.update({
-  id: '/trips',
-  path: '/trips',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const SignUpRoute = SignUpRouteImport.update({
   id: '/sign-up',
   path: '/sign-up',
@@ -71,9 +67,19 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TripsIndexRoute = TripsIndexRouteImport.update({
+  id: '/trips/',
+  path: '/trips/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CaptainIndexRoute = CaptainIndexRouteImport.update({
   id: '/captain/',
   path: '/captain/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TripsBookingIdRoute = TripsBookingIdRouteImport.update({
+  id: '/trips/$bookingId',
+  path: '/trips/$bookingId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ListingsIdRoute = ListingsIdRouteImport.update({
@@ -147,13 +153,14 @@ export interface FileRoutesByFullPath {
   '/search': typeof SearchRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
-  '/trips': typeof TripsRoute
   '/booking/$listingId': typeof BookingListingIdRoute
   '/captain/bookings': typeof CaptainBookingsRoute
   '/captain/onboarding': typeof CaptainOnboardingRoute
   '/conversation/$id': typeof ConversationIdRoute
   '/listings/$id': typeof ListingsIdRoute
+  '/trips/$bookingId': typeof TripsBookingIdRoute
   '/captain/': typeof CaptainIndexRoute
+  '/trips/': typeof TripsIndexRoute
   '/booking/confirmation/$bookingId': typeof BookingConfirmationBookingIdRoute
   '/captain/boats/$boatId': typeof CaptainBoatsBoatIdRoute
   '/captain/boats/new': typeof CaptainBoatsNewRoute
@@ -170,13 +177,14 @@ export interface FileRoutesByTo {
   '/search': typeof SearchRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
-  '/trips': typeof TripsRoute
   '/booking/$listingId': typeof BookingListingIdRoute
   '/captain/bookings': typeof CaptainBookingsRoute
   '/captain/onboarding': typeof CaptainOnboardingRoute
   '/conversation/$id': typeof ConversationIdRoute
   '/listings/$id': typeof ListingsIdRoute
+  '/trips/$bookingId': typeof TripsBookingIdRoute
   '/captain': typeof CaptainIndexRoute
+  '/trips': typeof TripsIndexRoute
   '/booking/confirmation/$bookingId': typeof BookingConfirmationBookingIdRoute
   '/captain/boats/$boatId': typeof CaptainBoatsBoatIdRoute
   '/captain/boats/new': typeof CaptainBoatsNewRoute
@@ -194,13 +202,14 @@ export interface FileRoutesById {
   '/search': typeof SearchRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
-  '/trips': typeof TripsRoute
   '/booking/$listingId': typeof BookingListingIdRoute
   '/captain/bookings': typeof CaptainBookingsRoute
   '/captain/onboarding': typeof CaptainOnboardingRoute
   '/conversation/$id': typeof ConversationIdRoute
   '/listings/$id': typeof ListingsIdRoute
+  '/trips/$bookingId': typeof TripsBookingIdRoute
   '/captain/': typeof CaptainIndexRoute
+  '/trips/': typeof TripsIndexRoute
   '/booking/confirmation/$bookingId': typeof BookingConfirmationBookingIdRoute
   '/captain/boats/$boatId': typeof CaptainBoatsBoatIdRoute
   '/captain/boats/new': typeof CaptainBoatsNewRoute
@@ -219,13 +228,14 @@ export interface FileRouteTypes {
     | '/search'
     | '/sign-in'
     | '/sign-up'
-    | '/trips'
     | '/booking/$listingId'
     | '/captain/bookings'
     | '/captain/onboarding'
     | '/conversation/$id'
     | '/listings/$id'
+    | '/trips/$bookingId'
     | '/captain/'
+    | '/trips/'
     | '/booking/confirmation/$bookingId'
     | '/captain/boats/$boatId'
     | '/captain/boats/new'
@@ -242,13 +252,14 @@ export interface FileRouteTypes {
     | '/search'
     | '/sign-in'
     | '/sign-up'
-    | '/trips'
     | '/booking/$listingId'
     | '/captain/bookings'
     | '/captain/onboarding'
     | '/conversation/$id'
     | '/listings/$id'
+    | '/trips/$bookingId'
     | '/captain'
+    | '/trips'
     | '/booking/confirmation/$bookingId'
     | '/captain/boats/$boatId'
     | '/captain/boats/new'
@@ -265,13 +276,14 @@ export interface FileRouteTypes {
     | '/search'
     | '/sign-in'
     | '/sign-up'
-    | '/trips'
     | '/booking/$listingId'
     | '/captain/bookings'
     | '/captain/onboarding'
     | '/conversation/$id'
     | '/listings/$id'
+    | '/trips/$bookingId'
     | '/captain/'
+    | '/trips/'
     | '/booking/confirmation/$bookingId'
     | '/captain/boats/$boatId'
     | '/captain/boats/new'
@@ -289,13 +301,14 @@ export interface RootRouteChildren {
   SearchRoute: typeof SearchRoute
   SignInRoute: typeof SignInRoute
   SignUpRoute: typeof SignUpRoute
-  TripsRoute: typeof TripsRoute
   BookingListingIdRoute: typeof BookingListingIdRoute
   CaptainBookingsRoute: typeof CaptainBookingsRoute
   CaptainOnboardingRoute: typeof CaptainOnboardingRoute
   ConversationIdRoute: typeof ConversationIdRoute
   ListingsIdRoute: typeof ListingsIdRoute
+  TripsBookingIdRoute: typeof TripsBookingIdRoute
   CaptainIndexRoute: typeof CaptainIndexRoute
+  TripsIndexRoute: typeof TripsIndexRoute
   BookingConfirmationBookingIdRoute: typeof BookingConfirmationBookingIdRoute
   CaptainBoatsBoatIdRoute: typeof CaptainBoatsBoatIdRoute
   CaptainBoatsNewRoute: typeof CaptainBoatsNewRoute
@@ -307,13 +320,6 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/trips': {
-      id: '/trips'
-      path: '/trips'
-      fullPath: '/trips'
-      preLoaderRoute: typeof TripsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/sign-up': {
       id: '/sign-up'
       path: '/sign-up'
@@ -363,11 +369,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/trips/': {
+      id: '/trips/'
+      path: '/trips'
+      fullPath: '/trips/'
+      preLoaderRoute: typeof TripsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/captain/': {
       id: '/captain/'
       path: '/captain'
       fullPath: '/captain/'
       preLoaderRoute: typeof CaptainIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/trips/$bookingId': {
+      id: '/trips/$bookingId'
+      path: '/trips/$bookingId'
+      fullPath: '/trips/$bookingId'
+      preLoaderRoute: typeof TripsBookingIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/listings/$id': {
@@ -465,13 +485,14 @@ const rootRouteChildren: RootRouteChildren = {
   SearchRoute: SearchRoute,
   SignInRoute: SignInRoute,
   SignUpRoute: SignUpRoute,
-  TripsRoute: TripsRoute,
   BookingListingIdRoute: BookingListingIdRoute,
   CaptainBookingsRoute: CaptainBookingsRoute,
   CaptainOnboardingRoute: CaptainOnboardingRoute,
   ConversationIdRoute: ConversationIdRoute,
   ListingsIdRoute: ListingsIdRoute,
+  TripsBookingIdRoute: TripsBookingIdRoute,
   CaptainIndexRoute: CaptainIndexRoute,
+  TripsIndexRoute: TripsIndexRoute,
   BookingConfirmationBookingIdRoute: BookingConfirmationBookingIdRoute,
   CaptainBoatsBoatIdRoute: CaptainBoatsBoatIdRoute,
   CaptainBoatsNewRoute: CaptainBoatsNewRoute,

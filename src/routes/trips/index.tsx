@@ -11,7 +11,7 @@ import { useCurrentUser } from "@/hooks/use-current-user"
 import { cn } from "@/lib/utils"
 import { formatDateOnly, formatPriceCents, tripTypeLabel } from "@/lib/format"
 
-export const Route = createFileRoute("/trips")({
+export const Route = createFileRoute("/trips/")({
   component: TripsPage,
 })
 
@@ -136,17 +136,15 @@ function TripsPage() {
                   </div>
                 </div>
                 <div className="flex flex-col items-end gap-2">
-                  {listing ? (
-                    <Link
-                      to="/listings/$id"
-                      params={{ id: listing._id }}
-                      className={cn(
-                        buttonVariants({ variant: "outline", size: "sm" }),
-                      )}
-                    >
-                      View listing
-                    </Link>
-                  ) : null}
+                  <Link
+                    to="/trips/$bookingId"
+                    params={{ bookingId: b._id }}
+                    className={cn(
+                      buttonVariants({ variant: "outline", size: "sm" }),
+                    )}
+                  >
+                    Manage trip
+                  </Link>
                   {active ? (
                     <Button
                       variant="ghost"

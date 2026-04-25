@@ -25,8 +25,8 @@ export function SharedTripCard({ trip }: { trip: SharedTrip }) {
 
   return (
     <Link
-      to="/listings/$id"
-      params={{ id: trip.listing._id }}
+      to="/trips/$bookingId"
+      params={{ bookingId: trip.booking._id }}
       className="group block"
     >
       <Card className="overflow-hidden p-0 ring-2 ring-primary/40 transition-shadow hover:shadow-md">

@@ -217,8 +217,8 @@ export function ListingsMap({
             className="font-sans"
           >
             <Link
-              to="/listings/$id"
-              params={{ id: activeShared.listing._id }}
+              to="/trips/$bookingId"
+              params={{ bookingId: activeShared.booking._id }}
               className="block min-w-56"
             >
               <div className="mb-1 flex items-center gap-1 text-xs font-semibold uppercase text-primary">
