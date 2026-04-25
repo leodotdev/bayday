@@ -1,7 +1,54 @@
 import { v } from "convex/values";
-import { query, mutation } from "./_generated/server";
+import { query, mutation, type MutationCtx } from "./_generated/server";
 import { internal } from "./_generated/api";
+import type { Id } from "./_generated/dataModel";
 import { optionalAuth, requireAuth } from "./helpers";
+
+// Ensure a group booking conversation exists and the given user is in it.
+// Used when a participant accepts an invite or claims a public spot so
+// the whole party shares one chat thread.
+async function ensureBookingConversationIncludes(
+  ctx: MutationCtx,
+  bookingId: Id<"bookings">,
+  userId: Id<"users">,
+) {
+  const booking = await ctx.db.get(bookingId);
+  if (!booking) return;
+
+  const existing = await ctx.db
+    .query("conversations")
+    .withIndex("by_bookingId", (q) => q.eq("bookingId", bookingId))
+    .first();
+
+  const now = Date.now();
+  if (existing) {
+    if (!existing.participantIds.includes(userId)) {
+      await ctx.db.patch(existing._id, {
+        participantIds: [...existing.participantIds, userId],
+        lastMessageAt: now,
+      });
+    }
+    return existing._id;
+  }
+
+  const seedParticipants = Array.from(
+    new Set(
+      [booking.guestId, booking.hostId, userId].filter(
+        (id): id is Id<"users"> => !!id,
+      ),
+    ),
+  );
+
+  return ctx.db.insert("conversations", {
+    bookingId,
+    listingId: booking.listingId,
+    participantIds: seedParticipants,
+    type: "booking",
+    lastMessageAt: now,
+    isArchived: false,
+    createdAt: now,
+  });
+}
 
 export const invite = mutation({
   args: {
@@ -179,6 +226,9 @@ export const claimOpenSpot = mutation({
       joinedAt: Date.now(),
     });
 
+    // Pull the new rider into the group chat for this booking
+    await ensureBookingConversationIncludes(ctx, args.bookingId, user._id);
+
     return { id };
   },
 });
@@ -203,6 +253,15 @@ export const respondToInvite = mutation({
       status: args.accept ? "confirmed" : "declined",
       userId: user?._id ?? undefined,
     });
+
+    // If the invitee accepted and is signed in, add them to the group chat
+    if (args.accept && user?._id) {
+      await ensureBookingConversationIncludes(
+        ctx,
+        participant.bookingId,
+        user._id,
+      );
+    }
 
     return participant.bookingId;
   },
