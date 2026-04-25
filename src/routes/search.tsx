@@ -211,7 +211,6 @@ function SearchPage() {
                 ))}
               </div>
             )}
-            </section>
           </div>
         ) : null}
 
