@@ -3,6 +3,7 @@ import { useMutation, useQuery } from "convex/react"
 import { toast } from "sonner"
 import {
   Anchor,
+  CalendarDays,
   CheckCircle2,
   PauseCircle,
   Pencil,
@@ -114,6 +115,17 @@ function CaptainListings() {
                 </div>
               </div>
               <div className="flex items-center gap-2">
+                <Link
+                  to="/captain/listings/$listingId/calendar"
+                  params={{ listingId: l._id }}
+                  className={cn(
+                    buttonVariants({ variant: "outline", size: "sm" }),
+                    "gap-1.5",
+                  )}
+                >
+                  <CalendarDays className="h-3.5 w-3.5" />
+                  Calendar
+                </Link>
                 <Link
                   to="/captain/listings/$listingId"
                   params={{ listingId: l._id }}

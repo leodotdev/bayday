@@ -40,6 +40,7 @@ import { Route as CaptainListingsListingIdRouteImport } from './routes/captain/l
 import { Route as CaptainBoatsNewRouteImport } from './routes/captain/boats/new'
 import { Route as CaptainBoatsBoatIdRouteImport } from './routes/captain/boats/$boatId'
 import { Route as BookingConfirmationBookingIdRouteImport } from './routes/booking/confirmation/$bookingId'
+import { Route as CaptainListingsListingIdCalendarRouteImport } from './routes/captain/listings/$listingId.calendar'
 
 const SignUpRoute = SignUpRouteImport.update({
   id: '/sign-up',
@@ -198,6 +199,12 @@ const BookingConfirmationBookingIdRoute =
     path: '/booking/confirmation/$bookingId',
     getParentRoute: () => rootRouteImport,
   } as any)
+const CaptainListingsListingIdCalendarRoute =
+  CaptainListingsListingIdCalendarRouteImport.update({
+    id: '/calendar',
+    path: '/calendar',
+    getParentRoute: () => CaptainListingsListingIdRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -226,11 +233,12 @@ export interface FileRoutesByFullPath {
   '/booking/confirmation/$bookingId': typeof BookingConfirmationBookingIdRoute
   '/captain/boats/$boatId': typeof CaptainBoatsBoatIdRoute
   '/captain/boats/new': typeof CaptainBoatsNewRoute
-  '/captain/listings/$listingId': typeof CaptainListingsListingIdRoute
+  '/captain/listings/$listingId': typeof CaptainListingsListingIdRouteWithChildren
   '/captain/listings/new': typeof CaptainListingsNewRoute
   '/trips/$bookingId/review': typeof TripsBookingIdReviewRoute
   '/captain/boats/': typeof CaptainBoatsIndexRoute
   '/captain/listings/': typeof CaptainListingsIndexRoute
+  '/captain/listings/$listingId/calendar': typeof CaptainListingsListingIdCalendarRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -258,11 +266,12 @@ export interface FileRoutesByTo {
   '/booking/confirmation/$bookingId': typeof BookingConfirmationBookingIdRoute
   '/captain/boats/$boatId': typeof CaptainBoatsBoatIdRoute
   '/captain/boats/new': typeof CaptainBoatsNewRoute
-  '/captain/listings/$listingId': typeof CaptainListingsListingIdRoute
+  '/captain/listings/$listingId': typeof CaptainListingsListingIdRouteWithChildren
   '/captain/listings/new': typeof CaptainListingsNewRoute
   '/trips/$bookingId/review': typeof TripsBookingIdReviewRoute
   '/captain/boats': typeof CaptainBoatsIndexRoute
   '/captain/listings': typeof CaptainListingsIndexRoute
+  '/captain/listings/$listingId/calendar': typeof CaptainListingsListingIdCalendarRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -292,11 +301,12 @@ export interface FileRoutesById {
   '/booking/confirmation/$bookingId': typeof BookingConfirmationBookingIdRoute
   '/captain/boats/$boatId': typeof CaptainBoatsBoatIdRoute
   '/captain/boats/new': typeof CaptainBoatsNewRoute
-  '/captain/listings/$listingId': typeof CaptainListingsListingIdRoute
+  '/captain/listings/$listingId': typeof CaptainListingsListingIdRouteWithChildren
   '/captain/listings/new': typeof CaptainListingsNewRoute
   '/trips/$bookingId/review': typeof TripsBookingIdReviewRoute
   '/captain/boats/': typeof CaptainBoatsIndexRoute
   '/captain/listings/': typeof CaptainListingsIndexRoute
+  '/captain/listings/$listingId/calendar': typeof CaptainListingsListingIdCalendarRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -332,6 +342,7 @@ export interface FileRouteTypes {
     | '/trips/$bookingId/review'
     | '/captain/boats/'
     | '/captain/listings/'
+    | '/captain/listings/$listingId/calendar'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -364,6 +375,7 @@ export interface FileRouteTypes {
     | '/trips/$bookingId/review'
     | '/captain/boats'
     | '/captain/listings'
+    | '/captain/listings/$listingId/calendar'
   id:
     | '__root__'
     | '/'
@@ -397,6 +409,7 @@ export interface FileRouteTypes {
     | '/trips/$bookingId/review'
     | '/captain/boats/'
     | '/captain/listings/'
+    | '/captain/listings/$listingId/calendar'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -419,7 +432,7 @@ export interface RootRouteChildren {
   BookingConfirmationBookingIdRoute: typeof BookingConfirmationBookingIdRoute
   CaptainBoatsBoatIdRoute: typeof CaptainBoatsBoatIdRoute
   CaptainBoatsNewRoute: typeof CaptainBoatsNewRoute
-  CaptainListingsListingIdRoute: typeof CaptainListingsListingIdRoute
+  CaptainListingsListingIdRoute: typeof CaptainListingsListingIdRouteWithChildren
   CaptainListingsNewRoute: typeof CaptainListingsNewRoute
   CaptainBoatsIndexRoute: typeof CaptainBoatsIndexRoute
   CaptainListingsIndexRoute: typeof CaptainListingsIndexRoute
@@ -644,6 +657,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BookingConfirmationBookingIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/captain/listings/$listingId/calendar': {
+      id: '/captain/listings/$listingId/calendar'
+      path: '/calendar'
+      fullPath: '/captain/listings/$listingId/calendar'
+      preLoaderRoute: typeof CaptainListingsListingIdCalendarRouteImport
+      parentRoute: typeof CaptainListingsListingIdRoute
+    }
   }
 }
 
@@ -683,6 +703,21 @@ const TripsBookingIdRouteWithChildren = TripsBookingIdRoute._addFileChildren(
   TripsBookingIdRouteChildren,
 )
 
+interface CaptainListingsListingIdRouteChildren {
+  CaptainListingsListingIdCalendarRoute: typeof CaptainListingsListingIdCalendarRoute
+}
+
+const CaptainListingsListingIdRouteChildren: CaptainListingsListingIdRouteChildren =
+  {
+    CaptainListingsListingIdCalendarRoute:
+      CaptainListingsListingIdCalendarRoute,
+  }
+
+const CaptainListingsListingIdRouteWithChildren =
+  CaptainListingsListingIdRoute._addFileChildren(
+    CaptainListingsListingIdRouteChildren,
+  )
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRouteRoute: AdminRouteRouteWithChildren,
@@ -703,7 +738,7 @@ const rootRouteChildren: RootRouteChildren = {
   BookingConfirmationBookingIdRoute: BookingConfirmationBookingIdRoute,
   CaptainBoatsBoatIdRoute: CaptainBoatsBoatIdRoute,
   CaptainBoatsNewRoute: CaptainBoatsNewRoute,
-  CaptainListingsListingIdRoute: CaptainListingsListingIdRoute,
+  CaptainListingsListingIdRoute: CaptainListingsListingIdRouteWithChildren,
   CaptainListingsNewRoute: CaptainListingsNewRoute,
   CaptainBoatsIndexRoute: CaptainBoatsIndexRoute,
   CaptainListingsIndexRoute: CaptainListingsIndexRoute,
