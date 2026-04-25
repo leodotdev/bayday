@@ -35,6 +35,29 @@ export const Route = createRootRouteWithContext<RouterContext>()({
       <p>The requested page could not be found.</p>
     </main>
   ),
+  errorComponent: ({ error, reset }) => (
+    <main className="mx-auto max-w-2xl px-4 py-16 text-center">
+      <h1 className="text-2xl font-semibold">Something went wrong</h1>
+      <p className="mt-2 text-sm text-muted-foreground">
+        {error instanceof Error ? error.message : "Unknown error"}
+      </p>
+      <div className="mt-6 flex justify-center gap-2">
+        <button
+          type="button"
+          onClick={reset}
+          className="rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/80"
+        >
+          Try again
+        </button>
+        <a
+          href="/"
+          className="rounded-full border px-4 py-2 text-sm font-medium hover:bg-muted"
+        >
+          Back home
+        </a>
+      </div>
+    </main>
+  ),
   shellComponent: RootDocument,
 })
 

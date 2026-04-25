@@ -5,14 +5,19 @@ import {
   mutation,
   query
 } from "./_generated/server";
-import { requireAuth } from "./helpers";
+import { optionalAuth, requireAuth } from "./helpers";
 import type {MutationCtx} from "./_generated/server";
 import type { Id } from "./_generated/dataModel";
 
+// Bell queries are forgiving: an authenticated session that doesn't
+// yet have a user row (mid-sign-up race, deleted user, etc.) just
+// gets an empty result instead of a thrown error. The bell fires on
+// every page, so a throw here would crash the route.
 export const listForCurrentUser = query({
   args: {},
   handler: async (ctx) => {
-    const user = await requireAuth(ctx);
+    const user = await optionalAuth(ctx);
+    if (!user) return [];
     const items = await ctx.db
       .query("notifications")
       .withIndex("by_userId", (q) => q.eq("userId", user._id))
@@ -25,7 +30,8 @@ export const listForCurrentUser = query({
 export const unreadCountForCurrentUser = query({
   args: {},
   handler: async (ctx) => {
-    const user = await requireAuth(ctx);
+    const user = await optionalAuth(ctx);
+    if (!user) return 0;
     const unread = await ctx.db
       .query("notifications")
       .withIndex("by_userId_isRead", (q) =>
