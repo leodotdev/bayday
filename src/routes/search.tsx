@@ -10,7 +10,6 @@ import { SearchBar } from "@/components/features/search/search-bar"
 import { ViewToggle } from "@/components/features/search/view-toggle"
 import { ListingsMap } from "@/components/features/map/listings-map"
 import { ListingCard } from "@/components/features/listings/listing-card"
-import { SharedTripCard } from "@/components/features/shared-trips/shared-trip-card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { cn } from "@/lib/utils"
 
@@ -54,15 +53,6 @@ export const Route = createFileRoute("/search")({
           sortBy: deps.sortBy,
         }),
       ),
-      context.queryClient.ensureQueryData(
-        convexQuery(api.search.getOpenSharedTrips, {
-          city: deps.city,
-          state: deps.state,
-          tripType: deps.tripType,
-          date: flexible ? undefined : deps.date,
-          dateEnd: flexible ? undefined : deps.dateEnd,
-        }),
-      ),
     ])
   },
   component: SearchPage,
@@ -87,16 +77,7 @@ function SearchPage() {
     minGuests: params.partySize,
     sortBy: params.sortBy,
   })
-  const sharedTrips = useQuery(api.search.getOpenSharedTrips, {
-    city: params.city,
-    state: params.state,
-    tripType: params.tripType,
-    date: flexible ? undefined : params.date,
-    dateEnd: flexible ? undefined : params.dateEnd,
-  })
-
-  const totalCount =
-    (listings?.length ?? 0) + (sharedTrips?.length ?? 0)
+  const totalCount = listings?.length ?? 0
 
   function setView(next: ViewMode) {
     navigate({
@@ -188,7 +169,7 @@ function SearchPage() {
                   />
                 ))}
               </div>
-            ) : listings.length === 0 && (sharedTrips?.length ?? 0) === 0 ? (
+            ) : listings.length === 0 ? (
               <div className="rounded-xl border border-dashed p-10 text-center">
                 <p className="text-sm text-muted-foreground">
                   No trips match your filters. Try clearing them.
@@ -203,9 +184,6 @@ function SearchPage() {
                     : "sm:grid-cols-2 lg:grid-cols-3",
                 )}
               >
-                {(sharedTrips ?? []).map((trip) => (
-                  <SharedTripCard key={trip.booking._id} trip={trip} />
-                ))}
                 {listings.map((l) => (
                   <ListingCard key={l._id} listing={l} />
                 ))}
@@ -222,11 +200,7 @@ function SearchPage() {
               view === "map" && "h-[calc(100vh-10rem)]",
             )}
           >
-            <ListingsMap
-              listings={listings}
-              sharedTrips={sharedTrips}
-              className="h-full w-full"
-            />
+            <ListingsMap listings={listings} className="h-full w-full" />
           </div>
         ) : null}
       </div>

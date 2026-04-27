@@ -30,7 +30,7 @@ const STATUS_LABELS: Record<string, string> = {
   confirmed: "Confirmed",
   completed: "Completed",
   cancelled_by_guest: "Cancelled",
-  cancelled_by_host: "Cancelled by host",
+  cancelled_by_host: "Cancelled by captain",
   no_show: "No show",
   disputed: "Disputed",
 }

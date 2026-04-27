@@ -72,11 +72,6 @@ function AdminListings() {
                 <TableRow key={l._id}>
                   <TableCell>
                     <div className="font-medium">{l.title}</div>
-                    {l.allowCostSharing ? (
-                      <Badge variant="outline" className="mt-1">
-                        Shared trips ON
-                      </Badge>
-                    ) : null}
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">
                     {l.host?.email ?? "—"}
@@ -98,7 +93,11 @@ function AdminListings() {
                       onValueChange={(v) => v && onStatus(l._id, v)}
                     >
                       <SelectTrigger size="sm" className="w-32">
-                        <SelectValue />
+                        <SelectValue>
+                          {(v: string) =>
+                            v.charAt(0).toUpperCase() + v.slice(1)
+                          }
+                        </SelectValue>
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="draft">Draft</SelectItem>

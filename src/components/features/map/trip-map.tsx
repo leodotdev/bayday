@@ -34,6 +34,7 @@ export function TripMap({ lat, lng, zoom = 11, className, label }: Props) {
         initialViewState={{ longitude: lng, latitude: lat, zoom }}
         style={{ width: "100%", height: "100%" }}
         mapStyle="mapbox://styles/mapbox/streets-v12"
+        cooperativeGestures
       >
         <Marker longitude={lng} latitude={lat} anchor="bottom">
           <div

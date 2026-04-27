@@ -2,7 +2,7 @@ import { useState } from "react"
 import { useNavigate } from "@tanstack/react-router"
 import { useMutation, useQuery } from "convex/react"
 import { toast } from "sonner"
-import { Loader2, Users } from "lucide-react"
+import { Loader2 } from "lucide-react"
 import type { Doc, Id } from "@/convex/_generated/dataModel"
 import { api } from "@/convex/_generated/api"
 import { PhotoUploader } from "@/components/features/captain/photo-uploader"
@@ -118,9 +118,6 @@ export function ListingForm({ listing }: Props) {
     (listing?.cancellationPolicy as Policy) ?? "moderate",
   )
   const [instantBook, setInstantBook] = useState(listing?.instantBook ?? false)
-  const [allowCostSharing, setAllowCostSharing] = useState(
-    listing?.allowCostSharing ?? true,
-  )
   const [submitting, setSubmitting] = useState(false)
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -162,7 +159,7 @@ export function ListingForm({ listing }: Props) {
           .filter(Boolean),
         cancellationPolicy,
         instantBook,
-        allowCostSharing,
+        allowCostSharing: false,
       }
       if (listing) {
         await update({ id: listing._id, ...baseArgs })
@@ -196,7 +193,14 @@ export function ListingForm({ listing }: Props) {
           ) : (
             <Select value={boatId} onValueChange={(v) => v && setBoatId(v)}>
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select a boat" />
+                <SelectValue placeholder="Select a boat">
+                  {(v: string) => {
+                    const b = boats.find((x) => x._id === v)
+                    return b
+                      ? `${b.name} · ${b.lengthFeet} ft · up to ${b.capacityGuests}`
+                      : "Select a boat"
+                  }}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {boats.map((b) => (
@@ -236,7 +240,9 @@ export function ListingForm({ listing }: Props) {
               onValueChange={(v) => v && setTripType(v)}
             >
               <SelectTrigger className="w-full">
-                <SelectValue />
+                <SelectValue>
+                  {(v: TripType) => TRIP_LABELS[v]}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {TRIP_TYPES.map((t) => (
@@ -288,7 +294,11 @@ export function ListingForm({ listing }: Props) {
               }
             >
               <SelectTrigger className="w-full">
-                <SelectValue />
+                <SelectValue>
+                  {(v: string) =>
+                    v === "per_person" ? "Per person" : "Per trip"
+                  }
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="per_trip">Per trip</SelectItem>
@@ -436,7 +446,15 @@ export function ListingForm({ listing }: Props) {
             onValueChange={(v) => v && setCancellationPolicy(v)}
           >
             <SelectTrigger className="w-full">
-              <SelectValue />
+              <SelectValue>
+                {(v: string) =>
+                  v === "flexible"
+                    ? "Flexible"
+                    : v === "moderate"
+                      ? "Moderate"
+                      : "Strict"
+                }
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="flexible">Flexible</SelectItem>
@@ -458,26 +476,6 @@ export function ListingForm({ listing }: Props) {
           </div>
         </div>
 
-        <div className="space-y-3 rounded-xl border p-4">
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex items-start gap-2">
-              <div className="rounded-lg bg-primary/10 p-1.5 text-primary">
-                <Users className="h-4 w-4" />
-              </div>
-              <div>
-                <Label className="text-base">Allow shared trips</Label>
-                <p className="text-sm text-muted-foreground">
-                  Let guests open their booking to other anglers and
-                  split the cost. You can override this per booking later.
-                </p>
-              </div>
-            </div>
-            <Switch
-              checked={allowCostSharing}
-              onCheckedChange={setAllowCostSharing}
-            />
-          </div>
-        </div>
       </Card>
 
       <div className="flex justify-end gap-2">

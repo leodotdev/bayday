@@ -51,17 +51,9 @@ export function ListingCard({ listing }: Props) {
         </div>
 
         <div className="space-y-2 p-4">
-          <div className="flex items-start justify-between gap-2">
-            <h3 className="line-clamp-1 text-base font-semibold">
-              {listing.title}
-            </h3>
-            <div className="shrink-0 text-base font-semibold">
-              {formatPriceCents(listing.priceCents, { hideCents: true })}
-              <span className="ml-1 text-sm font-normal text-muted-foreground">
-                /{listing.priceType === "per_person" ? "person" : "trip"}
-              </span>
-            </div>
-          </div>
+          <h3 className="text-base font-semibold leading-snug">
+            {listing.title}
+          </h3>
 
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
             <span className="inline-flex items-center gap-1">
@@ -78,6 +70,13 @@ export function ListingCard({ listing }: Props) {
                 {(listing.averageRating ?? 0).toFixed(1)} ({listing.reviewCount})
               </span>
             ) : null}
+          </div>
+
+          <div className="pt-1 text-base font-semibold">
+            {formatPriceCents(listing.priceCents, { hideCents: true })}
+            <span className="ml-1 text-sm font-normal text-muted-foreground">
+              /{listing.priceType === "per_person" ? "person" : "trip"}
+            </span>
           </div>
         </div>
       </Card>

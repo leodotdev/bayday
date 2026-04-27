@@ -8,7 +8,6 @@ import {
   PauseCircle,
   Pencil,
   Plus,
-  Users,
 } from "lucide-react"
 import type { Id } from "@/convex/_generated/dataModel"
 import { api } from "@/convex/_generated/api"
@@ -97,12 +96,6 @@ function CaptainListings() {
                     {statusLabel(l.status)}
                   </Badge>
                   <Badge variant="outline">{tripTypeLabel(l.tripType)}</Badge>
-                  {l.allowCostSharing ? (
-                    <Badge variant="outline" className="gap-1">
-                      <Users className="h-3 w-3" />
-                      Shared trips
-                    </Badge>
-                  ) : null}
                 </div>
                 <div className="font-semibold">{l.title}</div>
                 <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">

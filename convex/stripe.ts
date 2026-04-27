@@ -84,7 +84,15 @@ export const createCheckoutSession = action({
     for (const [k, v] of Object.entries(lineItem)) {
       params.set(k, v);
     }
-    if (booking.platformFeeCents !== undefined) {
+    // application_fee_amount only applies once captains are onboarded to
+    // Stripe Connect (with transfer_data[destination]). Until then it
+    // errors with "no application_fee_amount allowed on a charge that's
+    // not destination". Gate behind an explicit env flag so we can flip
+    // it on later without code changes.
+    if (
+      process.env.STRIPE_CONNECT_ENABLED === "1" &&
+      booking.platformFeeCents !== undefined
+    ) {
       params.set(
         "payment_intent_data[application_fee_amount]",
         String(booking.platformFeeCents),

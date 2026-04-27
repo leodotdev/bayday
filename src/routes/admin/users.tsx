@@ -134,7 +134,15 @@ function AdminUsers() {
                           className="w-32"
                           disabled={isLeo}
                         >
-                          <SelectValue />
+                          <SelectValue>
+                            {(v: string) =>
+                              v === "guest"
+                                ? "User"
+                                : v === "host"
+                                  ? "Captain"
+                                  : "Admin"
+                            }
+                          </SelectValue>
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="guest">User</SelectItem>

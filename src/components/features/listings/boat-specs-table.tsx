@@ -30,19 +30,17 @@ export function BoatSpecsTable({ boat }: Props) {
   }
 
   return (
-    <div className="overflow-hidden rounded-2xl border">
-      <Table>
-        <TableBody>
-          {rows.map(([label, value]) => (
-            <TableRow key={label}>
-              <TableCell className="w-1/3 text-muted-foreground">
-                {label}
-              </TableCell>
-              <TableCell className="font-medium">{value}</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
+    <Table>
+      <TableBody>
+        {rows.map(([label, value]) => (
+          <TableRow key={label}>
+            <TableCell className="w-1/3 px-6 text-muted-foreground">
+              {label}
+            </TableCell>
+            <TableCell className="px-6 font-medium">{value}</TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
   )
 }

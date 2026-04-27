@@ -1,16 +1,30 @@
 import { internalMutation } from "./_generated/server";
 
+// Emails of users created by the seed script. Anything else is treated as
+// a real user (e.g. leo@leo.dev signing up locally) and is preserved
+// across reseeds along with their auth records.
+const SEED_USER_EMAILS = new Set([
+  "captain.mike@daytrip.app",
+  "captain.sarah@daytrip.app",
+  "captain.tom@daytrip.app",
+  "captain.diana@daytrip.app",
+  "captain.james@daytrip.app",
+  "captain.lisa@daytrip.app",
+  "alex@example.com",
+  "maria@example.com",
+  "david@example.com",
+]);
+
 export const clearAll = internalMutation({
   args: {},
   handler: async (ctx) => {
     // Paginate to avoid the 4096 reads-per-function limit. Returns the
     // total number of docs deleted in this call. Run repeatedly until 0.
-    // Auth tables go last — they're owned by @convex-dev/auth and we
-    // wipe them so a clean reseed doesn't leave orphaned credentials
-    // behind. Without this, a user signs up, you reseed, the users row
-    // is gone but the authAccount + password hash linger and signIn
-    // crashes inside the provider.
-    const tables = [
+    // Domain tables get fully wiped. For users + auth tables we keep
+    // anything that doesn't belong to a seeded persona — that way leo's
+    // real signup survives a reseed and signIn doesn't dereference a
+    // dangling password hash.
+    const fullWipeTables = [
       "messages",
       "conversations",
       "bookingParticipants",
@@ -21,25 +35,73 @@ export const clearAll = internalMutation({
       "notifications",
       "listings",
       "boats",
-      "users",
-      "authAccounts",
-      "authSessions",
-      "authRefreshTokens",
-      "authVerificationCodes",
-      "authVerifiers",
-      "authRateLimits",
     ] as const;
 
     const BATCH = 500;
     let deleted = 0;
-    for (const table of tables) {
+
+    for (const table of fullWipeTables) {
       const docs = await ctx.db.query(table).take(BATCH);
       for (const doc of docs) {
         await ctx.db.delete(doc._id);
         deleted++;
       }
-      if (deleted >= BATCH) break;
+      if (deleted >= BATCH) return { deleted };
     }
+
+    // Find seeded users so we can scope the auth-table cleanup.
+    const allUsers = await ctx.db.query("users").take(BATCH);
+    const seedUserIds = new Set(
+      allUsers
+        .filter((u) => u.email && SEED_USER_EMAILS.has(u.email))
+        .map((u) => u._id as string),
+    );
+
+    // Wipe sessions/refresh-tokens/verifiers for seeded users only.
+    const authSessions = await ctx.db.query("authSessions").take(BATCH);
+    for (const s of authSessions) {
+      if (seedUserIds.has(s.userId as unknown as string)) {
+        await ctx.db.delete(s._id);
+        deleted++;
+        if (deleted >= BATCH) return { deleted };
+      }
+    }
+
+    const authAccounts = await ctx.db.query("authAccounts").take(BATCH);
+    for (const a of authAccounts) {
+      if (seedUserIds.has(a.userId as unknown as string)) {
+        await ctx.db.delete(a._id);
+        deleted++;
+        if (deleted >= BATCH) return { deleted };
+      }
+    }
+
+    // Drop seeded user rows.
+    for (const u of allUsers) {
+      if (u.email && SEED_USER_EMAILS.has(u.email)) {
+        await ctx.db.delete(u._id);
+        deleted++;
+        if (deleted >= BATCH) return { deleted };
+      }
+    }
+
+    // Sweep transient auth tables (verification codes / refresh tokens /
+    // rate limits) — these are short-lived and safe to drop fully.
+    const transient = [
+      "authRefreshTokens",
+      "authVerificationCodes",
+      "authVerifiers",
+      "authRateLimits",
+    ] as const;
+    for (const table of transient) {
+      const docs = await ctx.db.query(table).take(BATCH);
+      for (const doc of docs) {
+        await ctx.db.delete(doc._id);
+        deleted++;
+      }
+      if (deleted >= BATCH) return { deleted };
+    }
+
     console.log(`🗑️ Deleted ${deleted} docs in this batch`);
     return { deleted };
   },
@@ -1141,112 +1203,6 @@ export const seed = internalMutation({
       updatedAt: now - 20 * 86400000,
     });
 
-    // --- PUBLIC SHARED TRIPS ("Uber Pool" pools open to public claims) ---
-    const sharedDate1 = new Date(now + 6 * 86400000).toISOString().split("T")[0];
-    const sharedDate2 = new Date(now + 9 * 86400000).toISOString().split("T")[0];
-    const sharedDate3 = new Date(now + 12 * 86400000).toISOString().split("T")[0];
-    const sharedDate4 = new Date(now + 15 * 86400000).toISOString().split("T")[0];
-    const sharedDate5 = new Date(now + 21 * 86400000).toISOString().split("T")[0];
-
-    await ctx.db.insert("bookings", {
-      listingId: listing1,
-      boatId: boat1,
-      hostId: host1,
-      guestId: guest2,
-      date: sharedDate1,
-      startTime: "06:00",
-      endTime: "14:00",
-      partySize: 1,
-      totalPriceCents: 120000,
-      status: "confirmed",
-      costSharingEnabled: true,
-      costSharingMaxSpots: 6,
-      visibility: "public",
-      hostPayoutCents: 108000,
-      platformFeeCents: 12000,
-      createdAt: now - 1 * 86400000,
-      updatedAt: now - 1 * 86400000,
-    });
-
-    await ctx.db.insert("bookings", {
-      listingId: listing3,
-      boatId: boat3,
-      hostId: host3,
-      guestId: guest1,
-      date: sharedDate2,
-      startTime: "06:00",
-      endTime: "16:00",
-      partySize: 2,
-      totalPriceCents: 250000,
-      status: "confirmed",
-      costSharingEnabled: true,
-      costSharingMaxSpots: 8,
-      visibility: "public",
-      hostPayoutCents: 225000,
-      platformFeeCents: 25000,
-      createdAt: now - 3 * 86400000,
-      updatedAt: now - 2 * 86400000,
-    });
-
-    await ctx.db.insert("bookings", {
-      listingId: listing10,
-      boatId: boat9,
-      hostId: host5,
-      guestId: guest3,
-      date: sharedDate3,
-      startTime: "08:00",
-      endTime: "12:00",
-      partySize: 1,
-      totalPriceCents: 38000,
-      status: "pending",
-      costSharingEnabled: true,
-      costSharingMaxSpots: 6,
-      visibility: "public",
-      hostPayoutCents: 34200,
-      platformFeeCents: 3800,
-      createdAt: now - 12 * 3600000,
-      updatedAt: now - 12 * 3600000,
-    });
-
-    await ctx.db.insert("bookings", {
-      listingId: listing12,
-      boatId: boat11,
-      hostId: host6,
-      guestId: guest2,
-      date: sharedDate4,
-      startTime: "07:00",
-      endTime: "15:00",
-      partySize: 1,
-      totalPriceCents: 180000,
-      status: "confirmed",
-      costSharingEnabled: true,
-      costSharingMaxSpots: 4,
-      visibility: "public",
-      hostPayoutCents: 162000,
-      platformFeeCents: 18000,
-      createdAt: now - 4 * 86400000,
-      updatedAt: now - 3 * 86400000,
-    });
-
-    await ctx.db.insert("bookings", {
-      listingId: listing17,
-      boatId: boat10,
-      hostId: host6,
-      guestId: guest1,
-      date: sharedDate5,
-      startTime: "07:00",
-      endTime: "13:00",
-      partySize: 1,
-      totalPriceCents: 110000,
-      status: "confirmed",
-      costSharingEnabled: true,
-      costSharingMaxSpots: 6,
-      visibility: "public",
-      hostPayoutCents: 99000,
-      platformFeeCents: 11000,
-      createdAt: now - 6 * 3600000,
-      updatedAt: now - 6 * 3600000,
-    });
 
     // --- REVIEWS ---
     await ctx.db.insert("reviews", {
@@ -1583,5 +1539,126 @@ export const seed = internalMutation({
     });
 
     console.log("✅ Seed complete: 9 users, 15 boats, 18 listings, 4 bookings, 2 reviews, 5 conversations");
+  },
+});
+
+
+// One booking per state combo so /trips shows every variant for Leo at
+// once. Idempotent: wipes Leo's existing bookings before re-inserting.
+//
+//   npx convex run seed:seedDemoTripsForLeo
+export const seedDemoTripsForLeo = internalMutation({
+  args: {},
+  handler: async (ctx) => {
+    const leo = await ctx.db
+      .query("users")
+      .filter((q) => q.eq(q.field("email"), "leo@leo.dev"))
+      .first();
+    if (!leo) {
+      throw new Error("leo@leo.dev not found — sign up first, then re-run.");
+    }
+
+    const owned = await ctx.db
+      .query("bookings")
+      .withIndex("by_guestId", (q) => q.eq("guestId", leo._id))
+      .collect();
+    for (const b of owned) {
+      const convos = await ctx.db
+        .query("conversations")
+        .withIndex("by_bookingId", (q) => q.eq("bookingId", b._id))
+        .collect();
+      for (const c of convos) {
+        const msgs = await ctx.db
+          .query("messages")
+          .withIndex("by_conversationId", (q) =>
+            q.eq("conversationId", c._id),
+          )
+          .collect();
+        for (const m of msgs) await ctx.db.delete(m._id);
+        await ctx.db.delete(c._id);
+      }
+      await ctx.db.delete(b._id);
+    }
+
+    const listings = await ctx.db
+      .query("listings")
+      .filter((q) => q.eq(q.field("status"), "published"))
+      .take(20);
+    if (listings.length < 4) {
+      throw new Error(
+        `Need at least 4 published listings; found ${listings.length}. Run seed:seed first.`,
+      );
+    }
+
+    const now = Date.now();
+    const day = 86400000;
+    const isoDay = (offset: number) =>
+      new Date(now + offset * day).toISOString().slice(0, 10);
+    const created: Array<{ label: string; bookingId: string; url: string }> = [];
+    const leoId = leo._id;
+
+    async function makeBooking(
+      label: string,
+      listing: (typeof listings)[number],
+      override: Record<string, unknown>,
+    ) {
+      const partySize = (override.partySize as number) ?? 2;
+      const total = listing.priceCents * partySize;
+      const id = await ctx.db.insert("bookings", {
+        listingId: listing._id,
+        boatId: listing.boatId,
+        hostId: listing.hostId,
+        guestId: leoId,
+        date: isoDay(7),
+        startTime: "07:00",
+        endTime: "13:00",
+        partySize,
+        totalPriceCents: total,
+        status: "confirmed" as const,
+        costSharingEnabled: false,
+        hostPayoutCents: Math.round(total * 0.9),
+        platformFeeCents: Math.round(total * 0.1),
+        specialRequests: "__demo_for_leo__",
+        createdAt: now - day,
+        updatedAt: now - day,
+        ...override,
+      });
+      created.push({
+        label,
+        bookingId: id as unknown as string,
+        url: `/trips/${id}`,
+      });
+      return id;
+    }
+
+    await makeBooking("Pending host approval", listings[0], {
+      date: isoDay(5),
+      partySize: 3,
+      status: "pending",
+    });
+    await makeBooking("Confirmed upcoming", listings[1], {
+      date: isoDay(10),
+      partySize: 2,
+    });
+    await makeBooking("Completed (review available)", listings[2], {
+      date: isoDay(-12),
+      partySize: 4,
+      status: "completed",
+      createdAt: now - 25 * day,
+      updatedAt: now - 10 * day,
+    });
+    await makeBooking("Cancelled by guest", listings[3], {
+      date: isoDay(14),
+      partySize: 2,
+      status: "cancelled_by_guest",
+      createdAt: now - 3 * day,
+      updatedAt: now - 1 * day,
+    });
+
+    console.log(`✅ Seeded ${created.length} demo trips for ${leo.email}`);
+    for (const c of created) {
+      console.log(`   ${c.label}\n      ${c.url}`);
+    }
+    return created;
   },
 });

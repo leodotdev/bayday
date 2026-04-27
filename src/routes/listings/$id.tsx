@@ -1,22 +1,22 @@
-import { Link, createFileRoute, useRouter  } from "@tanstack/react-router"
-import { useMutation, useQuery  } from "convex/react"
+import { Link, createFileRoute, useRouter } from "@tanstack/react-router"
+import { useMutation, useQuery } from "convex/react"
 import {
   CheckCircle2,
   ChevronRight,
   Clock,
   MapPin,
   MessageSquare,
-  Star, Users 
+  Star,
+  Users,
 } from "lucide-react"
 import { toast } from "sonner"
-import type { Doc, Id } from "@/convex/_generated/dataModel"
+import type { Id } from "@/convex/_generated/dataModel"
 import { api } from "@/convex/_generated/api"
-import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { useCurrentUser } from "@/hooks/use-current-user"
 import { Card } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
+import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
+import { useCurrentUser } from "@/hooks/use-current-user"
 import {
   Tabs,
   TabsContent,
@@ -29,6 +29,7 @@ import { CaptainCard } from "@/components/features/listings/captain-card"
 import { FavoriteButton } from "@/components/features/listings/favorite-button"
 import { ListingGallery } from "@/components/features/listings/listing-gallery"
 import { ReviewsSection } from "@/components/features/listings/reviews-section"
+import { SpeciesGrid } from "@/components/features/listings/species-card"
 import { TripMap } from "@/components/features/map/trip-map"
 import { formatDuration, tripTypeLabel } from "@/lib/format"
 
@@ -64,7 +65,6 @@ function ListingPage() {
 
   const listing = data
   const boat = data.boat
-  const host = data.host
 
   const photos = (boat?.photos ?? []) as Array<Id<"_storage">>
 
@@ -126,22 +126,12 @@ function ListingPage() {
           </div>
 
           {listing.targetSpecies.length > 0 ? (
-            <div className="space-y-2">
-              <h3 className="text-sm font-semibold">Target species</h3>
-              <div className="flex flex-wrap gap-2">
-                {listing.targetSpecies.map((s) => (
-                  <Badge key={s} variant="outline">
-                    {s}
-                  </Badge>
-                ))}
-              </div>
-            </div>
+            <Section title="Target species" bleed>
+              <SpeciesGrid species={listing.targetSpecies} />
+            </Section>
           ) : null}
 
-          <Separator />
-
-          <div className="space-y-2">
-            <h2 className="text-xl font-semibold">What's included</h2>
+          <Section title="What's included">
             <ul className="grid gap-2 sm:grid-cols-2">
               <InclusionItem active={listing.captainIncluded} label="Captain included" />
               <InclusionItem active={listing.includesEquipment} label="Fishing equipment" />
@@ -151,40 +141,42 @@ function ListingPage() {
                 <InclusionItem key={c} active label={c} />
               ))}
             </ul>
-          </div>
+          </Section>
 
           {boat ? (
-            <div className="space-y-3">
-              <h2 className="text-xl font-semibold">Boat specifications</h2>
+            <Section title="Boat specifications" bleed>
               <BoatSpecsTable boat={boat} />
-            </div>
+            </Section>
           ) : null}
 
           {typeof listing.departureLatitude === "number" &&
           typeof listing.departureLongitude === "number" ? (
-            <div className="space-y-3">
-              <h2 className="text-xl font-semibold">Departure location</h2>
+            <Section title="Departure location" bleed>
               <TripMap
                 lat={listing.departureLatitude}
                 lng={listing.departureLongitude}
                 label={listing.departurePort}
                 className="h-72"
               />
-              <p className="text-sm text-muted-foreground">
+              <p className="p-6 text-sm text-muted-foreground">
                 {listing.departurePort}, {listing.departureCity},{" "}
                 {listing.departureState}
               </p>
-            </div>
+            </Section>
           ) : null}
 
-          <CaptainCard listing={listing} />
-
-          {host ? (
-            <HostCard
-              host={host}
-              listingId={listing._id}
-              hostId={listing.hostId}
-            />
+          {listing.captainIncluded || listing.captainName ? (
+            <Section
+              title="About your captain"
+              action={
+                <MessageCaptainButton
+                  listingId={listing._id}
+                  hostId={listing.hostId}
+                />
+              }
+            >
+              <CaptainCard listing={listing} />
+            </Section>
           ) : null}
 
           <Tabs defaultValue="reviews" className="space-y-4">
@@ -234,21 +226,18 @@ function InclusionItem({ active, label }: { active: boolean; label: string }) {
   )
 }
 
-function HostCard({
-  host,
+function MessageCaptainButton({
   listingId,
   hostId,
 }: {
-  host: Doc<"users">
   listingId: Id<"listings">
   hostId: Id<"users">
 }) {
-  const displayName = host.name ?? host.email ?? "Host"
   const router = useRouter()
   const { isAuthenticated } = useCurrentUser()
   const getOrCreate = useMutation(api.conversations.getOrCreateInquiry)
 
-  async function onMessage() {
+  async function onClick() {
     if (!isAuthenticated) {
       router.navigate({ to: "/sign-in" })
       return
@@ -265,35 +254,39 @@ function HostCard({
   }
 
   return (
-    <Card className="p-6">
-      <div className="mb-4 flex items-center justify-between gap-4">
-        <h3 className="text-lg font-semibold">Hosted by</h3>
-        <Button variant="outline" size="sm" onClick={onMessage} className="gap-1.5">
-          <MessageSquare className="h-3.5 w-3.5" />
-          Message
-        </Button>
+    <Button
+      type="button"
+      variant="outline"
+      size="sm"
+      className="gap-1.5"
+      onClick={onClick}
+    >
+      <MessageSquare className="h-3.5 w-3.5" />
+      Message captain
+    </Button>
+  )
+}
+
+function Section({
+  title,
+  action,
+  bleed,
+  children,
+}: {
+  title: string
+  action?: React.ReactNode
+  /** Render the card without inner padding so children can fill edge to edge. */
+  bleed?: boolean
+  children: React.ReactNode
+}) {
+  return (
+    <section className="space-y-3">
+      <div className="flex items-center justify-between gap-4">
+        <h2 className="text-xl font-semibold">{title}</h2>
+        {action}
       </div>
-      <div className="flex items-center gap-4">
-        <div className="h-14 w-14 shrink-0 overflow-hidden rounded-full bg-muted">
-          {host.avatarUrl ? (
-            <img
-              src={host.avatarUrl}
-              alt={displayName}
-              className="h-full w-full object-cover"
-              loading="lazy"
-            />
-          ) : null}
-        </div>
-        <div className="min-w-0 flex-1">
-          <div className="font-medium">{displayName}</div>
-          {host.bio ? (
-            <p className="line-clamp-2 text-sm text-muted-foreground">
-              {host.bio}
-            </p>
-          ) : null}
-        </div>
-      </div>
-    </Card>
+      <Card className={bleed ? "gap-0 overflow-hidden p-0" : "p-6"}>{children}</Card>
+    </section>
   )
 }
 

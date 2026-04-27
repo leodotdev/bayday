@@ -15,9 +15,6 @@ export const Route = createFileRoute("/")({
       context.queryClient.ensureQueryData(
         convexQuery(api.search.getTrending, {}),
       ),
-      context.queryClient.ensureQueryData(
-        convexQuery(api.search.getOpenSharedTrips, {}),
-      ),
     ])
   },
   component: HomePage,
@@ -35,7 +32,7 @@ function HomePage() {
             </h1>
             <p className="max-w-xl text-lg text-muted-foreground">
               Browse hundreds of fishing charters from trusted local captains.
-              Book a private trip or join a shared one.
+              Reserve a date, message the captain, and head out.
             </p>
           </div>
           <div className="mt-10">

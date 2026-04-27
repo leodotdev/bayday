@@ -1,13 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react"
 import { Link } from "@tanstack/react-router"
-import { MapPin, Star, Users } from "lucide-react"
+import { MapPin, Star } from "lucide-react"
 import { Map as MapboxMap, Marker, Popup } from "react-map-gl/mapbox"
 import type { MapRef } from "react-map-gl/mapbox"
 import type { Doc } from "@/convex/_generated/dataModel"
-import type { SharedTrip } from "@/components/features/shared-trips/shared-trip-card"
 import { useHasMounted } from "@/hooks/use-has-mounted"
 import { cn } from "@/lib/utils"
-import { formatDateOnly, formatPriceCents } from "@/lib/format"
+import { formatPriceCents } from "@/lib/format"
 
 const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN as string | undefined
 
@@ -18,38 +17,25 @@ type EnrichedListing = Doc<"listings"> & {
 
 type Props = {
   listings: Array<EnrichedListing> | undefined
-  sharedTrips?: Array<SharedTrip> | undefined
   className?: string
 }
 
 const FALLBACK = { lat: 27.9506, lng: -82.4572 }
 
-type PinKey = string
-
 type Pin = {
-  key: PinKey
+  key: string
   lat: number
   lng: number
-  listing?: EnrichedListing
-  shared?: SharedTrip
+  listing: EnrichedListing
 }
 
-export function ListingsMap({
-  listings,
-  sharedTrips,
-  className,
-}: Props) {
+export function ListingsMap({ listings, className }: Props) {
   const mounted = useHasMounted()
-  const [activeKey, setActiveKey] = useState<PinKey | null>(null)
+  const [activeKey, setActiveKey] = useState<string | null>(null)
   const mapRef = useRef<MapRef | null>(null)
 
-  // Merge listings + shared trips into a single set of pins, one per
-  // unique location. When a shared trip and a regular listing share the
-  // same listing, they collapse into one pin that surfaces both options.
   const pins = useMemo<Array<Pin>>(() => {
-    const byListing = new Map<string, Pin>()
-    const standalone: Array<Pin> = []
-
+    const out: Array<Pin> = []
     for (const l of listings ?? []) {
       if (
         typeof l.departureLatitude !== "number" ||
@@ -57,34 +43,15 @@ export function ListingsMap({
       ) {
         continue
       }
-      byListing.set(l._id, {
+      out.push({
         key: `listing:${l._id}`,
         lat: l.departureLatitude,
         lng: l.departureLongitude,
         listing: l,
       })
     }
-
-    for (const t of sharedTrips ?? []) {
-      const lat = t.listing.departureLatitude
-      const lng = t.listing.departureLongitude
-      if (typeof lat !== "number" || typeof lng !== "number") continue
-      const existing = byListing.get(t.listing._id)
-      if (existing) {
-        existing.shared = t
-        existing.key = `combo:${existing.listing?._id}:${t.booking._id}`
-      } else {
-        standalone.push({
-          key: `shared:${t.booking._id}`,
-          lat,
-          lng,
-          shared: t,
-        })
-      }
-    }
-
-    return [...byListing.values(), ...standalone]
-  }, [listings, sharedTrips])
+    return out
+  }, [listings])
 
   useEffect(() => {
     if (!mapRef.current || pins.length === 0) return
@@ -132,11 +99,10 @@ export function ListingsMap({
         }}
         mapStyle="mapbox://styles/mapbox/streets-v12"
         style={{ width: "100%", height: "100%" }}
+        cooperativeGestures
       >
         {pins.map((pin) => {
           const isActive = activeKey === pin.key
-          const hasBoth = !!pin.listing && !!pin.shared
-          const sharedOnly = !pin.listing && !!pin.shared
           return (
             <Marker
               key={pin.key}
@@ -154,31 +120,10 @@ export function ListingsMap({
                   "inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-sm font-semibold shadow-md transition-transform hover:scale-110",
                   isActive
                     ? "bg-primary text-primary-foreground"
-                    : sharedOnly
-                      ? "border border-primary/40 bg-primary/10 text-primary"
-                      : "border border-border bg-background text-foreground",
+                    : "bg-background text-foreground",
                 )}
               >
-                {pin.listing
-                  ? formatPriceCents(pin.listing.priceCents, {
-                      hideCents: true,
-                    })
-                  : null}
-                {hasBoth ? (
-                  <span
-                    className={cn(
-                      "inline-flex h-1.5 w-1.5 rounded-full",
-                      isActive ? "bg-primary-foreground" : "bg-primary",
-                    )}
-                    aria-hidden
-                  />
-                ) : null}
-                {pin.shared ? (
-                  <span className="inline-flex items-center gap-1">
-                    <Users className="h-3.5 w-3.5" />
-                    {pin.shared.spotsRemaining}
-                  </span>
-                ) : null}
+                {formatPriceCents(pin.listing.priceCents, { hideCents: true })}
               </button>
             </Marker>
           )
@@ -203,10 +148,7 @@ export function ListingsMap({
 }
 
 function PopupContent({ pin }: { pin: Pin }) {
-  const listing = pin.listing ?? pin.shared?.listing
-  const shared = pin.shared
-  if (!listing) return null
-
+  const listing = pin.listing
   return (
     <div className="min-w-56 space-y-2">
       <div className="text-sm font-semibold">{listing.title}</div>
@@ -222,55 +164,19 @@ function PopupContent({ pin }: { pin: Pin }) {
           </span>
         ) : null}
       </div>
-
-      {shared ? (
-        <Link
-          to="/trips/$bookingId"
-          params={{ bookingId: shared.booking._id }}
-          className="block rounded-lg border border-primary/40 bg-primary/5 p-2 text-xs"
-        >
-          <div className="flex items-center justify-between">
-            <span className="inline-flex items-center gap-1 font-semibold text-primary">
-              <Users className="h-3.5 w-3.5" />
-              Join shared trip
-            </span>
-            <span className="font-medium">
-              {formatPriceCents(shared.pricePerSpotCents, {
-                hideCents: true,
-              })}
-              /spot
-            </span>
-          </div>
-          <div className="mt-0.5 text-muted-foreground">
-            {formatDateOnly(shared.booking.date, "EEE, MMM d")} ·{" "}
-            {shared.spotsRemaining} of {shared.spotsTotal - 1} open
-          </div>
-        </Link>
-      ) : null}
-
-      {pin.listing ? (
-        <Link
-          to="/listings/$id"
-          params={{ id: pin.listing._id }}
-          className="flex items-center justify-between rounded-lg border p-2 text-xs hover:bg-muted"
-        >
-          <span className="font-semibold">Book privately</span>
-          <span className="font-medium">
-            {formatPriceCents(pin.listing.priceCents, { hideCents: true })}
-            <span className="ml-1 text-muted-foreground">
-              /{pin.listing.priceType === "per_person" ? "person" : "trip"}
-            </span>
+      <Link
+        to="/listings/$id"
+        params={{ id: listing._id }}
+        className="flex items-center justify-between rounded-lg border p-2 text-xs hover:bg-muted"
+      >
+        <span className="font-semibold">View charter</span>
+        <span className="font-medium">
+          {formatPriceCents(listing.priceCents, { hideCents: true })}
+          <span className="ml-1 text-muted-foreground">
+            /{listing.priceType === "per_person" ? "person" : "trip"}
           </span>
-        </Link>
-      ) : (
-        <Link
-          to="/listings/$id"
-          params={{ id: listing._id }}
-          className="block text-xs text-muted-foreground hover:text-foreground"
-        >
-          View listing details →
-        </Link>
-      )}
+        </span>
+      </Link>
     </div>
   )
 }

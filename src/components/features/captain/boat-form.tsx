@@ -143,7 +143,9 @@ export function BoatForm({ boat }: Props) {
               onValueChange={(v) => v && setType(v)}
             >
               <SelectTrigger className="w-full">
-                <SelectValue />
+                <SelectValue>
+                  {(v: BoatType) => TYPE_LABELS[v]}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {BOAT_TYPES.map((t) => (

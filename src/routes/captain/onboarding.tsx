@@ -76,8 +76,8 @@ function OnboardingPage() {
         />
         <Bullet
           icon={<Users className="h-6 w-6 text-primary" />}
-          title="Allow shared trips"
-          body="Let guests open their booking to others and split the cost."
+          title="Message anglers"
+          body="Coordinate gear, dock instructions, and trip details in-app."
         />
       </div>
 

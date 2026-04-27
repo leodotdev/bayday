@@ -1,7 +1,6 @@
 import { useState } from "react"
 import { useNavigate } from "@tanstack/react-router"
 import { useQuery } from "convex/react"
-import { format } from "date-fns"
 import {
   Calendar as CalendarIcon,
   Check,
@@ -13,8 +12,6 @@ import {
 } from "lucide-react"
 import { api } from "@/convex/_generated/api"
 import { Button } from "@/components/ui/button"
-import { Calendar } from "@/components/ui/calendar"
-import { Checkbox } from "@/components/ui/checkbox"
 import {
   Command,
   CommandEmpty,
@@ -23,13 +20,17 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command"
-import { Label } from "@/components/ui/label"
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import {
+  TripDatePicker,
+  formatTripDateLabel,
+  type DateMode,
+  type TripDateValue,
+} from "@/components/features/search/trip-date-picker"
 import { cn } from "@/lib/utils"
 import { parseDateOnly, toDateOnly } from "@/lib/format"
 
@@ -47,8 +48,6 @@ type Props = {
   onSubmit?: (next: SearchValues) => void
 }
 
-type DateMode = "single" | "range" | "flexible"
-
 export function SearchBar({ variant = "hero", initial, onSubmit }: Props) {
   const navigate = useNavigate()
   const filterOptions = useQuery(api.search.getFilterOptions, {})
@@ -61,23 +60,18 @@ export function SearchBar({ variant = "hero", initial, onSubmit }: Props) {
     : initial?.dateEnd && initial?.date && initial.date !== initial.dateEnd
       ? "range"
       : "single"
-  const [dateMode, setDateMode] = useState<DateMode>(initialDateMode)
-  const [singleDate, setSingleDate] = useState<Date | undefined>(
-    initial?.date && initial.date === (initial.dateEnd ?? initial.date)
-      ? parseDateOnly(initial.date)
-      : initial?.date && !initial.dateEnd
+
+  const [dateValue, setDateValue] = useState<TripDateValue>(() => ({
+    mode: initialDateMode,
+    single:
+      initialDateMode === "single" && initial?.date
         ? parseDateOnly(initial.date)
         : undefined,
-  )
-  const [range, setRange] = useState<{
-    from: Date | undefined
-    to: Date | undefined
-  }>(() => ({
-    from:
+    rangeFrom:
       initialDateMode === "range" && initial?.date
         ? parseDateOnly(initial.date)
         : undefined,
-    to:
+    rangeTo:
       initialDateMode === "range" && initial?.dateEnd
         ? parseDateOnly(initial.dateEnd)
         : undefined,
@@ -90,12 +84,12 @@ export function SearchBar({ variant = "hero", initial, onSubmit }: Props) {
     let date: string | undefined
     let dateEnd: string | undefined
     let flexible = false
-    if (dateMode === "single" && singleDate) {
-      date = toDateOnly(singleDate)
-    } else if (dateMode === "range" && range.from) {
-      date = toDateOnly(range.from)
-      if (range.to) dateEnd = toDateOnly(range.to)
-    } else if (dateMode === "flexible") {
+    if (dateValue.mode === "single" && dateValue.single) {
+      date = toDateOnly(dateValue.single)
+    } else if (dateValue.mode === "range" && dateValue.rangeFrom) {
+      date = toDateOnly(dateValue.rangeFrom)
+      if (dateValue.rangeTo) dateEnd = toDateOnly(dateValue.rangeTo)
+    } else if (dateValue.mode === "flexible") {
       flexible = true
     }
 
@@ -110,16 +104,11 @@ export function SearchBar({ variant = "hero", initial, onSubmit }: Props) {
     else navigate({ to: "/search", search: values })
   }
 
-  let dateLabel = "Add dates"
-  if (dateMode === "single" && singleDate) {
-    dateLabel = format(singleDate, "EEE, MMM d")
-  } else if (dateMode === "range" && range.from) {
-    dateLabel = range.to
-      ? `${format(range.from, "MMM d")} – ${format(range.to, "MMM d")}`
-      : format(range.from, "MMM d")
-  } else if (dateMode === "flexible") {
-    dateLabel = "Flexible — any time"
-  }
+  const dateLabel = formatTripDateLabel(dateValue) ?? "Add dates"
+  const isPlaceholder =
+    dateValue.mode !== "flexible" &&
+    !dateValue.single &&
+    !dateValue.rangeFrom
 
   function adjustParty(delta: number) {
     setPartySize((n) => Math.max(1, Math.min(20, n + delta)))
@@ -202,96 +191,12 @@ export function SearchBar({ variant = "hero", initial, onSubmit }: Props) {
             )}
           >
             <CalendarIcon className="h-5 w-5 shrink-0 text-muted-foreground" />
-            <Field label="When" placeholder={dateMode !== "flexible" && !singleDate && !range.from}>
+            <Field label="When" placeholder={isPlaceholder}>
               {dateLabel}
             </Field>
           </PopoverTrigger>
           <PopoverContent align="start" className="w-auto p-0">
-            <Tabs
-              value={dateMode}
-              onValueChange={(v) => v && setDateMode(v as DateMode)}
-              className="w-full"
-            >
-              <div className="border-b p-3">
-                <TabsList className="w-full">
-                  <TabsTrigger value="single" className="flex-1">
-                    Single day
-                  </TabsTrigger>
-                  <TabsTrigger value="range" className="flex-1">
-                    Date range
-                  </TabsTrigger>
-                  <TabsTrigger value="flexible" className="flex-1">
-                    Flexible
-                  </TabsTrigger>
-                </TabsList>
-              </div>
-              {dateMode === "single" ? (
-                <Calendar
-                  mode="single"
-                  selected={singleDate}
-                  onSelect={setSingleDate}
-                  disabled={{ before: new Date() }}
-                  numberOfMonths={1}
-                />
-              ) : null}
-              {dateMode === "range" ? (
-                <Calendar
-                  mode="range"
-                  selected={range}
-                  onSelect={(next) =>
-                    setRange({ from: next?.from, to: next?.to })
-                  }
-                  disabled={{ before: new Date() }}
-                  numberOfMonths={2}
-                />
-              ) : null}
-              {dateMode === "flexible" ? (
-                <div className="space-y-3 p-4 text-sm">
-                  <p className="text-muted-foreground">
-                    Match trips on any future date — show me what's
-                    available.
-                  </p>
-                  <label className="flex cursor-pointer items-start gap-2 rounded-xl border p-3">
-                    <Checkbox checked readOnly className="mt-0.5" />
-                    <div>
-                      <Label className="text-sm font-medium">
-                        I'm flexible
-                      </Label>
-                      <p className="text-xs text-muted-foreground">
-                        Sort by best match instead of by date.
-                      </p>
-                    </div>
-                  </label>
-                </div>
-              ) : null}
-              <div className="flex items-center justify-between border-t p-3">
-                <button
-                  type="button"
-                  className="text-sm text-muted-foreground hover:text-foreground"
-                  onClick={() => {
-                    setSingleDate(undefined)
-                    setRange({ from: undefined, to: undefined })
-                  }}
-                >
-                  Clear
-                </button>
-                <div className="text-xs text-muted-foreground">
-                  {dateMode === "range" && range.from && range.to
-                    ? `${Math.max(
-                        1,
-                        Math.round(
-                          (range.to.getTime() - range.from.getTime()) /
-                            86400000,
-                        ) + 1,
-                      )} days`
-                    : dateMode === "single" && singleDate
-                      ? "1 day"
-                      : dateMode === "flexible"
-                        ? "Any date"
-                        : "Pick a date"}
-                </div>
-              </div>
-            </Tabs>
+            <TripDatePicker value={dateValue} onChange={setDateValue} />
           </PopoverContent>
         </Popover>
 

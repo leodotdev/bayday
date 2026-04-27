@@ -37,7 +37,9 @@ export function SortSelect() {
       }}
     >
       <SelectTrigger size="sm" className="w-auto min-w-44">
-        <SelectValue />
+        <SelectValue>
+          {(v: SortBy) => LABELS[v]}
+        </SelectValue>
       </SelectTrigger>
       <SelectContent>
         {(Object.keys(LABELS) as Array<SortBy>).map((k) => (

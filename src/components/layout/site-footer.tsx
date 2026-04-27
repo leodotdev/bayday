@@ -13,14 +13,14 @@ export function SiteFooter() {
             </span>
           </Link>
           <p className="max-w-sm text-sm text-muted-foreground">
-            Find a fishing charter, book a private trip, or split the cost
-            with anglers heading the same way you are.
+            Find a fishing charter from trusted local captains. Pick a date,
+            book the boat, and head out.
           </p>
         </div>
 
         <FooterCol title="Explore">
           <FooterLink to="/search">Find a boat</FooterLink>
-          <FooterLink to="/search">Shared trips</FooterLink>
+          <FooterLink to="/help">Help center</FooterLink>
         </FooterCol>
 
         <FooterCol title="Captains">

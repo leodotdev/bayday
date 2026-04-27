@@ -184,6 +184,6 @@ function statusVariant(
 
 function statusLabel(s: string) {
   if (s === "cancelled_by_guest") return "Cancelled by guest"
-  if (s === "cancelled_by_host") return "Cancelled by host"
+  if (s === "cancelled_by_host") return "Cancelled by captain"
   return s.charAt(0).toUpperCase() + s.slice(1)
 }

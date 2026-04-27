@@ -50,7 +50,7 @@ export function NotificationsForm({ user }: { user: Doc<"users"> }) {
       >
         <Row
           title="Booking updates"
-          description="Confirmations, host responses, cancellations."
+          description="Confirmations, captain responses, cancellations."
           checked={prefs.emailBookings}
           onChange={(v) => set("emailBookings", v)}
         />

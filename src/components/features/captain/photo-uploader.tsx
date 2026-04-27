@@ -1,10 +1,11 @@
 import { useRef, useState } from "react"
 import { useMutation } from "convex/react"
 import { toast } from "sonner"
-import { GripVertical, Loader2, Plus, Trash2, Upload } from "lucide-react"
+import { GripVertical, Link2, Loader2, Plus, Trash2, Upload } from "lucide-react"
 import type { Id } from "@/convex/_generated/dataModel"
 import { api } from "@/convex/_generated/api"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { SignedImage } from "@/components/features/listings/signed-image"
 import { cn } from "@/lib/utils"
 
@@ -52,6 +53,32 @@ export function PhotoUploader({
     return storageId
   }
 
+  // Fetches an external image URL client-side and pipes the blob into
+  // Convex storage. Falls down on origins without permissive CORS, in
+  // which case we surface the error so the user can pick a different
+  // host or paste the file instead.
+  async function uploadFromUrl(url: string): Promise<Id<"_storage"> | null> {
+    let blob: Blob
+    try {
+      const res = await fetch(url, { mode: "cors" })
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      blob = await res.blob()
+    } catch {
+      toast.error("Could not fetch that URL — try a direct image link")
+      return null
+    }
+    if (!blob.type.startsWith("image/")) {
+      toast.error("That URL didn't return an image")
+      return null
+    }
+    if (blob.size > MAX_BYTES) {
+      toast.error("Image is over 10 MB")
+      return null
+    }
+    const file = new File([blob], "pasted", { type: blob.type })
+    return uploadOne(file)
+  }
+
   async function onFiles(files: FileList | null) {
     if (!files || files.length === 0) return
     const remaining = max - value.length
@@ -70,6 +97,25 @@ export function PhotoUploader({
     } finally {
       setUploading(false)
       if (fileInputRef.current) fileInputRef.current.value = ""
+    }
+  }
+
+  async function onUrl(url: string) {
+    const trimmed = url.trim()
+    if (!trimmed) return
+    if (value.length >= max) {
+      toast.error(`Already at the ${max}-photo limit`)
+      return
+    }
+    setUploading(true)
+    try {
+      const id = await uploadFromUrl(trimmed)
+      if (id) {
+        onChange([...value, id])
+        toast.success("Photo added from URL")
+      }
+    } finally {
+      setUploading(false)
     }
   }
 
@@ -223,10 +269,53 @@ export function PhotoUploader({
         ) : null}
       </div>
 
+      <UrlPasteRow disabled={uploading || value.length >= max} onSubmit={onUrl} />
+
       <p className="text-xs text-muted-foreground">
         {value.length} / {max} photos · drag to reorder later, first photo
         is the cover. JPG, PNG, or WebP up to 10 MB each.
       </p>
     </div>
+  )
+}
+
+function UrlPasteRow({
+  disabled,
+  onSubmit,
+}: {
+  disabled: boolean
+  onSubmit: (url: string) => Promise<void> | void
+}) {
+  const [url, setUrl] = useState("")
+  return (
+    <form
+      onSubmit={async (e) => {
+        e.preventDefault()
+        await onSubmit(url)
+        setUrl("")
+      }}
+      className="flex items-center gap-2"
+    >
+      <div className="relative flex-1">
+        <Link2 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          type="url"
+          inputMode="url"
+          value={url}
+          onChange={(e) => setUrl(e.currentTarget.value)}
+          placeholder="…or paste an image URL"
+          className="pl-9"
+          disabled={disabled}
+        />
+      </div>
+      <Button
+        type="submit"
+        variant="outline"
+        size="sm"
+        disabled={disabled || !url.trim()}
+      >
+        Add
+      </Button>
+    </form>
   )
 }

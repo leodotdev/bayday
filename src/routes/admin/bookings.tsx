@@ -137,7 +137,9 @@ function AdminBookings() {
                         }
                       >
                         <SelectTrigger size="sm" className="w-40">
-                          <SelectValue />
+                          <SelectValue>
+                            {(v: Status) => LABEL[v]}
+                          </SelectValue>
                         </SelectTrigger>
                         <SelectContent>
                           {STATUSES.map((s) => (

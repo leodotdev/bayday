@@ -27,7 +27,7 @@ function BoatsPage() {
         <div>
           <h1 className="text-3xl font-semibold tracking-tight">Your boats</h1>
           <p className="text-sm text-muted-foreground">
-            Each boat can host one or more listings.
+            Each boat can have one or more listings.
           </p>
         </div>
         <Link

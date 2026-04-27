@@ -178,6 +178,11 @@ export default defineSchema({
     costSharingEnabled: v.boolean(),
     costSharingMaxSpots: v.optional(v.number()),
     costSharingDeadline: v.optional(v.number()),
+    // Override for the booker's share when split-the-bill is on. Defaults
+    // to totalPriceCents / costSharingMaxSpots if undefined; bumping it up
+    // is the booker's "I'll cover extra" path that reduces every other
+    // angler's default share.
+    bookerShareCents: v.optional(v.number()),
     // visibility for cost-shared trips:
     // - private: invite-only, only people with an inviteCode see/join
     // - public: anyone browsing /search can see and claim open spots

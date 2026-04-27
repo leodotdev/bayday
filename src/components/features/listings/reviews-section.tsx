@@ -58,7 +58,7 @@ export function ReviewsSection({ listingId }: Props) {
             <p className="text-sm text-muted-foreground">{review.body}</p>
             {review.hostResponse ? (
               <div className="ml-4 border-l-2 border-muted pl-3 text-sm">
-                <span className="font-medium">Host response:</span>{" "}
+                <span className="font-medium">Captain response:</span>{" "}
                 <span className="text-muted-foreground">{review.hostResponse}</span>
               </div>
             ) : null}

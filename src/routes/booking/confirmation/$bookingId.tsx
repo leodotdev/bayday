@@ -264,18 +264,7 @@ function ConfirmationPage() {
         </div>
       </Card>
 
-      {booking.costSharingEnabled ? (
-        <div className="text-center">
-          <Link
-            to="/trips/$bookingId"
-            params={{ bookingId: booking._id }}
-            className="text-sm font-medium text-primary hover:underline"
-          >
-            Invite friends or manage your shared trip →
-          </Link>
-        </div>
-      ) : (
-        <div className="text-center">
+      <div className="text-center">
           <Link
             to="/trips"
             className="text-sm text-muted-foreground hover:text-foreground"
@@ -283,8 +272,6 @@ function ConfirmationPage() {
             View all your trips →
           </Link>
         </div>
-      )}
-
     </div>
   )
 }

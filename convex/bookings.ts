@@ -311,6 +311,26 @@ export const createAsGuest = mutation({
   },
 });
 
+// Demo "Mark paid" — sets booking.paidAt without going through Stripe,
+// useful while STRIPE_SECRET_KEY isn't configured locally.
+export const markPaid = mutation({
+  args: { id: v.id("bookings") },
+  handler: async (ctx, args) => {
+    const user = await requireAuth(ctx);
+    const booking = await ctx.db.get(args.id);
+    if (!booking) throw new Error("Booking not found");
+    if (booking.guestId !== user._id) {
+      throw new Error("Not your booking");
+    }
+    await ctx.db.patch(args.id, {
+      paidAt: Date.now(),
+      status: booking.status === "pending" ? "confirmed" : booking.status,
+      updatedAt: Date.now(),
+    });
+    return args.id;
+  },
+});
+
 export const confirm = mutation({
   args: { id: v.id("bookings") },
   handler: async (ctx, args) => {

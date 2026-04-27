@@ -7,11 +7,9 @@ import {
   ShieldCheck,
   Users,
 } from "lucide-react"
-import { format } from "date-fns"
 import type { Doc } from "@/convex/_generated/dataModel"
 import { api } from "@/convex/_generated/api"
 import { buttonVariants } from "@/components/ui/button"
-import { Calendar } from "@/components/ui/calendar"
 import { Card } from "@/components/ui/card"
 import {
   Popover,
@@ -26,6 +24,11 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
+import {
+  TripDatePicker,
+  formatTripDateLabel,
+  type TripDateValue,
+} from "@/components/features/search/trip-date-picker"
 import { cn } from "@/lib/utils"
 import {
   formatDuration,
@@ -43,10 +46,12 @@ export function BookingCard({ listing }: Props) {
   const calendar = useQuery(api.availability.getCalendar, {
     listingId: listing._id,
   })
-  const [date, setDate] = useState<Date | undefined>(undefined)
+  const [dateValue, setDateValue] = useState<TripDateValue>({ mode: "single" })
   const [partySize, setPartySize] = useState<string>(
     String(listing.minGuests ?? 1),
   )
+
+  const date = dateValue.single ?? dateValue.rangeFrom
 
   const disabledDates = useMemo(() => {
     if (!calendar) return undefined
@@ -104,13 +109,12 @@ export function BookingCard({ listing }: Props) {
             )}
           >
             <CalendarIcon className="h-4 w-4" />
-            {date ? format(date, "EEE, MMM d, yyyy") : "Select a date"}
+            {formatTripDateLabel(dateValue) ?? "Select a date"}
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0" align="start">
-            <Calendar
-              mode="single"
-              selected={date}
-              onSelect={setDate}
+            <TripDatePicker
+              value={dateValue}
+              onChange={setDateValue}
               disabled={disabledDates}
             />
           </PopoverContent>
@@ -123,7 +127,12 @@ export function BookingCard({ listing }: Props) {
             onValueChange={(v) => setPartySize(v ?? "1")}
           >
             <SelectTrigger className="h-auto w-full border-0 bg-transparent p-0 shadow-none focus:ring-0">
-              <SelectValue />
+              <SelectValue>
+                {(v: string) => {
+                  const n = Number(v) || 1
+                  return `${n} ${n === 1 ? "angler" : "anglers"}`
+                }}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               {partyOptions.map((n) => (
@@ -168,7 +177,7 @@ export function BookingCard({ listing }: Props) {
           }}
           className={cn(buttonVariants({ size: "lg" }), "w-full rounded-xl")}
         >
-          {listing.instantBook ? "Book instantly" : "Request to Book"}
+          {listing.instantBook ? "Book instantly" : "Book"}
         </Link>
       ) : (
         <button
