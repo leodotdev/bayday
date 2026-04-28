@@ -88,7 +88,7 @@ export function MobileNav() {
 
         <div className="flex-1 overflow-y-auto py-2">
           <Item icon={<Search className="h-4 w-4" />} onSelect={() => go("/search")}>
-            Find a Boat
+            Explore trips
           </Item>
           {isHost ? (
             <Item icon={<Ship className="h-4 w-4" />} onSelect={() => go("/captain")}>
@@ -106,8 +106,8 @@ export function MobileNav() {
           {isAuthenticated ? (
             <>
               <Divider />
-              <Item icon={<UserRound className="h-4 w-4" />} onSelect={() => go("/profile")}>
-                Profile
+              <Item icon={<UserRound className="h-4 w-4" />} onSelect={() => go("/account")}>
+                Account
               </Item>
               <Item icon={<Plane className="h-4 w-4" />} onSelect={() => go("/trips")}>
                 My trips

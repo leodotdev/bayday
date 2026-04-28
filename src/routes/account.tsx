@@ -15,11 +15,11 @@ import { NotificationsForm } from "@/components/features/profile/notifications-f
 import { ProfileForm } from "@/components/features/profile/profile-form"
 import { FeedbackForm } from "@/components/features/profile/feedback-form"
 
-export const Route = createFileRoute("/profile")({
-  component: ProfilePage,
+export const Route = createFileRoute("/account")({
+  component: AccountPage,
 })
 
-function ProfilePage() {
+function AccountPage() {
   const { user, isAuthenticated, isLoading } = useCurrentUser()
   const { signOut } = useAuthActions()
   const router = useRouter()
@@ -47,7 +47,7 @@ function ProfilePage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-semibold tracking-tight">
-            Your profile
+            Account
           </h1>
           <p className="text-sm text-muted-foreground">
             {user.email}
@@ -61,7 +61,7 @@ function ProfilePage() {
 
       <Tabs defaultValue="account" className="space-y-6">
         <TabsList>
-          <TabsTrigger value="account">Account</TabsTrigger>
+          <TabsTrigger value="account">Details</TabsTrigger>
           <TabsTrigger value="notifications">Notifications</TabsTrigger>
           <TabsTrigger value="favorites">Favorites</TabsTrigger>
           <TabsTrigger value="feedback">Feedback</TabsTrigger>

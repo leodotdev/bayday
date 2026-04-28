@@ -73,8 +73,8 @@ export function AuthMenu() {
           {user.email ?? user.phone ?? displayName}
         </div>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => router.navigate({ to: "/profile" })}>
-          Profile
+        <DropdownMenuItem onClick={() => router.navigate({ to: "/account" })}>
+          Account
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => router.navigate({ to: "/trips" })}>
           My trips

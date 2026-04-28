@@ -19,7 +19,7 @@ export function SiteFooter() {
         </div>
 
         <FooterCol title="Explore">
-          <FooterLink to="/search">Find a boat</FooterLink>
+          <FooterLink to="/search">Explore trips</FooterLink>
           <FooterLink to="/help">Help center</FooterLink>
         </FooterCol>
 

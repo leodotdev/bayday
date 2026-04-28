@@ -24,7 +24,7 @@ export function SiteHeader() {
             className="text-base font-medium text-muted-foreground hover:text-foreground"
             activeProps={{ className: "text-foreground" }}
           >
-            Find a Boat
+            Explore trips
           </Link>
           {isHost ? (
             <Link

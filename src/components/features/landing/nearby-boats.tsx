@@ -24,7 +24,7 @@ export function NearbyBoats() {
     <Card className="grid gap-0 overflow-hidden p-0 lg:grid-cols-[minmax(0,380px)_1fr]">
       <div className="space-y-4 p-6">
         <div>
-          <h2 className="text-xl font-semibold">Find Boats Near You</h2>
+          <h2 className="text-xl font-semibold">Find trips near you</h2>
           <p className="text-sm text-muted-foreground">
             Top-rated charters within reach of {FALLBACK_CENTER.label}.
           </p>

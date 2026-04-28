@@ -234,7 +234,7 @@ export function ListingForm({ listing }: Props) {
           />
         </Field>
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field id="tripType" label="Trip type">
+          <Field id="tripType" label="Type">
             <Select
               value={tripType}
               onValueChange={(v) => v && setTripType(v)}

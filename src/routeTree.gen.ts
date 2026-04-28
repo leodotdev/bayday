@@ -12,9 +12,9 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SignUpRouteImport } from './routes/sign-up'
 import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as SearchRouteImport } from './routes/search'
-import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as InboxRouteImport } from './routes/inbox'
 import { Route as HelpRouteImport } from './routes/help'
+import { Route as AccountRouteImport } from './routes/account'
 import { Route as AdminRouteRouteImport } from './routes/admin/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TripsIndexRouteImport } from './routes/trips/index'
@@ -57,11 +57,6 @@ const SearchRoute = SearchRouteImport.update({
   path: '/search',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ProfileRoute = ProfileRouteImport.update({
-  id: '/profile',
-  path: '/profile',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const InboxRoute = InboxRouteImport.update({
   id: '/inbox',
   path: '/inbox',
@@ -70,6 +65,11 @@ const InboxRoute = InboxRouteImport.update({
 const HelpRoute = HelpRouteImport.update({
   id: '/help',
   path: '/help',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountRoute = AccountRouteImport.update({
+  id: '/account',
+  path: '/account',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRouteRoute = AdminRouteRouteImport.update({
@@ -209,9 +209,9 @@ const CaptainListingsListingIdCalendarRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteRouteWithChildren
+  '/account': typeof AccountRoute
   '/help': typeof HelpRoute
   '/inbox': typeof InboxRoute
-  '/profile': typeof ProfileRoute
   '/search': typeof SearchRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
@@ -242,9 +242,9 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/account': typeof AccountRoute
   '/help': typeof HelpRoute
   '/inbox': typeof InboxRoute
-  '/profile': typeof ProfileRoute
   '/search': typeof SearchRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
@@ -277,9 +277,9 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteRouteWithChildren
+  '/account': typeof AccountRoute
   '/help': typeof HelpRoute
   '/inbox': typeof InboxRoute
-  '/profile': typeof ProfileRoute
   '/search': typeof SearchRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
@@ -313,9 +313,9 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/admin'
+    | '/account'
     | '/help'
     | '/inbox'
-    | '/profile'
     | '/search'
     | '/sign-in'
     | '/sign-up'
@@ -346,9 +346,9 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/account'
     | '/help'
     | '/inbox'
-    | '/profile'
     | '/search'
     | '/sign-in'
     | '/sign-up'
@@ -380,9 +380,9 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/admin'
+    | '/account'
     | '/help'
     | '/inbox'
-    | '/profile'
     | '/search'
     | '/sign-in'
     | '/sign-up'
@@ -415,9 +415,9 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRouteRoute: typeof AdminRouteRouteWithChildren
+  AccountRoute: typeof AccountRoute
   HelpRoute: typeof HelpRoute
   InboxRoute: typeof InboxRoute
-  ProfileRoute: typeof ProfileRoute
   SearchRoute: typeof SearchRoute
   SignInRoute: typeof SignInRoute
   SignUpRoute: typeof SignUpRoute
@@ -461,13 +461,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SearchRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/profile': {
-      id: '/profile'
-      path: '/profile'
-      fullPath: '/profile'
-      preLoaderRoute: typeof ProfileRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/inbox': {
       id: '/inbox'
       path: '/inbox'
@@ -480,6 +473,13 @@ declare module '@tanstack/react-router' {
       path: '/help'
       fullPath: '/help'
       preLoaderRoute: typeof HelpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/account': {
+      id: '/account'
+      path: '/account'
+      fullPath: '/account'
+      preLoaderRoute: typeof AccountRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin': {
@@ -721,9 +721,9 @@ const CaptainListingsListingIdRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRouteRoute: AdminRouteRouteWithChildren,
+  AccountRoute: AccountRoute,
   HelpRoute: HelpRoute,
   InboxRoute: InboxRoute,
-  ProfileRoute: ProfileRoute,
   SearchRoute: SearchRoute,
   SignInRoute: SignInRoute,
   SignUpRoute: SignUpRoute,

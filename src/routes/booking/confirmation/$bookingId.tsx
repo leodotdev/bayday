@@ -190,7 +190,7 @@ function ConfirmationPage() {
               value={`${booking.partySize} ${booking.partySize === 1 ? "angler" : "anglers"}`}
             />
             {listing ? (
-              <Row label="Trip type" value={tripTypeLabel(listing.tripType)} />
+              <Row label="Type" value={tripTypeLabel(listing.tripType)} />
             ) : null}
             {boat ? <Row label="Boat" value={boat.name} /> : null}
           </dl>

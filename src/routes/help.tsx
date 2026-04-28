@@ -61,7 +61,7 @@ const TOPICS = [
 const FAQS = [
   {
     q: "How do I book a fishing charter?",
-    a: "Browse charters on the Find a Boat page, pick a date, choose your party size, and click Book. You can either sign in for a faster checkout or book as a guest with just your name and email.",
+    a: "Browse charters on the Explore trips page, pick a date, choose your party size, and click Book. You can either sign in for a faster checkout or book as a guest with just your name and email.",
   },
   {
     q: "What is your cancellation policy?",

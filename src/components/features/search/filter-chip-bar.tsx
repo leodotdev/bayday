@@ -136,7 +136,7 @@ export function FilterChipBar({ params }: { params: SearchParams }) {
 
       <Popover>
         <PopoverTrigger className={chipClass(Boolean(params.tripType))}>
-          Trip Type
+          Type
           {params.tripType && (
             <Badge variant="secondary" className="ml-1">
               {tripTypeLabel(params.tripType)}
