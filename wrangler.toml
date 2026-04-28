@@ -1,0 +1,12 @@
+name = "daytrip"
+compatibility_date = "2025-04-28"
+pages_build_output_dir = "dist"
+
+# Public URLs Vite inlines at build time. The Mapbox token isn't here
+# because GitHub push protection flags `pk.eyJ…` patterns; add it as a
+# Secret in Cloudflare Pages → Settings → Variables and Secrets instead.
+[vars]
+NODE_VERSION = "20"
+PNPM_VERSION = "9"
+VITE_CONVEX_URL = "https://rare-raven-552.convex.cloud"
+VITE_CONVEX_SITE_URL = "https://rare-raven-552.convex.site"
