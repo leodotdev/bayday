@@ -1,4 +1,11 @@
-import { internalMutation } from "./_generated/server";
+import {
+  internalAction,
+  internalMutation,
+  internalQuery,
+} from "./_generated/server";
+import { v } from "convex/values";
+import { internal } from "./_generated/api";
+import type { Id } from "./_generated/dataModel";
 
 // Emails of users created by the seed script. Anything else is treated as
 // a real user (e.g. leo@leo.dev signing up locally) and is preserved
@@ -1660,5 +1667,209 @@ export const seedDemoTripsForLeo = internalMutation({
       console.log(`   ${c.label}\n      ${c.url}`);
     }
     return created;
+  },
+});
+
+// Seed boats with realistic charter-fishing photos sourced from Unsplash.
+// Run once after `seed:seed`:
+//
+//   npx convex run seed:seedBoatPhotos
+//
+// The action fetches each URL, uploads the bytes to Convex storage, then
+// randomly distributes 3–5 photos across each existing boat. Idempotent
+// in the sense that re-running just rewrites each boat's `photos` array.
+const UNSPLASH_PHOTOS = [
+  // From the user's reference list
+  "https://images.unsplash.com/photo-1656552655343-e546d0293a21?fm=jpg&q=80&w=2000&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1623893189618-750aa9a2950e?fm=jpg&q=80&w=2000&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1620604499628-f437712f61f7?fm=jpg&q=80&w=2000&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1625183656263-171183307b15?fm=jpg&q=80&w=2000&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1578005855766-c34ee62139a2?fm=jpg&q=80&w=2000&auto=format&fit=crop",
+  "https://plus.unsplash.com/premium_photo-1740444982734-cb3ee86ab682?fm=jpg&q=80&w=2000&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1674419365397-3ff4f5ef1897?fm=jpg&q=80&w=2000&auto=format&fit=crop",
+  // Additional charter-fishing scenes
+  "https://images.unsplash.com/photo-1638340384339-1faaf6d17655?fm=jpg&q=80&w=2000&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1664420739230-6b46664269fa?fm=jpg&q=80&w=2000&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1685399906145-fe59868f8080?fm=jpg&q=80&w=2000&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1625278423898-5cb1056b5b85?fm=jpg&q=80&w=2000&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1626178890643-3769ecb58d77?fm=jpg&q=80&w=2000&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1578005856129-225215ac4cfe?fm=jpg&q=80&w=2000&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1578005933182-43b789a70c26?fm=jpg&q=80&w=2000&auto=format&fit=crop",
+];
+
+export const seedBoatPhotos = internalAction({
+  args: {},
+  handler: async (ctx): Promise<{
+    uploaded: number;
+    boatsUpdated: number;
+  }> => {
+    const ids: Array<Id<"_storage">> = [];
+    for (const url of UNSPLASH_PHOTOS) {
+      const res = await fetch(url);
+      if (!res.ok) {
+        console.warn(`Skipped ${url} — HTTP ${res.status}`);
+        continue;
+      }
+      const blob = await res.blob();
+      const id = await ctx.storage.store(blob);
+      ids.push(id);
+    }
+    if (ids.length === 0) throw new Error("No images fetched");
+
+    const boats: Array<{ _id: Id<"boats"> }> = await ctx.runQuery(
+      internal.seed._listBoats,
+      {},
+    );
+    for (const boat of boats) {
+      // Pick 3–5 photos for each boat with a small offset so different
+      // boats lead with different cover shots.
+      const start = Math.floor(Math.random() * ids.length);
+      const count = 3 + Math.floor(Math.random() * 3);
+      const picked: Array<Id<"_storage">> = [];
+      for (let i = 0; i < count; i++) {
+        picked.push(ids[(start + i) % ids.length]);
+      }
+      await ctx.runMutation(internal.seed._setBoatPhotos, {
+        boatId: boat._id,
+        photos: picked,
+      });
+    }
+
+    console.log(
+      `✅ Uploaded ${ids.length} photos · assigned to ${boats.length} boats`,
+    );
+    return { uploaded: ids.length, boatsUpdated: boats.length };
+  },
+});
+
+export const _listBoats = internalQuery({
+  args: {},
+  handler: async (ctx) => {
+    return await ctx.db.query("boats").collect();
+  },
+});
+
+export const _setBoatPhotos = internalMutation({
+  args: {
+    boatId: v.id("boats"),
+    photos: v.array(v.id("_storage")),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.boatId, { photos: args.photos });
+  },
+});
+
+const REVIEW_TEMPLATES = [
+  { rating: 5, title: "Best day on the water", body: "Captain was on the fish from the moment we left the dock. Knowledgeable, professional, and a blast to spend the day with. Will absolutely book again." },
+  { rating: 5, title: "Caught my personal best", body: "Couldn't have asked for a better trip. The boat was spotless, the gear was top-notch, and we landed more fish than I could count." },
+  { rating: 5, title: "Perfect for a first-timer", body: "First charter ever and the captain made it easy. Patient, great with my kids, and we still came home with a cooler full." },
+  { rating: 5, title: "Exceeded expectations", body: "Smooth ride out, calm captain, beautiful sunrise on the water, plenty of bites. Already telling my friends." },
+  { rating: 4, title: "Great trip overall", body: "Captain was awesome and the boat was solid. Bite was a little slow midday but he kept moving us until we found them." },
+  { rating: 4, title: "Solid experience", body: "Showed us a great time and put us on a few good fish. Would book again for a longer trip next time." },
+  { rating: 5, title: "Highly recommend", body: "Couldn't be more impressed. Communication before the trip was clear, the boat was comfortable, and the fishing was incredible." },
+  { rating: 5, title: "Worth every penny", body: "Spent the day chasing tarpon and got two to the boat. Captain knew exactly where to go and how to fight them." },
+  { rating: 4, title: "Good day on the bay", body: "Family-friendly, easygoing captain, and we got into some nice fish. Boat could use a bit more shade but otherwise great." },
+  { rating: 5, title: "10/10", body: "Beautiful charter, great hospitality, fish in the cooler. Already planning the next one." },
+];
+
+// Drop a few reviews on each published listing. Re-runnable: wipes
+// existing seeded reviews (those tied to bookings we created) before
+// re-inserting fresh ones.
+//
+//   npx convex run seed:seedReviews
+export const seedReviews = internalMutation({
+  args: {},
+  handler: async (ctx) => {
+    const listings = await ctx.db.query("listings").collect();
+    const guests = await ctx.db
+      .query("users")
+      .filter((q) => q.eq(q.field("role"), "guest"))
+      .collect();
+    if (guests.length === 0) {
+      throw new Error("No guests to attribute reviews to. Run seed:seed first.");
+    }
+
+    // Wipe existing reviews so the action is idempotent.
+    const existing = await ctx.db.query("reviews").collect();
+    for (const r of existing) await ctx.db.delete(r._id);
+
+    let inserted = 0;
+    for (const listing of listings) {
+      if (listing.status !== "published") continue;
+
+      // Need at least one completed booking on this listing to attach the
+      // review to. Fall back to inserting a synthetic completed booking
+      // for the listing's host so the FK holds.
+      let booking = await ctx.db
+        .query("bookings")
+        .withIndex("by_listingId", (q) => q.eq("listingId", listing._id))
+        .filter((q) => q.eq(q.field("status"), "completed"))
+        .first();
+      if (!booking) {
+        const reviewer = guests[0];
+        const bookingId = await ctx.db.insert("bookings", {
+          listingId: listing._id,
+          boatId: listing.boatId,
+          hostId: listing.hostId,
+          guestId: reviewer._id,
+          date: new Date(Date.now() - 30 * 86400000)
+            .toISOString()
+            .slice(0, 10),
+          startTime: "07:00",
+          endTime: "13:00",
+          partySize: 2,
+          totalPriceCents: listing.priceCents,
+          status: "completed",
+          costSharingEnabled: false,
+          hostPayoutCents: Math.round(listing.priceCents * 0.9),
+          platformFeeCents: Math.round(listing.priceCents * 0.1),
+          createdAt: Date.now() - 35 * 86400000,
+          updatedAt: Date.now() - 28 * 86400000,
+        });
+        booking = await ctx.db.get(bookingId);
+      }
+      if (!booking) continue;
+
+      // 3–5 reviews per listing
+      const count = 3 + Math.floor(Math.random() * 3);
+      // Random selection without immediate repeats; cycle if needed.
+      const offset = Math.floor(Math.random() * REVIEW_TEMPLATES.length);
+      for (let i = 0; i < count; i++) {
+        const tpl = REVIEW_TEMPLATES[(offset + i) % REVIEW_TEMPLATES.length];
+        const reviewer = guests[(i + offset) % guests.length];
+        const daysAgo = 5 + Math.floor(Math.random() * 90);
+        await ctx.db.insert("reviews", {
+          bookingId: booking._id,
+          listingId: listing._id,
+          reviewerId: reviewer._id,
+          hostId: listing.hostId,
+          rating: tpl.rating,
+          ratingFishing: tpl.rating,
+          ratingBoat: Math.min(5, tpl.rating + Math.round(Math.random())),
+          ratingCaptain: 5,
+          ratingValue: tpl.rating,
+          title: tpl.title,
+          body: tpl.body,
+          isPublished: true,
+          createdAt: Date.now() - daysAgo * 86400000,
+        });
+        inserted++;
+      }
+
+      // Update the listing's averageRating + reviewCount aggregates so
+      // the cards on /search reflect the new reviews.
+      const all = await ctx.db
+        .query("reviews")
+        .withIndex("by_listingId", (q) => q.eq("listingId", listing._id))
+        .collect();
+      const avg = all.reduce((acc, r) => acc + r.rating, 0) / all.length;
+      await ctx.db.patch(listing._id, {
+        averageRating: Math.round(avg * 10) / 10,
+        reviewCount: all.length,
+      });
+    }
+
+    console.log(`✅ Seeded ${inserted} reviews across ${listings.length} listings`);
+    return { inserted, listings: listings.length };
   },
 });

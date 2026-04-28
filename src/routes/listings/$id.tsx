@@ -24,6 +24,7 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs"
 import { BookingCard } from "@/components/features/listings/booking-card"
+import { AvailabilityCalendar } from "@/components/features/listings/availability-calendar"
 import { BoatSpecsTable } from "@/components/features/listings/boat-specs-table"
 import { CaptainCard } from "@/components/features/listings/captain-card"
 import { FavoriteButton } from "@/components/features/listings/favorite-button"
@@ -31,7 +32,11 @@ import { ListingGallery } from "@/components/features/listings/listing-gallery"
 import { ReviewsSection } from "@/components/features/listings/reviews-section"
 import { SpeciesGrid } from "@/components/features/listings/species-card"
 import { TripMap } from "@/components/features/map/trip-map"
-import { formatDuration, tripTypeLabel } from "@/lib/format"
+import {
+  cancellationPolicyLabel,
+  formatDuration,
+  tripTypeLabel,
+} from "@/lib/format"
 
 export const Route = createFileRoute("/listings/$id")({
   component: ListingPage,
@@ -149,6 +154,10 @@ function ListingPage() {
             </Section>
           ) : null}
 
+          <Section title="Availability" bleed>
+            <AvailabilityCalendar listingId={listing._id} />
+          </Section>
+
           {typeof listing.departureLatitude === "number" &&
           typeof listing.departureLongitude === "number" ? (
             <Section title="Departure location" bleed>
@@ -191,7 +200,7 @@ function ListingPage() {
             </TabsContent>
             <TabsContent value="policy">
               <p className="text-sm text-muted-foreground">
-                {listing.cancellationPolicy || "Contact the captain for details."}
+                {cancellationPolicyLabel(listing.cancellationPolicy)}
               </p>
             </TabsContent>
           </Tabs>

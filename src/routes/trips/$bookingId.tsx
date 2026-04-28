@@ -32,6 +32,7 @@ import { TripMap } from "@/components/features/map/trip-map"
 import { TripSummaryCard } from "@/components/features/listings/trip-summary-card"
 import { useCurrentUser } from "@/hooks/use-current-user"
 import {
+  cancellationPolicyLabel,
   formatDateOnly,
   formatDuration,
   tripTypeLabel,
@@ -218,8 +219,7 @@ function TripDetailPage() {
             </TabsContent>
             <TabsContent value="policy">
               <p className="text-sm text-muted-foreground">
-                {listing.cancellationPolicy ||
-                  "Contact the captain for details."}
+                {cancellationPolicyLabel(listing.cancellationPolicy)}
               </p>
             </TabsContent>
           </Tabs>

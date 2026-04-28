@@ -1,7 +1,9 @@
+import { useRouter } from "@tanstack/react-router"
 import { useMutation, useQuery } from "convex/react"
 import { Bell } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 import { api } from "@/convex/_generated/api"
+import type { Doc, Id } from "@/convex/_generated/dataModel"
 import { Badge } from "@/components/ui/badge"
 import {
   Popover,
@@ -9,10 +11,45 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import { useCurrentUser } from "@/hooks/use-current-user"
 import { cn } from "@/lib/utils"
 
+// Map notification → in-app destination. The webhook/booking flows store
+// referenceId as the booking/conversation/etc. id; type tells us which
+// surface to land on.
+function notificationHref(n: Doc<"notifications">):
+  | { to: "/trips/$bookingId"; params: { bookingId: Id<"bookings"> } }
+  | { to: "/conversation/$id"; params: { id: Id<"conversations"> } }
+  | { to: "/trips" } {
+  if (n.referenceId) {
+    if (
+      n.type === "booking_request" ||
+      n.type === "booking_confirmed" ||
+      n.type === "booking_cancelled" ||
+      n.referenceType === "booking"
+    ) {
+      return {
+        to: "/trips/$bookingId",
+        params: { bookingId: n.referenceId as Id<"bookings"> },
+      }
+    }
+    if (n.type === "new_message" || n.referenceType === "conversation") {
+      return {
+        to: "/conversation/$id",
+        params: { id: n.referenceId as Id<"conversations"> },
+      }
+    }
+  }
+  return { to: "/trips" }
+}
+
 export function NotificationsBell() {
+  const router = useRouter()
   const { isAuthenticated } = useCurrentUser()
   const items = useQuery(
     api.notifications.listForCurrentUser,
@@ -31,15 +68,22 @@ export function NotificationsBell() {
 
   return (
     <Popover>
-      <PopoverTrigger className="relative inline-flex h-10 w-10 items-center justify-center rounded-full hover:bg-muted">
-        <Bell className="h-5 w-5" />
-        {unread > 0 ? (
-          <span className="absolute right-1.5 top-1.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold leading-none text-primary-foreground">
-            {unread > 9 ? "9+" : unread}
-          </span>
-        ) : null}
-        <span className="sr-only">Notifications</span>
-      </PopoverTrigger>
+      <Tooltip>
+        <TooltipTrigger
+          render={
+            <PopoverTrigger className="relative inline-flex h-10 w-10 items-center justify-center rounded-full hover:bg-muted">
+              <Bell className="h-5 w-5" />
+              {unread > 0 ? (
+                <span className="absolute right-1.5 top-1.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold leading-none text-primary-foreground">
+                  {unread > 9 ? "9+" : unread}
+                </span>
+              ) : null}
+              <span className="sr-only">Notifications</span>
+            </PopoverTrigger>
+          }
+        />
+        <TooltipContent>Notifications</TooltipContent>
+      </Tooltip>
       <PopoverContent align="end" className="w-80 p-0">
         <div className="flex items-center justify-between border-b p-3">
           <span className="text-sm font-semibold">Notifications</span>
@@ -72,9 +116,11 @@ export function NotificationsBell() {
                 >
                   <button
                     type="button"
-                    onClick={() =>
-                      markRead({ id: n._id })
-                    }
+                    onClick={() => {
+                      void markRead({ id: n._id })
+                      const dest = notificationHref(n)
+                      router.navigate(dest)
+                    }}
                     className="block w-full p-3 text-left transition-colors hover:bg-muted/60"
                   >
                     <div className="flex items-start justify-between gap-2">

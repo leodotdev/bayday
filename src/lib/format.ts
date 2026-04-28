@@ -60,3 +60,17 @@ const BOAT_TYPE_LABELS: Record<string, string> = {
 export function boatTypeLabel(type: string) {
   return BOAT_TYPE_LABELS[type] ?? type
 }
+
+const CANCELLATION_POLICY_COPY: Record<string, string> = {
+  flexible:
+    "Free cancellation up to 24 hours before departure. Full refund.",
+  moderate:
+    "Free cancellation up to 7 days before. 50% refund within 7 days.",
+  strict:
+    "Free cancellation up to 30 days before. No refund within 30 days.",
+}
+
+export function cancellationPolicyLabel(policy: string | undefined | null) {
+  if (!policy) return CANCELLATION_POLICY_COPY.moderate
+  return CANCELLATION_POLICY_COPY[policy] ?? policy
+}

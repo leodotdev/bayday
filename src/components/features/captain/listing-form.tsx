@@ -76,9 +76,9 @@ export function ListingForm({ listing }: Props) {
   const [minGuests, setMinGuests] = useState(
     String(listing?.minGuests ?? "1"),
   )
-  const [captainIncluded, setCaptainIncluded] = useState(
-    listing?.captainIncluded ?? true,
-  )
+  // Captain is always included on a charter — kept on the create payload
+  // for schema compatibility but no longer surfaced as a toggle.
+  const captainIncluded = true
   const [captainName, setCaptainName] = useState(listing?.captainName ?? "")
   const [captainBio, setCaptainBio] = useState(listing?.captainBio ?? "")
   const [captainPhoto, setCaptainPhoto] = useState<Id<"_storage"> | undefined>(
@@ -404,11 +404,6 @@ export function ListingForm({ listing }: Props) {
           />
         </Field>
         <div className="grid gap-3 sm:grid-cols-2">
-          <Toggle
-            label="Captain included"
-            checked={captainIncluded}
-            onChange={setCaptainIncluded}
-          />
           <Toggle
             label="Equipment provided"
             checked={includesEquipment}

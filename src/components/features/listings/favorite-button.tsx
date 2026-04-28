@@ -14,6 +14,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import { useCurrentUser } from "@/hooks/use-current-user"
 import { cn } from "@/lib/utils"
 
@@ -46,24 +51,31 @@ export function FavoriteButton({ listingId, className }: Props) {
 
   const active = !!isFavorited
 
+  const label = active ? "Remove from favorites" : "Save to favorites"
+
   return (
     <>
-      <Button
-        type="button"
-        variant="outline"
-        size="icon"
-        onClick={onClick}
-        className={cn(
-          "rounded-full",
-          active && "border-rose-500 bg-rose-50 text-rose-600 hover:bg-rose-100 dark:bg-rose-950 dark:text-rose-400",
-          className,
-        )}
-        aria-label={active ? "Remove from favorites" : "Save to favorites"}
-      >
-        <Heart
-          className={cn("h-4 w-4", active && "fill-current")}
-        />
-      </Button>
+      <Tooltip>
+        <TooltipTrigger
+          render={
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              onClick={onClick}
+              className={cn(
+                "rounded-full",
+                active && "border-rose-500 bg-rose-50 text-rose-600 hover:bg-rose-100 dark:bg-rose-950 dark:text-rose-400",
+                className,
+              )}
+              aria-label={label}
+            />
+          }
+        >
+          <Heart className={cn("h-4 w-4", active && "fill-current")} />
+        </TooltipTrigger>
+        <TooltipContent>{label}</TooltipContent>
+      </Tooltip>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogTrigger className="hidden" />

@@ -1,10 +1,4 @@
 import type { Doc } from "@/convex/_generated/dataModel"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableRow,
-} from "@/components/ui/table"
 import { boatTypeLabel } from "@/lib/format"
 
 type Props = {
@@ -13,12 +7,14 @@ type Props = {
 
 export function BoatSpecsTable({ boat }: Props) {
   const rows: Array<[string, string]> = [
-    ["Make & Model", [boat.manufacturer, boat.model].filter(Boolean).join(" ") || "—"],
+    [
+      "Make & Model",
+      [boat.manufacturer, boat.model].filter(Boolean).join(" ") || "—",
+    ],
     ["Type", boatTypeLabel(boat.type)],
     ["Length", `${boat.lengthFeet} ft`],
     ["Capacity", `${boat.capacityGuests} guests`],
   ]
-
   if (boat.registrationNumber) {
     rows.push(["Registration", boat.registrationNumber])
   }
@@ -30,17 +26,16 @@ export function BoatSpecsTable({ boat }: Props) {
   }
 
   return (
-    <Table>
-      <TableBody>
-        {rows.map(([label, value]) => (
-          <TableRow key={label}>
-            <TableCell className="w-1/3 px-6 text-muted-foreground">
-              {label}
-            </TableCell>
-            <TableCell className="px-6 font-medium">{value}</TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+    <dl className="divide-y text-sm">
+      {rows.map(([label, value]) => (
+        <div
+          key={label}
+          className="grid grid-cols-[8rem_1fr] gap-4 px-6 py-3 sm:grid-cols-[12rem_1fr]"
+        >
+          <dt className="text-muted-foreground">{label}</dt>
+          <dd className="break-words font-medium">{value}</dd>
+        </div>
+      ))}
+    </dl>
   )
 }
