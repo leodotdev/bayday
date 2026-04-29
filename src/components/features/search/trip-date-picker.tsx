@@ -54,7 +54,12 @@ export function TripDatePicker({
   const summary = summarize(value)
 
   return (
-    <div className={cn("w-auto", className)}>
+    <div
+      className={cn(
+        value.mode === "range" ? "w-[36rem]" : "w-[20rem]",
+        className,
+      )}
+    >
       <Tabs
         value={value.mode}
         onValueChange={(v) => v && setMode(v as DateMode)}
@@ -89,6 +94,7 @@ export function TripDatePicker({
             onSelect={(d) => onChange({ ...value, single: d })}
             disabled={disable}
             numberOfMonths={1}
+            className="mx-auto"
           />
         ) : null}
 
@@ -105,6 +111,7 @@ export function TripDatePicker({
             }
             disabled={disable}
             numberOfMonths={2}
+            className="mx-auto"
           />
         ) : null}
 

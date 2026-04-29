@@ -1,5 +1,7 @@
+import { useState } from "react"
 import { Link, createFileRoute, useRouter } from "@tanstack/react-router"
 import { useMutation, useQuery } from "convex/react"
+import type { TripDateValue } from "@/components/features/search/trip-date-picker"
 import {
   CheckCircle2,
   ChevronRight,
@@ -17,12 +19,6 @@ import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useCurrentUser } from "@/hooks/use-current-user"
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs"
 import { BookingCard } from "@/components/features/listings/booking-card"
 import { AvailabilityCalendar } from "@/components/features/listings/availability-calendar"
 import { BoatSpecsTable } from "@/components/features/listings/boat-specs-table"
@@ -32,9 +28,12 @@ import { ListingGallery } from "@/components/features/listings/listing-gallery"
 import { ReviewsSection } from "@/components/features/listings/reviews-section"
 import { SpeciesGrid } from "@/components/features/listings/species-card"
 import { TripMap } from "@/components/features/map/trip-map"
+import { useTripPrefs } from "@/hooks/use-trip-prefs"
 import {
   cancellationPolicyLabel,
   formatDuration,
+  parseDateOnly,
+  toDateOnly,
   tripTypeLabel,
 } from "@/lib/format"
 
@@ -47,6 +46,37 @@ function ListingPage() {
   const data = useQuery(api.listings.getById, {
     id: id as Id<"listings">,
   })
+  const { prefs, setPrefs } = useTripPrefs()
+
+  const [dateValue, setDateValue] = useState<TripDateValue>(() =>
+    tripPrefsToDateValue(prefs),
+  )
+  const [partySize, setPartySize] = useState<number | undefined>(
+    prefs.partySize,
+  )
+
+  function handleDateChange(next: TripDateValue) {
+    setDateValue(next)
+    const date = next.single
+      ? toDateOnly(next.single)
+      : next.rangeFrom
+        ? toDateOnly(next.rangeFrom)
+        : undefined
+    const dateEnd = next.rangeTo ? toDateOnly(next.rangeTo) : undefined
+    setPrefs({
+      date,
+      dateEnd,
+      flexible: next.mode === "flexible" ? true : undefined,
+    })
+  }
+
+  function handlePartyChange(n: number) {
+    setPartySize(n)
+    setPrefs({ partySize: n })
+  }
+
+  const datePicked =
+    !!dateValue.single || !!dateValue.rangeFrom || dateValue.mode === "flexible"
 
   if (data === undefined) {
     return <ListingSkeleton />
@@ -154,9 +184,11 @@ function ListingPage() {
             </Section>
           ) : null}
 
-          <Section title="Availability" bleed>
-            <AvailabilityCalendar listingId={listing._id} />
-          </Section>
+          {!datePicked ? (
+            <Section title="Availability" bleed>
+              <AvailabilityCalendar listingId={listing._id} />
+            </Section>
+          ) : null}
 
           {typeof listing.departureLatitude === "number" &&
           typeof listing.departureLongitude === "number" ? (
@@ -188,26 +220,25 @@ function ListingPage() {
             </Section>
           ) : null}
 
-          <Tabs defaultValue="reviews" className="space-y-4">
-            <TabsList>
-              <TabsTrigger value="reviews">
-                Reviews ({listing.reviewCount})
-              </TabsTrigger>
-              <TabsTrigger value="policy">Cancellation policy</TabsTrigger>
-            </TabsList>
-            <TabsContent value="reviews">
-              <ReviewsSection listingId={listing._id} />
-            </TabsContent>
-            <TabsContent value="policy">
-              <p className="text-sm text-muted-foreground">
-                {cancellationPolicyLabel(listing.cancellationPolicy)}
-              </p>
-            </TabsContent>
-          </Tabs>
+          <Section title="Reviews">
+            <ReviewsSection listingId={listing._id} />
+          </Section>
+
+          <Section title="Cancellation policy">
+            <p className="text-sm text-muted-foreground">
+              {cancellationPolicyLabel(listing.cancellationPolicy)}
+            </p>
+          </Section>
         </div>
 
         <aside className="lg:sticky lg:top-24 lg:self-start">
-          <BookingCard listing={listing} />
+          <BookingCard
+            listing={listing}
+            dateValue={dateValue}
+            onDateChange={handleDateChange}
+            partySize={partySize}
+            onPartySizeChange={handlePartyChange}
+          />
         </aside>
       </div>
     </div>
@@ -310,4 +341,23 @@ function ListingSkeleton() {
       </div>
     </div>
   )
+}
+
+function tripPrefsToDateValue(prefs: {
+  date?: string
+  dateEnd?: string
+  flexible?: boolean
+}): TripDateValue {
+  if (prefs.flexible) return { mode: "flexible" }
+  if (prefs.date && prefs.dateEnd && prefs.date !== prefs.dateEnd) {
+    return {
+      mode: "range",
+      rangeFrom: parseDateOnly(prefs.date),
+      rangeTo: parseDateOnly(prefs.dateEnd),
+    }
+  }
+  if (prefs.date) {
+    return { mode: "single", single: parseDateOnly(prefs.date) }
+  }
+  return { mode: "single" }
 }

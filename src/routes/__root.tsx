@@ -15,6 +15,7 @@ import { TooltipProvider } from "@/components/ui/tooltip"
 import { Toaster } from "@/components/ui/sonner"
 import { SiteHeader } from "@/components/layout/site-header"
 import { SiteFooter } from "@/components/layout/site-footer"
+import { TripPrefsProvider } from "@/hooks/use-trip-prefs"
 
 
 export const Route = createRootRouteWithContext<RouterContext>()({
@@ -71,16 +72,18 @@ function RootDocument() {
       <body>
         <QueryClientProvider client={queryClient}>
           <ConvexAuthProvider client={convexQueryClient.convexClient}>
-            <TooltipProvider>
-              <div className="flex min-h-screen flex-col">
-                <SiteHeader />
-                <main className="flex-1">
-                  <Outlet />
-                </main>
-                <SiteFooter />
-              </div>
-              <Toaster richColors position="top-center" />
-            </TooltipProvider>
+            <TripPrefsProvider>
+              <TooltipProvider>
+                <div className="flex min-h-screen flex-col">
+                  <SiteHeader />
+                  <main className="flex-1">
+                    <Outlet />
+                  </main>
+                  <SiteFooter />
+                </div>
+                <Toaster richColors position="top-center" />
+              </TooltipProvider>
+            </TripPrefsProvider>
           </ConvexAuthProvider>
           <TanStackDevtools
             config={{ position: "bottom-right" }}

@@ -2,16 +2,104 @@ import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { requireAuth } from "./helpers";
 
+const CATEGORY_KEYS = [
+  "ratingFishing",
+  "ratingBoat",
+  "ratingCaptain",
+  "ratingValue",
+] as const;
+
 export const getByListing = query({
   args: { listingId: v.id("listings") },
   handler: async (ctx, args) => {
-    return ctx.db
+    const reviews = await ctx.db
       .query("reviews")
       .withIndex("by_listingId", (q) => q.eq("listingId", args.listingId))
       .filter((q) => q.eq(q.field("isPublished"), true))
       .collect();
+
+    const sorted = reviews.sort((a, b) => b.createdAt - a.createdAt);
+
+    const enriched = await Promise.all(
+      sorted.map(async (r) => {
+        const reviewer = await ctx.db.get(r.reviewerId);
+        const host =
+          r.hostResponse && r.hostId ? await ctx.db.get(r.hostId) : null;
+        const booking = await ctx.db.get(r.bookingId);
+        const photoUrls = r.photos
+          ? (
+              await Promise.all(
+                r.photos.map((id) => ctx.storage.getUrl(id))
+              )
+            ).filter((u): u is string => Boolean(u))
+          : [];
+        return {
+          ...r,
+          photoUrls,
+          tripDate: booking?.date ?? null,
+          reviewer: reviewer
+            ? {
+                _id: reviewer._id,
+                firstName: reviewer.firstName,
+                lastName: reviewer.lastName,
+                avatarUrl: reviewer.avatarUrl,
+                city: reviewer.city,
+              }
+            : null,
+          host: host
+            ? {
+                _id: host._id,
+                firstName: host.firstName,
+                lastName: host.lastName,
+                avatarUrl: host.avatarUrl,
+              }
+            : null,
+        };
+      })
+    );
+
+    // Aggregate summary
+    const count = enriched.length;
+    const sum = enriched.reduce((acc, r) => acc + r.rating, 0);
+    const average = count > 0 ? sum / count : 0;
+
+    // Distribution: index 0 = 1-star, index 4 = 5-star
+    const breakdown = [0, 0, 0, 0, 0];
+    for (const r of enriched) {
+      const bucket = Math.min(5, Math.max(1, Math.round(r.rating))) - 1;
+      breakdown[bucket]++;
+    }
+
+    const categories: Record<string, number | null> = {
+      fishing: avgOf(enriched, "ratingFishing"),
+      boat: avgOf(enriched, "ratingBoat"),
+      captain: avgOf(enriched, "ratingCaptain"),
+      value: avgOf(enriched, "ratingValue"),
+    };
+
+    return {
+      reviews: enriched,
+      summary: {
+        count,
+        average: Math.round(average * 10) / 10,
+        breakdown,
+        categories,
+      },
+    };
   },
 });
+
+function avgOf(
+  reviews: Array<Record<string, unknown>>,
+  key: (typeof CATEGORY_KEYS)[number]
+): number | null {
+  const values = reviews
+    .map((r) => r[key])
+    .filter((v): v is number => typeof v === "number");
+  if (values.length === 0) return null;
+  const sum = values.reduce((acc, n) => acc + n, 0);
+  return Math.round((sum / values.length) * 10) / 10;
+}
 
 export const getByBooking = query({
   args: { bookingId: v.id("bookings") },

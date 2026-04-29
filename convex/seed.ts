@@ -133,6 +133,7 @@ export const seed = internalMutation({
       lastName: "Torres",
       role: "host",
       bio: "25 years of offshore fishing experience in the Gulf. USCG licensed captain.",
+      city: "Tampa, FL",
       isVerified: true,
       isBanned: false,
       createdAt: now - 90 * 86400000,
@@ -144,6 +145,7 @@ export const seed = internalMutation({
       lastName: "Chen",
       role: "host",
       bio: "Fly fishing guide specializing in redfish and tarpon along the Florida coast.",
+      city: "Sarasota, FL",
       isVerified: true,
       isBanned: false,
       createdAt: now - 60 * 86400000,
@@ -155,6 +157,7 @@ export const seed = internalMutation({
       lastName: "Wright",
       role: "host",
       bio: "Deep sea fishing veteran. 15+ years running charters out of Key West.",
+      city: "Key West, FL",
       isVerified: true,
       isBanned: false,
       createdAt: now - 45 * 86400000,
@@ -166,6 +169,9 @@ export const seed = internalMutation({
       firstName: "Alex",
       lastName: "Johnson",
       role: "guest",
+      city: "Atlanta, GA",
+      avatarUrl:
+        "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop&crop=faces",
       isVerified: true,
       isBanned: false,
       createdAt: now - 30 * 86400000,
@@ -176,6 +182,9 @@ export const seed = internalMutation({
       firstName: "Maria",
       lastName: "Garcia",
       role: "guest",
+      city: "Austin, TX",
+      avatarUrl:
+        "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop&crop=faces",
       isVerified: true,
       isBanned: false,
       createdAt: now - 20 * 86400000,
@@ -186,6 +195,9 @@ export const seed = internalMutation({
       firstName: "David",
       lastName: "Kim",
       role: "guest",
+      city: "Brooklyn, NY",
+      avatarUrl:
+        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=faces",
       isVerified: true,
       isBanned: false,
       createdAt: now - 15 * 86400000,
@@ -198,6 +210,7 @@ export const seed = internalMutation({
       lastName: "Delgado",
       role: "host",
       bio: "Born and raised in the Keys. Third-generation fisherman specializing in backcountry and flats fishing.",
+      city: "Islamorada, FL",
       isVerified: true,
       isBanned: false,
       createdAt: now - 120 * 86400000,
@@ -209,6 +222,7 @@ export const seed = internalMutation({
       lastName: "Blackwood",
       role: "host",
       bio: "Former marine biologist turned charter captain. Eco-friendly fishing trips with a focus on conservation.",
+      city: "St. Petersburg, FL",
       isVerified: true,
       isBanned: false,
       createdAt: now - 100 * 86400000,
@@ -220,6 +234,7 @@ export const seed = internalMutation({
       lastName: "Nguyen",
       role: "host",
       bio: "20 years running charters on the Gulf Coast. Tournament angler and IGFA world record holder.",
+      city: "Naples, FL",
       isVerified: true,
       isBanned: false,
       createdAt: now - 80 * 86400000,
@@ -1759,18 +1774,99 @@ export const _setBoatPhotos = internalMutation({
   },
 });
 
-const REVIEW_TEMPLATES = [
-  { rating: 5, title: "Best day on the water", body: "Captain was on the fish from the moment we left the dock. Knowledgeable, professional, and a blast to spend the day with. Will absolutely book again." },
-  { rating: 5, title: "Caught my personal best", body: "Couldn't have asked for a better trip. The boat was spotless, the gear was top-notch, and we landed more fish than I could count." },
-  { rating: 5, title: "Perfect for a first-timer", body: "First charter ever and the captain made it easy. Patient, great with my kids, and we still came home with a cooler full." },
-  { rating: 5, title: "Exceeded expectations", body: "Smooth ride out, calm captain, beautiful sunrise on the water, plenty of bites. Already telling my friends." },
-  { rating: 4, title: "Great trip overall", body: "Captain was awesome and the boat was solid. Bite was a little slow midday but he kept moving us until we found them." },
-  { rating: 4, title: "Solid experience", body: "Showed us a great time and put us on a few good fish. Would book again for a longer trip next time." },
-  { rating: 5, title: "Highly recommend", body: "Couldn't be more impressed. Communication before the trip was clear, the boat was comfortable, and the fishing was incredible." },
-  { rating: 5, title: "Worth every penny", body: "Spent the day chasing tarpon and got two to the boat. Captain knew exactly where to go and how to fight them." },
-  { rating: 4, title: "Good day on the bay", body: "Family-friendly, easygoing captain, and we got into some nice fish. Boat could use a bit more shade but otherwise great." },
-  { rating: 5, title: "10/10", body: "Beautiful charter, great hospitality, fish in the cooler. Already planning the next one." },
+type ReviewTemplate = {
+  rating: number;
+  title: string;
+  body: string;
+  // Per-category nudges relative to the headline rating. undefined = match.
+  fishingDelta?: number;
+  boatDelta?: number;
+  captainDelta?: number;
+  valueDelta?: number;
+  hostResponse?: string;
+};
+
+const REVIEW_TEMPLATES: ReviewTemplate[] = [
+  {
+    rating: 5,
+    title: "Best day on the water",
+    body: "Captain was on the fish from the moment we left the dock. Knowledgeable, professional, and a blast to spend the day with. Will absolutely book again.",
+    hostResponse:
+      "Thanks for the kind words! It was a pleasure having you aboard — that was a hot bite. Come back any time.",
+  },
+  {
+    rating: 5,
+    title: "Caught my personal best",
+    body: "Couldn't have asked for a better trip. The boat was spotless, the gear was top-notch, and we landed more fish than I could count.",
+  },
+  {
+    rating: 5,
+    title: "Perfect for a first-timer",
+    body: "First charter ever and the captain made it easy. Patient, great with my kids, and we still came home with a cooler full.",
+    hostResponse:
+      "So glad the kids had a good time! Hope to see the whole crew back out next season.",
+  },
+  {
+    rating: 5,
+    title: "Exceeded expectations",
+    body: "Smooth ride out, calm captain, beautiful sunrise on the water, plenty of bites. Already telling my friends.",
+  },
+  {
+    rating: 4,
+    title: "Great trip overall",
+    body: "Captain was awesome and the boat was solid. Bite was a little slow midday but he kept moving us until we found them.",
+    fishingDelta: -1,
+  },
+  {
+    rating: 4,
+    title: "Solid experience",
+    body: "Showed us a great time and put us on a few good fish. Would book again for a longer trip next time.",
+    valueDelta: -1,
+  },
+  {
+    rating: 5,
+    title: "Highly recommend",
+    body: "Couldn't be more impressed. Communication before the trip was clear, the boat was comfortable, and the fishing was incredible.",
+  },
+  {
+    rating: 5,
+    title: "Worth every penny",
+    body: "Spent the day chasing tarpon and got two to the boat. Captain knew exactly where to go and how to fight them.",
+    hostResponse:
+      "Those were two strong fish — nicely done on the fight. Appreciate you booking with us.",
+  },
+  {
+    rating: 4,
+    title: "Good day on the bay",
+    body: "Family-friendly, easygoing captain, and we got into some nice fish. Boat could use a bit more shade but otherwise great.",
+    boatDelta: -1,
+  },
+  {
+    rating: 5,
+    title: "10/10",
+    body: "Beautiful charter, great hospitality, fish in the cooler. Already planning the next one.",
+  },
+  {
+    rating: 3,
+    title: "Mixed bag of a day",
+    body: "Captain was friendly and the boat was clean, but conditions were rough and we only landed a few. Would try again on a calmer day.",
+    fishingDelta: -1,
+    valueDelta: -1,
+  },
+  {
+    rating: 4,
+    title: "Captain was the highlight",
+    body: "Wind picked up midday and the bite died, but the captain stayed positive, kept us moving, and we still went home with dinner.",
+    captainDelta: 1,
+    fishingDelta: -1,
+    hostResponse:
+      "Wind was a tough hand to play that morning. Glad we still got you on a few — let's get out on a calmer day next time.",
+  },
 ];
+
+function clampRating(value: number): number {
+  return Math.max(1, Math.min(5, Math.round(value)));
+}
 
 // Drop a few reviews on each published listing. Re-runnable: wipes
 // existing seeded reviews (those tied to bookings we created) before
@@ -1793,9 +1889,20 @@ export const seedReviews = internalMutation({
     const existing = await ctx.db.query("reviews").collect();
     for (const r of existing) await ctx.db.delete(r._id);
 
+    // Pool of storage IDs to use for review photos. We reuse boat photos
+    // (already uploaded by seed:seedBoatPhotos) so we don't have to fetch
+    // a second time. Most reviews get no photos; ~25% get 1–3.
+    const boats = await ctx.db.query("boats").collect();
+    const photoPool: Array<Id<"_storage">> = [];
+    for (const b of boats) {
+      for (const p of b.photos) photoPool.push(p);
+    }
+
     let inserted = 0;
+    let listingIdx = 0;
     for (const listing of listings) {
       if (listing.status !== "published") continue;
+      listingIdx++;
 
       // Need at least one completed booking on this listing to attach the
       // review to. Fall back to inserting a synthetic completed booking
@@ -1830,26 +1937,48 @@ export const seedReviews = internalMutation({
       }
       if (!booking) continue;
 
-      // 3–5 reviews per listing
-      const count = 3 + Math.floor(Math.random() * 3);
-      // Random selection without immediate repeats; cycle if needed.
+      // 4–6 reviews per listing
+      const count = 4 + Math.floor(Math.random() * 3);
       const offset = Math.floor(Math.random() * REVIEW_TEMPLATES.length);
       for (let i = 0; i < count; i++) {
         const tpl = REVIEW_TEMPLATES[(offset + i) % REVIEW_TEMPLATES.length];
         const reviewer = guests[(i + offset) % guests.length];
-        const daysAgo = 5 + Math.floor(Math.random() * 90);
+        const daysAgo = 5 + Math.floor(Math.random() * 120);
+
+        // ~25% of reviews carry photos (1–3 each).
+        const carriesPhotos = photoPool.length > 0 && (i + listingIdx) % 4 === 0;
+        let photos: Array<Id<"_storage">> | undefined;
+        if (carriesPhotos) {
+          const start =
+            (listingIdx * 7 + i * 3) % Math.max(1, photoPool.length);
+          const numPhotos = 1 + Math.floor(Math.random() * 3);
+          photos = [];
+          for (let p = 0; p < numPhotos; p++) {
+            photos.push(photoPool[(start + p) % photoPool.length]);
+          }
+        }
+
+        // Host responses on the templates that ship with one.
+        const hostResponse = tpl.hostResponse;
+        const hostRespondedAt = hostResponse
+          ? Date.now() - Math.max(0, daysAgo - 2) * 86400000
+          : undefined;
+
         await ctx.db.insert("reviews", {
           bookingId: booking._id,
           listingId: listing._id,
           reviewerId: reviewer._id,
           hostId: listing.hostId,
           rating: tpl.rating,
-          ratingFishing: tpl.rating,
-          ratingBoat: Math.min(5, tpl.rating + Math.round(Math.random())),
-          ratingCaptain: 5,
-          ratingValue: tpl.rating,
+          ratingFishing: clampRating(tpl.rating + (tpl.fishingDelta ?? 0)),
+          ratingBoat: clampRating(tpl.rating + (tpl.boatDelta ?? 0)),
+          ratingCaptain: clampRating(tpl.rating + (tpl.captainDelta ?? 0)),
+          ratingValue: clampRating(tpl.rating + (tpl.valueDelta ?? 0)),
           title: tpl.title,
           body: tpl.body,
+          photos,
+          hostResponse,
+          hostRespondedAt,
           isPublished: true,
           createdAt: Date.now() - daysAgo * 86400000,
         });
@@ -1871,5 +2000,60 @@ export const seedReviews = internalMutation({
 
     console.log(`✅ Seeded ${inserted} reviews across ${listings.length} listings`);
     return { inserted, listings: listings.length };
+  },
+});
+
+// Backfill `city` (+ guest `avatarUrl`) on existing seeded users. The base
+// `seed:seed` mutation bails when users already exist, so when those new
+// fields land we need a one-shot to populate the demo data.
+//
+//   npx convex run seed:backfillUserProfiles
+const USER_PROFILE_BACKFILL: Record<
+  string,
+  { city: string; avatarUrl?: string }
+> = {
+  "captain.mike@daytrip.app": { city: "Tampa, FL" },
+  "captain.sarah@daytrip.app": { city: "Sarasota, FL" },
+  "captain.james@daytrip.app": { city: "Key West, FL" },
+  "captain.rico@daytrip.app": { city: "Islamorada, FL" },
+  "captain.karen@daytrip.app": { city: "St. Petersburg, FL" },
+  "captain.tommy@daytrip.app": { city: "Naples, FL" },
+  "alex@example.com": {
+    city: "Atlanta, GA",
+    avatarUrl:
+      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop&crop=faces",
+  },
+  "maria@example.com": {
+    city: "Austin, TX",
+    avatarUrl:
+      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop&crop=faces",
+  },
+  "david@example.com": {
+    city: "Brooklyn, NY",
+    avatarUrl:
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=faces",
+  },
+};
+
+export const backfillUserProfiles = internalMutation({
+  args: {},
+  handler: async (ctx) => {
+    let updated = 0;
+    for (const [email, patch] of Object.entries(USER_PROFILE_BACKFILL)) {
+      const user = await ctx.db
+        .query("users")
+        .withIndex("by_email", (q) => q.eq("email", email))
+        .first();
+      if (!user) continue;
+      const next: Record<string, unknown> = {};
+      if (!user.city) next.city = patch.city;
+      if (patch.avatarUrl && !user.avatarUrl) next.avatarUrl = patch.avatarUrl;
+      if (Object.keys(next).length > 0) {
+        await ctx.db.patch(user._id, next);
+        updated++;
+      }
+    }
+    console.log(`✅ Backfilled ${updated} user profiles`);
+    return { updated };
   },
 });

@@ -25,7 +25,7 @@ export function ListingCard({ listing }: Props) {
       params={{ id: listing._id }}
       className="group block"
     >
-      <Card className="overflow-hidden p-0 transition-shadow hover:shadow-sm">
+      <Card className="gap-0 overflow-hidden p-0 transition-shadow hover:shadow-sm">
         <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
           <SignedImage
             storageId={firstPhoto}

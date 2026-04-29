@@ -31,6 +31,7 @@ import {
   type TripDateValue,
 } from "@/components/features/search/trip-date-picker"
 import { useCurrentUser } from "@/hooks/use-current-user"
+import { useTripPrefs } from "@/hooks/use-trip-prefs"
 import {
   formatDuration,
   formatPriceCents,
@@ -64,15 +65,37 @@ function BookingPage() {
   const createBooking = useMutation(api.bookings.create)
   const createAsGuest = useMutation(api.bookings.createAsGuest)
   const createCheckoutSession = useAction(api.stripe.createCheckoutSession)
+  const { prefs, setPrefs } = useTripPrefs()
 
-  const [dateValue, setDateValue] = useState<TripDateValue>(() => ({
+  // URL params win; otherwise fall back to the session-wide trip prefs so
+  // a user who picked a date on /search or /listings/$id keeps it here.
+  const seedDate = search.date ?? prefs.date
+  const seedParty = search.partySize ?? prefs.partySize ?? 2
+
+  const [dateValue, setDateValueState] = useState<TripDateValue>(() => ({
     mode: "single",
-    single: search.date ? parseDateOnly(search.date) : undefined,
+    single: seedDate ? parseDateOnly(seedDate) : undefined,
   }))
+  const setDateValue = (next: TripDateValue) => {
+    setDateValueState(next)
+    const d = next.single
+      ? toDateOnly(next.single)
+      : next.rangeFrom
+        ? toDateOnly(next.rangeFrom)
+        : undefined
+    setPrefs({
+      date: d,
+      dateEnd: next.rangeTo ? toDateOnly(next.rangeTo) : undefined,
+      flexible: next.mode === "flexible" ? true : undefined,
+    })
+  }
   const date = dateValue.single ?? dateValue.rangeFrom
-  const [partySize, setPartySize] = useState<string>(
-    String(search.partySize ?? 2),
-  )
+  const [partySize, setPartySizeState] = useState<string>(String(seedParty))
+  const setPartySize = (next: string) => {
+    setPartySizeState(next)
+    const n = Number.parseInt(next, 10)
+    if (!Number.isNaN(n)) setPrefs({ partySize: n })
+  }
   const [specialRequests, setSpecialRequests] = useState("")
   const [guestName, setGuestName] = useState("")
   const [guestEmail, setGuestEmail] = useState("")

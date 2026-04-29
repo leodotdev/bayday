@@ -129,5 +129,9 @@
     }
   html {
     @apply font-sans;
+    /* Reserve the scrollbar gutter so popovers / dialogs that briefly
+     * lock body scroll don't cause a horizontal layout jog when the
+     * scrollbar disappears. */
+    scrollbar-gutter: stable;
     }
 }

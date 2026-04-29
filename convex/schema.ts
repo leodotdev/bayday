@@ -15,6 +15,7 @@ export default defineSchema({
     lastName: v.optional(v.string()),
     avatarUrl: v.optional(v.string()),
     phone: v.optional(v.string()),
+    city: v.optional(v.string()),
     role: v.optional(
       v.union(
         v.literal("guest"),

@@ -209,7 +209,23 @@ export const listReviews = query({
       reviews.map(async (r) => {
         const listing = await ctx.db.get(r.listingId);
         const reviewer = await ctx.db.get(r.reviewerId);
-        return { ...r, listing, reviewer };
+        const host = r.hostId ? await ctx.db.get(r.hostId) : null;
+        const booking = await ctx.db.get(r.bookingId);
+        const photoUrls = r.photos
+          ? (
+              await Promise.all(
+                r.photos.map((id) => ctx.storage.getUrl(id))
+              )
+            ).filter((u): u is string => Boolean(u))
+          : [];
+        return {
+          ...r,
+          listing,
+          reviewer,
+          host,
+          tripDate: booking?.date ?? null,
+          photoUrls,
+        };
       })
     );
     return enriched.sort((a, b) => b.createdAt - a.createdAt);
@@ -223,6 +239,56 @@ export const setReviewPublished = mutation({
     const review = await ctx.db.get(args.id);
     if (!review) throw new Error("Review not found");
     await ctx.db.patch(args.id, { isPublished: args.published });
+  },
+});
+
+export const setReviewHostResponse = mutation({
+  args: {
+    id: v.id("reviews"),
+    response: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    await requireAdmin(ctx);
+    const review = await ctx.db.get(args.id);
+    if (!review) throw new Error("Review not found");
+    const trimmed = args.response?.trim();
+    if (!trimmed) {
+      await ctx.db.patch(args.id, {
+        hostResponse: undefined,
+        hostRespondedAt: undefined,
+      });
+    } else {
+      await ctx.db.patch(args.id, {
+        hostResponse: trimmed,
+        hostRespondedAt: Date.now(),
+      });
+    }
+  },
+});
+
+export const deleteReview = mutation({
+  args: { id: v.id("reviews") },
+  handler: async (ctx, args) => {
+    await requireAdmin(ctx);
+    const review = await ctx.db.get(args.id);
+    if (!review) throw new Error("Review not found");
+    await ctx.db.delete(args.id);
+    // Refresh aggregate on the listing.
+    const listing = await ctx.db.get(review.listingId);
+    if (listing) {
+      const remaining = await ctx.db
+        .query("reviews")
+        .withIndex("by_listingId", (q) => q.eq("listingId", review.listingId))
+        .filter((q) => q.eq(q.field("isPublished"), true))
+        .collect();
+      const sum = remaining.reduce((acc, r) => acc + r.rating, 0);
+      const avg = remaining.length > 0 ? sum / remaining.length : 0;
+      await ctx.db.patch(review.listingId, {
+        averageRating: Math.round(avg * 10) / 10,
+        reviewCount: remaining.length,
+        updatedAt: Date.now(),
+      });
+    }
   },
 });
 

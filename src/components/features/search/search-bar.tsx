@@ -31,6 +31,7 @@ import {
   type DateMode,
   type TripDateValue,
 } from "@/components/features/search/trip-date-picker"
+import { useTripPrefs } from "@/hooks/use-trip-prefs"
 import { cn } from "@/lib/utils"
 import { parseDateOnly, toDateOnly } from "@/lib/format"
 
@@ -51,33 +52,44 @@ type Props = {
 export function SearchBar({ variant = "hero", initial, onSubmit }: Props) {
   const navigate = useNavigate()
   const filterOptions = useQuery(api.search.getFilterOptions, {})
+  const { prefs, setPrefs } = useTripPrefs()
 
-  const [city, setCity] = useState<string | undefined>(initial?.city)
+  // Explicit `initial` (e.g. URL params on /search) wins; otherwise fall
+  // back to the user's session-wide prefs.
+  const seed: SearchValues = initial ?? {
+    city: prefs.city,
+    date: prefs.date,
+    dateEnd: prefs.dateEnd,
+    partySize: prefs.partySize,
+    flexible: prefs.flexible,
+  }
+
+  const [city, setCity] = useState<string | undefined>(seed.city)
   const [cityOpen, setCityOpen] = useState(false)
 
-  const initialDateMode: DateMode = initial?.flexible
+  const initialDateMode: DateMode = seed.flexible
     ? "flexible"
-    : initial?.dateEnd && initial?.date && initial.date !== initial.dateEnd
+    : seed.dateEnd && seed.date && seed.date !== seed.dateEnd
       ? "range"
       : "single"
 
   const [dateValue, setDateValue] = useState<TripDateValue>(() => ({
     mode: initialDateMode,
     single:
-      initialDateMode === "single" && initial?.date
-        ? parseDateOnly(initial.date)
+      initialDateMode === "single" && seed.date
+        ? parseDateOnly(seed.date)
         : undefined,
     rangeFrom:
-      initialDateMode === "range" && initial?.date
-        ? parseDateOnly(initial.date)
+      initialDateMode === "range" && seed.date
+        ? parseDateOnly(seed.date)
         : undefined,
     rangeTo:
-      initialDateMode === "range" && initial?.dateEnd
-        ? parseDateOnly(initial.dateEnd)
+      initialDateMode === "range" && seed.dateEnd
+        ? parseDateOnly(seed.dateEnd)
         : undefined,
   }))
 
-  const [partySize, setPartySize] = useState<number>(initial?.partySize ?? 2)
+  const [partySize, setPartySize] = useState<number>(seed.partySize ?? 2)
   const cities = filterOptions?.cities ?? []
 
   function submit() {
@@ -100,6 +112,13 @@ export function SearchBar({ variant = "hero", initial, onSubmit }: Props) {
       partySize,
       flexible: flexible || undefined,
     }
+    setPrefs({
+      city: values.city,
+      date: values.date,
+      dateEnd: values.dateEnd,
+      partySize: values.partySize,
+      flexible: values.flexible,
+    })
     if (onSubmit) onSubmit(values)
     else navigate({ to: "/search", search: values })
   }
